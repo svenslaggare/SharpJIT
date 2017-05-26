@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SharpJIT.Core.Objects;
 
 namespace SharpJIT.Core
 {
@@ -35,7 +36,7 @@ namespace SharpJIT.Core
         {
             if (string.IsNullOrEmpty(name))
             {
-                throw new ArgumentException("The name can not be not or empty.", name);
+                throw new ArgumentException("The name cannot be null or empty.", name);
             }
 
             this.Name = name;
@@ -248,6 +249,43 @@ namespace SharpJIT.Core
     }
 
     /// <summary>
+    /// Represents a class type
+    /// </summary>
+    public sealed class ClassType : BaseType
+    {
+        /// <summary>
+        /// Returns the metadata for the class
+        /// </summary>
+        public ClassMetadata Metadata { get; }
+
+        public ClassType(ClassMetadata metadata)
+            : base("Ref." + metadata.Name)
+        {
+            this.Metadata = metadata;
+        }
+
+        /// <summary>
+        /// Returns the name of the class
+        /// </summary>
+        public string ClassName => this.Metadata.Name;
+
+        public override bool IsReference()
+        {
+            return true;
+        }
+
+        public override bool IsArray()
+        {
+            return false;
+        }
+
+        public override bool IsClass()
+        {
+            return true;
+        }
+    }
+
+    /// <summary>
     /// Contains helper methods for the type system
     /// </summary>
     public static class TypeSystem
@@ -323,7 +361,7 @@ namespace SharpJIT.Core
         }
 
         /// <summary>
-        /// Returns the size of the given type
+        /// Returns the size of the given type in bytes
         /// </summary>
         /// <param name="type">The type</param>
         public static int SizeOf(BaseType type)

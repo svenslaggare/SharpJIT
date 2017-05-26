@@ -12,7 +12,6 @@ namespace SharpJIT.Runtime
     /// <summary>
     /// Represents a runtime error 
     /// </summary>
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2237:MarkISerializableTypesWithSerializable")]
     public class RuntimeException : Exception
     {
         /// <summary>

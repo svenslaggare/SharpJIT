@@ -25,9 +25,11 @@ namespace SharpJIT.Compiler.Win64
             this.compilationData = compilationData;
 
             this.codeBuffer = new UnmanagedBuffer(compilationData.Function.GeneratedCode.ToArray());
-            this.disassembler = new Disasm();
-            this.disassembler.Archi = 64;
-            this.disassembler.EIP = new IntPtr(this.codeBuffer.Ptr.ToInt64());
+            this.disassembler = new Disasm()
+            {
+                Archi = 64,
+                EIP = new IntPtr(this.codeBuffer.Ptr.ToInt64())
+            };
         }
 
         /// <summary>
@@ -39,8 +41,10 @@ namespace SharpJIT.Compiler.Win64
             var strBuffer = new StringBuilder();
             var buffer = new UnmanagedBuffer(generatedCode.ToArray());
 
-            var disasm = new Disasm();
-            disasm.Archi = 64;
+            var disasm = new Disasm()
+            {
+                Archi = 64
+            };
 
             int offset = 0;
             while (offset < generatedCode.Count)

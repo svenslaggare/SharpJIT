@@ -93,7 +93,6 @@ namespace SharpJIT.Compiler.Win64
                 //Update the source with the native target
                 int sourceOffset = source + branchTarget.InstructionSize - sizeof(int);
                 NativeHelpers.SetInt(compilationData.Function.GeneratedCode, sourceOffset, target);
-
             }
 
             compilationData.UnresolvedBranches.Clear();

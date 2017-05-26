@@ -33,7 +33,10 @@ namespace SharpJIT.Core
         /// </summary>
         public bool IsManaged { get; }
 
-        private IntPtr entryPoint;
+        /// <summary>
+        /// Returns the entry point of the function
+        /// </summary>
+        public IntPtr EntryPoint { get; private set; }
 
         /// <summary>
         /// Creates a new function definition for a managed function
@@ -50,7 +53,7 @@ namespace SharpJIT.Core
         }
 
         /// <summary>
-        /// Creates a new function definition for a unmanaged function
+        /// Creates a new function definition for an unmanaged function
         /// </summary>
         /// <param name="name">The name of the function</param>
         /// <param name="parameters">The parameters</param>
@@ -62,7 +65,7 @@ namespace SharpJIT.Core
             this.Parameters = new ReadOnlyCollection<BaseType>(parameters);
             this.ReturnType = returnType;
             this.IsManaged = false;
-            this.entryPoint = entryPoint;
+            this.EntryPoint = entryPoint;
         }
 
         /// <summary>
@@ -83,14 +86,6 @@ namespace SharpJIT.Core
         }
 
         /// <summary>
-        /// Returns the entry point of the function
-        /// </summary>
-        public IntPtr EntryPoint
-        {
-            get { return this.entryPoint; }
-        }
-
-        /// <summary>
         /// Sets the entry point for managed functions
         /// </summary>
         /// <param name="entryPoint">The entry point</param>
@@ -98,7 +93,7 @@ namespace SharpJIT.Core
         {
             if (this.IsManaged)
             {
-                this.entryPoint = entryPoint;
+                this.EntryPoint = entryPoint;
             }
             else
             {

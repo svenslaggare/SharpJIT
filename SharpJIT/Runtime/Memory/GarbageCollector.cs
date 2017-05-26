@@ -63,7 +63,6 @@ namespace SharpJIT.Runtime.Memory
 
             //Set the length of the array
             NativeHelpers.SetInt(arrayPointer, 0, length);
-
             return arrayPointer;
         }
     }

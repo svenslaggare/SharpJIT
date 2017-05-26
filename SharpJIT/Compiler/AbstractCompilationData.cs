@@ -8,6 +8,76 @@ using SharpJIT.Core;
 namespace SharpJIT.Compiler
 {
     /// <summary>
+    /// Represents a unresolved branch target
+    /// </summary>
+    public sealed class UnresolvedBranchTarget
+    {
+        /// <summary>
+        /// Returns the target
+        /// </summary>
+        public int Target { get; }
+
+        /// <summary>
+        /// Returns the size of the branch instruction
+        /// </summary>
+        public int InstructionSize { get; }
+
+        /// <summary>
+        /// Creates a new unresolved branch target
+        /// </summary>
+        /// <param name="target">The target</param>
+        /// <param name="instructionSize">The size of the branch instruction</param>
+        public UnresolvedBranchTarget(int target, int instructionSize)
+        {
+            this.Target = target;
+            this.InstructionSize = instructionSize;
+        }
+    }
+
+    /// <summary>
+    /// The function call address modes
+    /// </summary>
+    public enum FunctionCallAddressModes
+    {
+        Absolute,
+        Relative
+    }
+
+    /// <summary>
+    /// Represents a unresolved function call
+    /// </summary>
+    public sealed class UnresolvedFunctionCall
+    {
+        /// <summary>
+        /// The address mode
+        /// </summary>
+        public FunctionCallAddressModes AddressMode { get; }
+
+        /// <summary>
+        /// The function to call
+        /// </summary>
+        public FunctionDefinition Function { get; }
+
+        /// <summary>
+        /// The offset in the function that makes the call
+        /// </summary>
+        public int CallSiteOffset { get; }
+
+        /// <summary>
+        /// Creates a new unresolved call
+        /// </summary>
+        /// <param name="addressMode">The address mode</param>
+        /// <param name="function">The function</param>
+        /// <param name="callSiteOffset">The offset in the function that makes the call</param>
+        public UnresolvedFunctionCall(FunctionCallAddressModes addressMode, FunctionDefinition function, int callSiteOffset)
+        {
+            this.AddressMode = addressMode;
+            this.Function = function;
+            this.CallSiteOffset = callSiteOffset;
+        }
+    }
+
+    /// <summary>
     /// Holds compilation data
     /// </summary>
     public abstract class AbstractCompilationData

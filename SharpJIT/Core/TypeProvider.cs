@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SharpJIT.Core.Objects;
 
 namespace SharpJIT.Core
 {
@@ -12,13 +13,15 @@ namespace SharpJIT.Core
     public sealed class TypeProvider
     {
         private readonly IDictionary<string, BaseType> types = new Dictionary<string, BaseType>();
+        private readonly ClassMetadataProvider classMetadataProvider;
 
         /// <summary>
         /// Creates a new type provider
         /// </summary>
-        public TypeProvider()
+        /// <param name="classMetadataProvider">The class metadata provider</param>
+        public TypeProvider(ClassMetadataProvider classMetadataProvider)
         {
-
+            this.classMetadataProvider = classMetadataProvider;
         }
         
         /// <summary>
@@ -125,13 +128,6 @@ namespace SharpJIT.Core
         /// <param name="name">The name of the type</param>
         private BaseType CreateType(string name)
         {
-            //if (TypeSystem.FromString(name, out var primitiveType))
-            //{
-            //    return new PrimitiveType(primitiveType);
-            //}
-
-            //return null;
-
             //Split the type name
             var typeParts = SplitTypeName(name);
             BaseType type = null;
@@ -157,30 +153,31 @@ namespace SharpJIT.Core
                 }
                 else
                 {
-                    //if (typeParts.Count >= 2)
-                    //{
-                    //    var className = "";
-                    //    bool isFirst = true;
+                    if (typeParts.Count >= 2)
+                    {
+                        var className = "";
+                        bool isFirst = true;
 
-                    //    for (var i = 1; i < typeParts.Count; i++)
-                    //    {
-                    //        if (isFirst)
-                    //        {
-                    //            isFirst = false;
-                    //        }
-                    //        else
-                    //        {
-                    //            className += ".";
-                    //        }
+                        for (var i = 1; i < typeParts.Count; i++)
+                        {
+                            if (isFirst)
+                            {
+                                isFirst = false;
+                            }
+                            else
+                            {
+                                className += ".";
+                            }
 
-                    //        className += typeParts[i];
-                    //    }
+                            className += typeParts[i];
+                        }
 
-                        //if (mClassProvider.isDefined(className))
-                        //{
-                        //    type = new ClassType(className, &mClassProvider.getMetadata(className));
-                        //}
-                    //}
+                        var classMetadata = this.classMetadataProvider.GetMetadata(className);
+                        if (classMetadata != null)
+                        {
+                            type = new ClassType(classMetadata);
+                        }
+                    }
                 }
             }
 
@@ -218,6 +215,15 @@ namespace SharpJIT.Core
         }
 
         /// <summary>
+        /// Returns the given primitive type
+        /// </summary>
+        /// <param name="primitiveType">The primitive type</param>
+        public BaseType FindPrimitiveType(PrimitiveTypes primitiveType)
+        {
+            return this.FindType(TypeSystem.ToString(primitiveType));
+        }
+
+        /// <summary>
         /// Finds the array type for the given element type
         /// </summary>
         /// <param name="elementType">The element type</param>
@@ -229,12 +235,14 @@ namespace SharpJIT.Core
         }
 
         /// <summary>
-        /// Returns the given primitive type
+        /// Finds the given class type
         /// </summary>
-        /// <param name="primitiveType">The primitive type</param>
-        public BaseType FindPrimitiveType(PrimitiveTypes primitiveType)
+        /// <param name="className">The name of the class</param>
+        /// <param name="tryToConstruct">Indicates if to try to construct the type if does not exist.</param>
+        /// <returns>The type or null</returns>
+        public ClassType FindClassType(string className, bool tryToConstruct = true)
         {
-            return this.FindType(TypeSystem.ToString(primitiveType));
+            return this.FindType($"Ref.{className}", tryToConstruct) as ClassType;
         }
     }
 }

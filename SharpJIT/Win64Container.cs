@@ -12,7 +12,6 @@ namespace SharpJIT
     /// <summary>
     /// Represents container for a Windows x64 VM
     /// </summary>
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1063:ImplementIDisposableCorrectly")]
     public class Win64Container : IDisposable
     {
         /// <summary>

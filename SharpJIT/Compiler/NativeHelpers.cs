@@ -12,7 +12,7 @@ namespace SharpJIT.Compiler
 	public static class NativeHelpers
 	{
 		/// <summary>
-		/// Copies to source list to the destination
+		/// Copies the source to the destination
 		/// </summary>
 		/// <param name="destination">The destination</param>
 		/// <param name="source">The source</param>

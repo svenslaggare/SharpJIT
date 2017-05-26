@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using SharpJIT.Compiler;
 using SharpJIT.Core;
+using SharpJIT.Core.Objects;
 using SharpJIT.Runtime.Memory;
 
 namespace SharpJIT.Runtime
@@ -14,7 +15,6 @@ namespace SharpJIT.Runtime
     /// <summary>
     /// Defines the virtual machine
     /// </summary>
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1063:ImplementIDisposableCorrectly")]
     public class VirtualMachine : IDisposable
     {
         /// <summary>
@@ -28,19 +28,14 @@ namespace SharpJIT.Runtime
         public Binder Binder { get; } = new Binder();
 
         /// <summary>
+        /// The class metadata provider
+        /// </summary>
+        public ClassMetadataProvider ClassMetadataProvider { get; } = new ClassMetadataProvider();
+
+        /// <summary>
         /// The type provider
         /// </summary>
-        public TypeProvider TypeProvider { get; } = new TypeProvider();
-
-        /// <summary>
-        /// The memory manager
-        /// </summary>
-        public MemoryManager MemoryManager { get; } = new MemoryManager();
-
-        /// <summary>
-        /// The compiler
-        /// </summary>
-        public IJITCompiler Compiler { get; }
+        public TypeProvider TypeProvider { get; }
 
         /// <summary>
         /// The verifier
@@ -51,6 +46,16 @@ namespace SharpJIT.Runtime
         /// The object references
         /// </summary>
         public ObjectReferences ObjectReferences { get; } = new ObjectReferences();
+
+        /// <summary>
+        /// The memory manager
+        /// </summary>
+        public MemoryManager MemoryManager { get; } = new MemoryManager();
+
+        /// <summary>
+        /// The compiler
+        /// </summary>
+        public IJITCompiler Compiler { get; }
 
         /// <summary>
         /// The garbage collector
@@ -65,6 +70,7 @@ namespace SharpJIT.Runtime
         /// <param name="createCompilerFn">A function to create the compiler</param>
         public VirtualMachine(Func<VirtualMachine, IJITCompiler> createCompilerFn)
         {
+            this.TypeProvider = new TypeProvider(this.ClassMetadataProvider);
             this.Compiler = createCompilerFn(this);
             this.Verifier = new Verifier(this);
             this.GarbageCollector = new GarbageCollector(this);

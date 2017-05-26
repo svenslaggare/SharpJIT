@@ -225,7 +225,7 @@ namespace SharpJIT.Runtime.Memory
         {
             if (!this.readOnlyMemory.Values.ContainsKey(value))
             {
-                IntPtr valuePtr = IntPtr.Zero;
+                var valuePtr = IntPtr.Zero;
                 int size = sizeof(float);
 
                 if (this.readOnlyMemory.ActivePage == null)

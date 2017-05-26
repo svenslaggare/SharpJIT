@@ -76,10 +76,11 @@
     <Compile Include="Compiler\IJITCompiler.cs" />
     <Compile Include="Compiler\INativeDisassembler.cs" />
     <Compile Include="Compiler\Win64\ExceptionHandling.cs" />
+    <Compile Include="Core\Objects\ClassMetadata.cs" />
+    <Compile Include="Core\Objects\ClassMetadataProvider.cs" />
+    <Compile Include="Core\Objects\Field.cs" />
     <Compile Include="Runtime\Memory\MemoryManager.cs" />
     <Compile Include="Compiler\NativeHelpers.cs" />
-    <Compile Include="Compiler\UnresolvedBranchTarget.cs" />
-    <Compile Include="Compiler\UnresolvedFunctionCall.cs" />
     <Compile Include="Compiler\Win64\CallingConvetions.cs" />
     <Compile Include="Compiler\Win64\CodeGenerator.cs" />
     <Compile Include="Compiler\Win64\CompilationData.cs" />
