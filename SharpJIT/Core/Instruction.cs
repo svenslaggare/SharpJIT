@@ -23,8 +23,13 @@ namespace SharpJIT.Core
         SubFloat,
         MulFloat,
         DivFloat,
+        LoadTrue,
+        LoadFalse,
+        And,
+        Or,
+        Not,
         Call,
-        Ret,
+        Return,
         LoadArgument,
         LoadLocal,
         StoreLocal,
@@ -35,6 +40,17 @@ namespace SharpJIT.Core
         BranchGreaterOrEqual,
         BranchLessThan,
         BranchLessOrEqual,
+        CompareEqual,
+        CompareNotEqual,
+        CompareGreaterThan,
+        CompareGreaterOrEqual,
+        CompareLessThan,
+        CompareLessThanOrEqual,
+        LoadNull,
+        NewArray,
+        LoadArrayLength,
+        LoadElement,
+        StoreElement
     }
 
 	/// <summary>
@@ -68,7 +84,7 @@ namespace SharpJIT.Core
         /// <summary>
         /// Returns the parameters used for call instructions 
         /// </summary>
-        public IReadOnlyList<VMType> Parameters { get; }
+        public IReadOnlyList<BaseType> Parameters { get; }
 
         private readonly static IReadOnlyDictionary<OpCodes, string> opCodeNames;
 
@@ -87,18 +103,34 @@ namespace SharpJIT.Core
                 { OpCodes.DivFloat, "divfloat" },
                 { OpCodes.LoadInt, "ldint" },
                 { OpCodes.LoadFloat, "ldfloat" },
+                { OpCodes.LoadTrue, "ldtrue" },
+                { OpCodes.LoadFalse, "ldfalse" },
+                { OpCodes.And, "and" },
+                { OpCodes.Or, "or" },
+                { OpCodes.Not, "not" },
                 { OpCodes.StoreLocal, "stloc" },
                 { OpCodes.LoadLocal, "ldloc" },
                 { OpCodes.LoadArgument, "ldarg" },
                 { OpCodes.Call, "call" },
-                { OpCodes.Ret, "ret"  },
+                { OpCodes.Return, "ret"  },
                 { OpCodes.Branch, "br" },
                 { OpCodes.BranchEqual, "beq" },
                 { OpCodes.BranchNotEqual, "bne" },
                 { OpCodes.BranchGreaterThan, "bgt" },
                 { OpCodes.BranchGreaterOrEqual, "bge" },
                 { OpCodes.BranchLessThan, "blt"  },
-                { OpCodes.BranchLessOrEqual, "ble" }
+                { OpCodes.BranchLessOrEqual, "ble" },
+                { OpCodes.CompareEqual, "cmpeq" },
+                { OpCodes.CompareNotEqual, "cmpne" },
+                { OpCodes.CompareGreaterThan, "cmpgt" },
+                { OpCodes.CompareGreaterOrEqual, "cmpge" },
+                { OpCodes.CompareLessThan, "cmplt"  },
+                { OpCodes.CompareLessThanOrEqual, "cmple" },
+                { OpCodes.LoadNull, "loadnull" },
+                { OpCodes.NewArray, "newarr" },
+                { OpCodes.LoadArrayLength, "ldlen" },
+                { OpCodes.LoadElement, "ldelem" },
+                { OpCodes.StoreElement, "stelem" }
             };
 
             Instruction.opCodeNames = new ReadOnlyDictionary<OpCodes, string>(opCodeNames);
@@ -173,13 +205,13 @@ namespace SharpJIT.Core
 		/// <param name="opCode">The op-code</param>
 		/// <param name="value">The value</param>
         /// <param name="parameters">The parameters</param>
-		public Instruction(OpCodes opCode, string value, IList<VMType> parameters)
+		public Instruction(OpCodes opCode, string value, IList<BaseType> parameters)
         {
             this.OpCode = opCode;
             this.IntValue = 0;
             this.FloatValue = 0.0f;
             this.StringValue = value;
-            this.Parameters = new ReadOnlyCollection<VMType>(parameters);
+            this.Parameters = new ReadOnlyCollection<BaseType>(parameters);
             this.stringRepresentation = $"OpCode: {opCode}, StringValue: {value}, Parameters: {string.Join(" ", parameters)}";
             this.disassembledInstruction = $"{opCodeNames[opCode].ToUpper()} {value}({string.Join(" ", parameters)})";
         }

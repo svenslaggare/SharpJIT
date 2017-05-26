@@ -59,8 +59,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="SharpAssembler, Version=1.0.0.0, Culture=neutral, processorArchitecture=AMD64">
-      <HintPath>..\packages\SharpAssembler.0.0.2\lib\SharpAssembler.dll</HintPath>
-      <Private>True</Private>
+      <HintPath>..\packages\SharpAssembler.0.1.5\lib\SharpAssembler.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -73,11 +72,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Compiler\AbstractCompilationData.cs" />
-    <Compile Include="Compiler\CodePage.cs" />
     <Compile Include="Compiler\Disassembler.cs" />
     <Compile Include="Compiler\IJITCompiler.cs" />
     <Compile Include="Compiler\INativeDisassembler.cs" />
-    <Compile Include="Compiler\MemoryManager.cs" />
+    <Compile Include="Compiler\Win64\ExceptionHandling.cs" />
+    <Compile Include="Runtime\Memory\MemoryManager.cs" />
     <Compile Include="Compiler\NativeHelpers.cs" />
     <Compile Include="Compiler\UnresolvedBranchTarget.cs" />
     <Compile Include="Compiler\UnresolvedFunctionCall.cs" />
@@ -87,21 +86,27 @@
     <Compile Include="Compiler\Win64\Disassembler.cs" />
     <Compile Include="Compiler\Win64\JITCompiler.cs" />
     <Compile Include="Compiler\Win64\OperandStack.cs" />
-    <Compile Include="Compiler\WinAPI.cs" />
+    <Compile Include="Compiler\Win64\WinAPI.cs" />
     <Compile Include="Core\Assembly.cs" />
     <Compile Include="Core\Binder.cs" />
     <Compile Include="Core\Function.cs" />
     <Compile Include="Core\FunctionDefinition.cs" />
     <Compile Include="Core\Instruction.cs" />
-    <Compile Include="Core\ListHelpers.cs" />
-    <Compile Include="Core\NativeLibrary.cs" />
-    <Compile Include="Core\SettingsHelpers.cs" />
+    <Compile Include="Core\Helpers\ListHelpers.cs" />
+    <Compile Include="Runtime\NativeLibrary.cs" />
+    <Compile Include="Core\Constants.cs" />
+    <Compile Include="Core\Helpers\SettingsHelpers.cs" />
     <Compile Include="Core\TypeProvider.cs" />
     <Compile Include="Core\Verifier.cs" />
-    <Compile Include="Core\VirtualMachine.cs" />
-    <Compile Include="Core\VMType.cs" />
+    <Compile Include="Runtime\Memory\CollectorGeneration.cs" />
+    <Compile Include="Runtime\Memory\ManagedHeap.cs" />
+    <Compile Include="Runtime\Memory\ObjectReferences.cs" />
+    <Compile Include="Runtime\VirtualMachine.cs" />
+    <Compile Include="Core\Type.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Runtime\Memory\GarbageCollector.cs" />
+    <Compile Include="Runtime\RuntimeInterface.cs" />
     <Compile Include="Win64Container.cs" />
   </ItemGroup>
   <ItemGroup>

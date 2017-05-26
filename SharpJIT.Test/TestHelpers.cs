@@ -19,6 +19,7 @@ namespace SharpJIT.Test
         /// </summary>
         /// <param name="container">The container</param>
         /// <param name="fileName">The name of the file</param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times")]
         public static void SaveDisassembledFunctions(Win64Container container, string fileName)
         {
             using (var fileStream = new FileStream(fileName, FileMode.Create))

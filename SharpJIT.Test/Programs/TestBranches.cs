@@ -17,24 +17,25 @@ namespace SharpJIT.Test.Programs
         /// </summary>
         private Function CreateBranchProgram(Win64Container container, OpCodes branchInstruction, int value1, int value2)
         {
-            var intType = container.VirtualMachine.TypeProvider.GetPrimitiveType(PrimitiveTypes.Int);
+            var intType = container.VirtualMachine.TypeProvider.FindPrimitiveType(PrimitiveTypes.Int);
 
-            var instructions = new List<Instruction>();
-            instructions.Add(new Instruction(OpCodes.LoadInt, value1));
-            instructions.Add(new Instruction(OpCodes.LoadInt, value2));
-            instructions.Add(new Instruction(branchInstruction, 6));
-            instructions.Add(new Instruction(OpCodes.LoadInt, 0));
-            instructions.Add(new Instruction(OpCodes.StoreLocal, 0));
-            instructions.Add(new Instruction(OpCodes.Branch, 8));
-            instructions.Add(new Instruction(OpCodes.LoadInt, 1));
-            instructions.Add(new Instruction(OpCodes.StoreLocal, 0));
-            instructions.Add(new Instruction(OpCodes.LoadLocal, 0));
-            instructions.Add(new Instruction(OpCodes.Ret));
-
+            var instructions = new List<Instruction>
+            {
+                new Instruction(OpCodes.LoadInt, value1),
+                new Instruction(OpCodes.LoadInt, value2),
+                new Instruction(branchInstruction, 6),
+                new Instruction(OpCodes.LoadInt, 0),
+                new Instruction(OpCodes.StoreLocal, 0),
+                new Instruction(OpCodes.Branch, 8),
+                new Instruction(OpCodes.LoadInt, 1),
+                new Instruction(OpCodes.StoreLocal, 0),
+                new Instruction(OpCodes.LoadLocal, 0),
+                new Instruction(OpCodes.Return)
+            };
             return new Function(
-                new FunctionDefinition("main", new List<VMType>(), intType),
+                new FunctionDefinition("main", new List<BaseType>(), intType),
                 instructions,
-                new List<VMType>() { intType });
+                new List<BaseType>() { intType });
         }
 
         /// <summary>
@@ -42,25 +43,26 @@ namespace SharpJIT.Test.Programs
         /// </summary>
         private Function CreateBranchFloatProgram(Win64Container container, OpCodes branchInstruction, float value1, float value2)
         {
-            var floatType = container.VirtualMachine.TypeProvider.GetPrimitiveType(PrimitiveTypes.Float);
-            var intType = container.VirtualMachine.TypeProvider.GetPrimitiveType(PrimitiveTypes.Int);
+            var floatType = container.VirtualMachine.TypeProvider.FindPrimitiveType(PrimitiveTypes.Float);
+            var intType = container.VirtualMachine.TypeProvider.FindPrimitiveType(PrimitiveTypes.Int);
 
-            var instructions = new List<Instruction>();
-            instructions.Add(new Instruction(OpCodes.LoadFloat, value1));
-            instructions.Add(new Instruction(OpCodes.LoadFloat, value2));
-            instructions.Add(new Instruction(branchInstruction, 6));
-            instructions.Add(new Instruction(OpCodes.LoadInt, 0));
-            instructions.Add(new Instruction(OpCodes.StoreLocal, 0));
-            instructions.Add(new Instruction(OpCodes.Branch, 8));
-            instructions.Add(new Instruction(OpCodes.LoadInt, 1));
-            instructions.Add(new Instruction(OpCodes.StoreLocal, 0));
-            instructions.Add(new Instruction(OpCodes.LoadLocal, 0));
-            instructions.Add(new Instruction(OpCodes.Ret));
-
+            var instructions = new List<Instruction>
+            {
+                new Instruction(OpCodes.LoadFloat, value1),
+                new Instruction(OpCodes.LoadFloat, value2),
+                new Instruction(branchInstruction, 6),
+                new Instruction(OpCodes.LoadInt, 0),
+                new Instruction(OpCodes.StoreLocal, 0),
+                new Instruction(OpCodes.Branch, 8),
+                new Instruction(OpCodes.LoadInt, 1),
+                new Instruction(OpCodes.StoreLocal, 0),
+                new Instruction(OpCodes.LoadLocal, 0),
+                new Instruction(OpCodes.Return)
+            };
             return new Function(
-                new FunctionDefinition("main", new List<VMType>(), intType),
+                new FunctionDefinition("main", new List<BaseType>(), intType),
                 instructions,
-                new List<VMType>() { intType });
+                new List<BaseType>() { intType });
         }
 
         /// <summary>

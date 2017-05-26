@@ -21,12 +21,12 @@ namespace SharpJIT.Core
         /// <summary>
         /// The parameters
         /// </summary>
-        public IReadOnlyList<VMType> Parameters { get; }
+        public IReadOnlyList<BaseType> Parameters { get; }
 
         /// <summary>
         /// The return type
         /// </summary>
-        public VMType ReturnType { get; }
+        public BaseType ReturnType { get; }
 
         /// <summary>
         /// Indicates if the current function is managed
@@ -41,10 +41,10 @@ namespace SharpJIT.Core
         /// <param name="name">The name of the function</param>
         /// <param name="parameters">The parameters</param>
         /// <param name="returnType">The return type</param>
-        public FunctionDefinition(string name, IList<VMType> parameters, VMType returnType)
+        public FunctionDefinition(string name, IList<BaseType> parameters, BaseType returnType)
         {
             this.Name = name;
-            this.Parameters = new ReadOnlyCollection<VMType>(parameters);
+            this.Parameters = new ReadOnlyCollection<BaseType>(parameters);
             this.ReturnType = returnType;
             this.IsManaged = true;
         }
@@ -56,10 +56,10 @@ namespace SharpJIT.Core
         /// <param name="parameters">The parameters</param>
         /// <param name="returnType">The return type</param>
         /// <param name="entryPoint">The entry point</param>
-        public FunctionDefinition(string name, IList<VMType> parameters, VMType returnType, IntPtr entryPoint)
+        public FunctionDefinition(string name, IList<BaseType> parameters, BaseType returnType, IntPtr entryPoint)
         {
             this.Name = name;
-            this.Parameters = new ReadOnlyCollection<VMType>(parameters);
+            this.Parameters = new ReadOnlyCollection<BaseType>(parameters);
             this.ReturnType = returnType;
             this.IsManaged = false;
             this.entryPoint = entryPoint;
@@ -73,7 +73,7 @@ namespace SharpJIT.Core
         /// <param name="parameters">The parameters</param>
         /// <param name="returnType">The return type</param>
         /// <param name="funcDelegate">The delegate for the function</param>
-        public static FunctionDefinition NewExternal<TDelegate>(string name, IList<VMType> parameters, VMType returnType, TDelegate funcDelegate)
+        public static FunctionDefinition NewExternal<TDelegate>(string name, IList<BaseType> parameters, BaseType returnType, TDelegate funcDelegate)
         {
             return new FunctionDefinition(
                 name,

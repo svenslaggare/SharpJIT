@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SharpJIT.Compiler
+namespace SharpJIT.Compiler.Win64
 {
 	/// <summary>
 	/// Represents the Windows API
@@ -72,5 +72,12 @@ namespace SharpJIT.Compiler
         /// </summary>
         [DllImport("kernel32.dll", SetLastError = true)]
         public static extern bool VirtualProtect(IntPtr address, uint size, MemoryProtection newProtect, out MemoryProtection oldProtect);
+
+        /// <summary>
+        /// Exits the current process
+        /// </summary>
+        /// <param name="exitCode">The exit code</param>
+        [DllImport("kernel32.dll")]
+        public static extern void ExitProcess(uint exitCode);
     }
 }

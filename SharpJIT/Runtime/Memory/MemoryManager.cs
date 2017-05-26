@@ -3,13 +3,89 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SharpJIT.Compiler;
+using SharpJIT.Compiler.Win64;
 
-namespace SharpJIT.Compiler
+namespace SharpJIT.Runtime.Memory
 {
+    /// <summary>
+    /// Represents a memory page
+    /// </summary>
+    public sealed class MemoryPage : IDisposable
+    {
+        private readonly IntPtr start;
+        private readonly int size;
+        private int used;
+
+        /// <summary>
+        /// Creates a new memory page
+        /// </summary>
+        /// <param name="start">The start of the code page</param>
+        /// <param name="size">The size</param>
+        public MemoryPage(IntPtr start, int size)
+        {
+            this.start = start;
+            this.size = size;
+            this.used = 0;
+        }
+
+        /// <summary>
+        /// Returns the start of the memory page
+        /// </summary>
+        public IntPtr Start
+        {
+            get { return this.start; }
+        }
+
+        /// <summary>
+        /// Returns the size of the heap
+        /// </summary>
+        public int Size
+        {
+            get { return this.size; }
+        }
+
+        /// <summary>
+        /// Allocates memory of the given size
+        /// </summary>
+        /// <param name="size">The size of the allocation</param>
+        /// <returns>The start of the allocation or null if there is not enough room.</returns>
+        public IntPtr? Allocate(int size)
+        {
+            if (this.used + size < this.size)
+            {
+                var newPtr = IntPtr.Add(this.start, this.used);
+                this.used += size;
+                return newPtr;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Sets the protection mode
+        /// </summary>
+        /// <param name="mode">The protection mode</param>
+        public void SetProtectionMode(WinAPI.MemoryProtection mode)
+        {
+            WinAPI.VirtualProtect(this.start, (uint)this.size, mode, out var old);
+        }
+
+        /// <summary>
+        /// Disposes the underlying memory
+        /// </summary>
+        public void Dispose()
+        {
+            WinAPI.VirtualFree(this.start, (uint)this.size, WinAPI.FreeType.Release);
+        }
+    }
+
     /// <summary>
     /// Manages read-only memory
     /// </summary>
-    public class ReadonlyMemory
+    public sealed class ReadOnlyMemory
     {
         private readonly IList<MemoryPage> pages = new List<MemoryPage>();
 
@@ -36,7 +112,7 @@ namespace SharpJIT.Compiler
         /// <summary>
         /// Makes the allocated memory read-only
         /// </summary>
-        public void MakeReadonly()
+        public void MakeReadOnly()
         {
             foreach (var page in this.pages)
             {
@@ -48,7 +124,7 @@ namespace SharpJIT.Compiler
     /// <summary>
     /// Manages code memory
     /// </summary>
-    public class CodeMemory
+    public sealed class CodeMemory
     {
         private readonly IList<MemoryPage> pages = new List<MemoryPage>();
 
@@ -82,22 +158,22 @@ namespace SharpJIT.Compiler
     /// <summary>
     /// Represents a memory manager
     /// </summary>
-    public class MemoryManager : IDisposable
+    public sealed class MemoryManager : IDisposable
     {
         private readonly IList<MemoryPage> pages = new List<MemoryPage>();
         private readonly CodeMemory codeMemory = new CodeMemory();
-        private readonly ReadonlyMemory readonlyMemory = new ReadonlyMemory();
+        private readonly ReadOnlyMemory readOnlyMemory = new ReadOnlyMemory();
 
         private readonly int pageSize = 4096;
 
         /// <summary>
-        /// Creates a new page
+        /// Creates a new memory page
         /// </summary>
         /// <param name="minSize">The minimum size required by the page</param>
-        private MemoryPage CreatePage(int minSize)
+        public MemoryPage CreatePage(int minSize)
         {
             //Align the size of the page to page sizes.
-            int size = (minSize + (this.pageSize - 1) / this.pageSize) * this.pageSize;
+            int size = ((minSize + this.pageSize - 1) / this.pageSize) * this.pageSize;
 
             //Allocate writable & readable memory
             var memory = WinAPI.VirtualAlloc(
@@ -145,21 +221,21 @@ namespace SharpJIT.Compiler
         /// </summary>
         /// <param name="value">The value</param>
         /// <returns>Pointer to the allocated memory</returns>
-        public IntPtr AllocateReadonly(float value)
+        public IntPtr AllocateReadOnly(float value)
         {
-            if (!this.readonlyMemory.Values.ContainsKey(value))
+            if (!this.readOnlyMemory.Values.ContainsKey(value))
             {
                 IntPtr valuePtr = IntPtr.Zero;
                 int size = sizeof(float);
 
-                if (this.readonlyMemory.ActivePage == null)
+                if (this.readOnlyMemory.ActivePage == null)
                 {
-                    this.readonlyMemory.AddPage(this.CreatePage(size));
-                    valuePtr = this.readonlyMemory.ActivePage.Allocate(size).Value;
+                    this.readOnlyMemory.AddPage(this.CreatePage(size));
+                    valuePtr = this.readOnlyMemory.ActivePage.Allocate(size).Value;
                 }
                 else
                 {
-                    var memory = this.readonlyMemory.ActivePage.Allocate(size);
+                    var memory = this.readOnlyMemory.ActivePage.Allocate(size);
 
                     //Check if active page has any room
                     if (memory != null)
@@ -168,18 +244,18 @@ namespace SharpJIT.Compiler
                     }
                     else
                     {
-                        this.readonlyMemory.AddPage(this.CreatePage(size));
-                        valuePtr = this.readonlyMemory.ActivePage.Allocate(size).Value;
+                        this.readOnlyMemory.AddPage(this.CreatePage(size));
+                        valuePtr = this.readOnlyMemory.ActivePage.Allocate(size).Value;
                     }
                 }
 
                 NativeHelpers.CopyTo(valuePtr, BitConverter.GetBytes(value));
-                this.readonlyMemory.Values.Add(value, valuePtr);
+                this.readOnlyMemory.Values.Add(value, valuePtr);
                 return valuePtr;
             }
             else
             {
-                return this.readonlyMemory.Values[value];
+                return this.readOnlyMemory.Values[value];
             }
         }
 
@@ -188,7 +264,7 @@ namespace SharpJIT.Compiler
         /// </summary>
         public void MakeExecutable()
         {
-            this.readonlyMemory.MakeReadonly();
+            this.readOnlyMemory.MakeReadOnly();
             this.codeMemory.MakeExecutable();
         }
 

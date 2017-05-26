@@ -25,7 +25,7 @@ namespace SharpJIT.Core
         /// <summary>
         /// The types of locals
         /// </summary>
-        public IReadOnlyList<VMType> Locals { get; }
+        public IReadOnlyList<BaseType> Locals { get; }
 
         /// <summary>
         /// The size of the operand stack
@@ -40,7 +40,7 @@ namespace SharpJIT.Core
         /// <summary>
         /// The operand types for instructions
         /// </summary>
-        public IReadOnlyList<IList<VMType>> OperandTypes { get; }
+        public IReadOnlyList<IList<BaseType>> OperandTypes { get; }
 
         /// <summary>
         /// Creates a new function
@@ -48,14 +48,14 @@ namespace SharpJIT.Core
         /// <param name="definition">The function definition</param>
         /// <param name="instructions">The instructions</param>
         /// <param name="locals">The type of the locals</param>
-        public Function(FunctionDefinition definition, IList<Instruction> instructions, IList<VMType> locals)
+        public Function(FunctionDefinition definition, IList<Instruction> instructions, IList<BaseType> locals)
 		{
             this.Definition = definition;
             this.Instructions = new ReadOnlyCollection<Instruction>(instructions);
-            this.Locals = new ReadOnlyCollection<VMType>(locals);
+            this.Locals = new ReadOnlyCollection<BaseType>(locals);
 
-            this.OperandTypes = new ReadOnlyCollection<IList<VMType>>(
-                instructions.Select<Instruction, IList<VMType>>(x => new List<VMType>()).ToList());
+            this.OperandTypes = new ReadOnlyCollection<IList<BaseType>>(
+                instructions.Select<Instruction, IList<BaseType>>(x => new List<BaseType>()).ToList());
         }
 
         public override string ToString()

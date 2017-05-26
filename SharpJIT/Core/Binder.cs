@@ -26,7 +26,7 @@ namespace SharpJIT.Core
         /// </summary>
         /// <param name="name">The name of the function</param>
         /// <param name="parameters">The parameter types</param>
-        public string FunctionSignature(string name, IEnumerable<VMType> parameters)
+        public string FunctionSignature(string name, IEnumerable<BaseType> parameters)
         {
             return $"{name}({string.Join(" ", parameters)})";
         }
@@ -67,10 +67,9 @@ namespace SharpJIT.Core
         /// <returns>The function or null</returns>
         public FunctionDefinition GetFunction(string signature)
         {
-            FunctionDefinition func;
-            if (this.functions.TryGetValue(signature, out func))
+            if (this.functions.TryGetValue(signature, out var function))
             {
-                return func;
+                return function;
             }
             else
             {

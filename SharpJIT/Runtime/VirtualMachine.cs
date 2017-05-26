@@ -6,38 +6,56 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using SharpJIT.Compiler;
+using SharpJIT.Core;
+using SharpJIT.Runtime.Memory;
 
-namespace SharpJIT.Core
+namespace SharpJIT.Runtime
 {
     /// <summary>
     /// Defines the virtual machine
     /// </summary>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1063:ImplementIDisposableCorrectly")]
     public class VirtualMachine : IDisposable
     {
-        /// <summary>
-        /// Returns the binder
-        /// </summary>
-        public Binder Binder { get; } = new Binder();
-
-        /// <summary>
-        /// Creates a new type provider
-        /// </summary>
-        public TypeProvider TypeProvider { get; } = new TypeProvider();
-
-        /// <summary>
-        /// Returns the compiler
-        /// </summary>
-        public IJITCompiler Compiler { get; }
-
-        /// <summary>
-        /// Returns the verifier
-        /// </summary>
-        public Verifier Verifier { get; }
-
         /// <summary>
         /// The settings for the VM
         /// </summary>
         public IDictionary<string, object> Settings { get; } = new Dictionary<string, object>();
+
+        /// <summary>
+        /// The binder
+        /// </summary>
+        public Binder Binder { get; } = new Binder();
+
+        /// <summary>
+        /// The type provider
+        /// </summary>
+        public TypeProvider TypeProvider { get; } = new TypeProvider();
+
+        /// <summary>
+        /// The memory manager
+        /// </summary>
+        public MemoryManager MemoryManager { get; } = new MemoryManager();
+
+        /// <summary>
+        /// The compiler
+        /// </summary>
+        public IJITCompiler Compiler { get; }
+
+        /// <summary>
+        /// The verifier
+        /// </summary>
+        public Verifier Verifier { get; }
+
+        /// <summary>
+        /// The object references
+        /// </summary>
+        public ObjectReferences ObjectReferences { get; } = new ObjectReferences();
+
+        /// <summary>
+        /// The garbage collector
+        /// </summary>
+        public GarbageCollector GarbageCollector { get; }
 
         private readonly IList<Assembly> loadedAssemblies = new List<Assembly>();
 
@@ -49,6 +67,7 @@ namespace SharpJIT.Core
         {
             this.Compiler = createCompilerFn(this);
             this.Verifier = new Verifier(this);
+            this.GarbageCollector = new GarbageCollector(this);
         }
 
         /// <summary>
@@ -111,7 +130,7 @@ namespace SharpJIT.Core
             {
                 foreach (var function in assembly.Functions)
                 {
-                    this.Verifier.VerifiyFunction(function);
+                    this.Verifier.VerifyFunction(function);
                     this.Compiler.Compile(function);
                 }
             }
@@ -124,7 +143,7 @@ namespace SharpJIT.Core
         /// </summary>
         public void Dispose()
         {
-            this.Compiler.Dispose();
+            this.MemoryManager.Dispose();
         }
     }
 }

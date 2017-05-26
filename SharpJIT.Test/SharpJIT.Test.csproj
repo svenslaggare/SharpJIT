@@ -52,6 +52,8 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="Core\TestTypeProvider.cs" />
+    <Compile Include="GC\TestAllocate.cs" />
     <Compile Include="Programs\TestBranches.cs" />
     <Compile Include="Programs\TestCalls.cs" />
     <Compile Include="Programs\TestFloat.cs" />
@@ -59,6 +61,8 @@
     <Compile Include="Programs\TestInt.cs" />
     <Compile Include="Programs\TestInvalid.cs" />
     <Compile Include="Programs\TestLocals.cs" />
+    <Compile Include="Programs\TestArray.cs" />
+    <Compile Include="Programs\TestBool.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestHelpers.cs" />
     <Compile Include="TestProgramGenerator.cs" />

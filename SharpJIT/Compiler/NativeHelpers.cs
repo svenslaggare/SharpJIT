@@ -56,5 +56,67 @@ namespace SharpJIT.Compiler
                 index++;
             }
         }
+
+
+        /// <summary>
+        /// Sets the given 8-bits integer
+        /// </summary>
+        /// <param name="start">The start of the memory block</param>
+        /// <param name="offset">The offset (in bytes)</param>
+        /// <param name="value">The value</param>
+        public static unsafe void SetByte(IntPtr start, int offset, byte value)
+        {
+            var memPtr = (byte*)start.ToPointer();
+            memPtr[offset] = value;
+        }
+
+        /// <summary>
+        /// Sets the given 32-bits integer
+        /// </summary>
+        /// <param name="start">The start of the memory block</param>
+        /// <param name="offset">The offset (in bytes)</param>
+        /// <param name="value">The value</param>
+        public static unsafe void SetInt(IntPtr start, int offset, int value)
+        {
+            var memPtr = (byte*)start.ToPointer();
+            long index = offset;
+            foreach (var component in BitConverter.GetBytes(value))
+            {
+                memPtr[index] = component;
+                index++;
+            }
+        }
+
+        /// <summary>
+        /// Sets the given 64-bits integer
+        /// </summary>
+        /// <param name="start">The start of the memory block</param>
+        /// <param name="offset">The offset (in bytes)</param>
+        /// <param name="value">The value</param>
+        public static unsafe void SetLong(IntPtr start, int offset, long value)
+        {
+            var memPtr = (byte*)start.ToPointer();
+            long index = offset;
+            foreach (var component in BitConverter.GetBytes(value))
+            {
+                memPtr[index] = component;
+                index++;
+            }
+        }
+
+        /// <summary>
+        /// Sets the value for the given memory block
+        /// </summary>
+        /// <param name="start">The start of the block</param>
+        /// <param name="size">The size of the block</param>
+        /// <param name="value">The value</param>
+        public static unsafe void SetBlock(IntPtr start, int size, byte value)
+        {
+            var memPtr = (byte*)start.ToPointer();
+            for (long i = 0; i < size; i++)
+            {
+                memPtr[i] = value;
+            }
+        }
     }
 }

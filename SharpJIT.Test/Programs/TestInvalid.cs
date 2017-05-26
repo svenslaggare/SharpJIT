@@ -20,12 +20,12 @@ namespace SharpJIT.Test.Programs
         {
             using (var container = new Win64Container())
             {
-                var intType = container.VirtualMachine.TypeProvider.GetPrimitiveType(PrimitiveTypes.Int);
+                var intType = container.VirtualMachine.TypeProvider.FindPrimitiveType(PrimitiveTypes.Int);
 
                 var func = new Function(
-                    new FunctionDefinition("main", new List<VMType>(), intType),
+                    new FunctionDefinition("main", new List<BaseType>(), intType),
                     new List<Instruction>(),
-                    new List<VMType>());
+                    new List<BaseType>());
 
                 container.LoadAssembly(Assembly.SingleFunction(func));
 
@@ -49,15 +49,16 @@ namespace SharpJIT.Test.Programs
         {
             using (var container = new Win64Container())
             {
-                var voidType = container.VirtualMachine.TypeProvider.GetPrimitiveType(PrimitiveTypes.Void);
+                var voidType = container.VirtualMachine.TypeProvider.FindPrimitiveType(PrimitiveTypes.Void);
 
-                var instructions = new List<Instruction>();
-                instructions.Add(new Instruction(OpCodes.Ret));
-
+                var instructions = new List<Instruction>
+                {
+                    new Instruction(OpCodes.Return)
+                };
                 var func = new Function(
-                    new FunctionDefinition("test", new List<VMType>() { voidType }, voidType),
+                    new FunctionDefinition("test", new List<BaseType>() { voidType }, voidType),
                     instructions,
-                    new List<VMType>());
+                    new List<BaseType>());
 
                 container.LoadAssembly(Assembly.SingleFunction(func));
 
@@ -81,15 +82,16 @@ namespace SharpJIT.Test.Programs
         {
             using (var container = new Win64Container())
             {
-                var intType = container.VirtualMachine.TypeProvider.GetPrimitiveType(PrimitiveTypes.Int);
+                var intType = container.VirtualMachine.TypeProvider.FindPrimitiveType(PrimitiveTypes.Int);
 
-                var instructions = new List<Instruction>();
-                instructions.Add(new Instruction(OpCodes.LoadInt, 0));
-
+                var instructions = new List<Instruction>
+                {
+                    new Instruction(OpCodes.LoadInt, 0)
+                };
                 var func = new Function(
-                    new FunctionDefinition("main", new List<VMType>(), intType),
+                    new FunctionDefinition("main", new List<BaseType>(), intType),
                     instructions,
-                    new List<VMType>());
+                    new List<BaseType>());
 
                 container.LoadAssembly(Assembly.SingleFunction(func));
 

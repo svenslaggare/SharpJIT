@@ -11,7 +11,7 @@ namespace SharpJIT.Compiler.Win64
     /// <summary>
     /// The float calling conventions
     /// </summary>
-    public static class FloatCallingConvetions
+    public static class FloatCallingConventions
     {
         /// <summary>
         /// The first argument
@@ -40,9 +40,9 @@ namespace SharpJIT.Compiler.Win64
     }
 
     /// <summary>
-    /// The int calling convetions
+    /// The int calling conventions
     /// </summary>
-    public static class IntCallingConvetions
+    public static class IntCallingConventions
     {
         /// <summary>
         /// The first argument
@@ -76,23 +76,23 @@ namespace SharpJIT.Compiler.Win64
     /// <remarks>
     /// See <see href="https://en.wikipedia.org/wiki/X86_calling_conventions#Microsoft_x64_calling_convention">link<see/> for more details.
     /// </remarks>
-    public class CallingConvetions
+    public class CallingConventions
     {
         private static readonly int numRegisterArguments = 4;
         private readonly IntRegister[] intArgumentRegisters = new IntRegister[]
         {
-            IntCallingConvetions.Argument0,
-            IntCallingConvetions.Argument1,
-            IntCallingConvetions.Argument2,
-            IntCallingConvetions.Argument3
+            IntCallingConventions.Argument0,
+            IntCallingConventions.Argument1,
+            IntCallingConventions.Argument2,
+            IntCallingConventions.Argument3
         };
 
         private readonly FloatRegister[] floatArgumentRegisters = new FloatRegister[]
         {
-            FloatCallingConvetions.Argument0,
-            FloatCallingConvetions.Argument1,
-            FloatCallingConvetions.Argument2,
-            FloatCallingConvetions.Argument3
+            FloatCallingConventions.Argument0,
+            FloatCallingConventions.Argument1,
+            FloatCallingConventions.Argument2,
+            FloatCallingConventions.Argument3
         };
 
         /// <summary>
@@ -131,7 +131,7 @@ namespace SharpJIT.Compiler.Win64
         /// <param name="argumentIndex">The argument index</param>
         private void MoveNoneFloatArgumentToStack(CompilationData compilationData, int argumentIndex)
         {
-            var generatedCode = compilationData.Function.GeneratedCode;
+            var assembler = compilationData.Assembler;
             int argStackOffset = -(1 + argumentIndex) * Assembler.RegisterSize;
 
             if (argumentIndex >= numRegisterArguments)
@@ -141,22 +141,17 @@ namespace SharpJIT.Compiler.Win64
                     compilationData,
                     compilationData.Function.Definition.Parameters);
 
-                Assembler.Move(
-                    generatedCode,
+                assembler.Move(
                     Register.AX,
-                    new MemoryOperand(Register.BP, Assembler.RegisterSize * (6 + stackArgumentIndex))); //mov rax, [rbp+REG_SIZE*<arg offset>]
+                    new MemoryOperand(Register.BP, Assembler.RegisterSize * (6 + stackArgumentIndex)));
 
-                Assembler.Move(
-                    generatedCode,
-                    new MemoryOperand(Register.BP, argStackOffset),
-                    Register.AX); //mov [rbp+<arg offset>], rax
+                assembler.Move(new MemoryOperand(Register.BP, argStackOffset), Register.AX);
             }
             else
             {
-                Assembler.Move(
-                    generatedCode,
+                assembler.Move(
                     new MemoryOperand(Register.BP, argStackOffset),
-                    this.intArgumentRegisters[argumentIndex]); //mov [rbp+<arg offset>], <reg arg>
+                    this.intArgumentRegisters[argumentIndex]);
             }
         }
 
@@ -167,7 +162,7 @@ namespace SharpJIT.Compiler.Win64
         /// <param name="argumentIndex">The argument index</param>
         private void MoveFloatArgumentToStack(CompilationData compilationData, int argumentIndex)
         {
-            var generatedCode = compilationData.Function.GeneratedCode;
+            var assembler = compilationData.Assembler;
             int argStackOffset = -(1 + argumentIndex) * Assembler.RegisterSize;
 
             if (argumentIndex >= numRegisterArguments)
@@ -177,24 +172,19 @@ namespace SharpJIT.Compiler.Win64
                     compilationData,
                     compilationData.Function.Definition.Parameters);
 
-                Assembler.Move(
-                    generatedCode,
+                assembler.Move(
                     Register.AX,
                     new MemoryOperand(
                         Register.BP,
-                        Assembler.RegisterSize * (6 + stackArgumentIndex))); //mov rax, [rbp+REG_SIZE*<arg offset>]
+                        Assembler.RegisterSize * (6 + stackArgumentIndex)));
 
-                Assembler.Move(
-                    generatedCode,
-                    new MemoryOperand(Register.BP, argStackOffset),
-                    Register.AX); //mov [rbp+<arg offset>], rax
+                assembler.Move(new MemoryOperand(Register.BP, argStackOffset), Register.AX);
             }
             else
             {
-                Assembler.Move(
-                    generatedCode,
+                assembler.Move(
                     new MemoryOperand(Register.BP, argStackOffset),
-                    this.floatArgumentRegisters[argumentIndex]); //movss [rbp+<arg offset>], <reg arg>
+                    this.floatArgumentRegisters[argumentIndex]);
             }
         }
 
@@ -228,7 +218,7 @@ namespace SharpJIT.Compiler.Win64
         /// Calculates the number of argument that are passed via the stack
         /// </summary>
         /// <param name="parameterTypes">The parameter types</param>
-        private int CalculateStackArguments(IReadOnlyList<VMType> parameterTypes)
+        private int CalculateStackArguments(IReadOnlyList<BaseType> parameterTypes)
         {
             int stackArgs = 0;
 
@@ -253,7 +243,7 @@ namespace SharpJIT.Compiler.Win64
         /// <param name="argumentIndex">The index of the argument</param>
         /// <param name="argumentType">The type of the argument</param>
         /// <param name="toCall">The function to call</param>
-        public void CallFunctionArgument(CompilationData compilationData, int argumentIndex, VMType argumentType, FunctionDefinition toCall)
+        public void CallFunctionArgument(CompilationData compilationData, int argumentIndex, BaseType argumentType, FunctionDefinition toCall)
         {
             var operandStack = compilationData.OperandStack;
 
@@ -262,7 +252,7 @@ namespace SharpJIT.Compiler.Win64
             {
                 //Move from the operand stack to the normal stack
                 operandStack.PopRegister(Register.AX);
-                Assembler.Push(compilationData.Function.GeneratedCode, Register.AX);
+                compilationData.Assembler.Push(Register.AX);
             }
             else
             {
@@ -295,10 +285,18 @@ namespace SharpJIT.Compiler.Win64
         /// </summary>
         /// <param name="compilationData">The compilation data</param>
         /// <param name="parameters">The parameters of the function to call</param>
-        public int CalculateStackAlignment(CompilationData compilationData, IReadOnlyList<VMType> parameterTypes)
+        public int CalculateStackAlignment(CompilationData compilationData, IReadOnlyList<BaseType> parameterTypes)
         {
             int numStackArgs = this.CalculateStackArguments(parameterTypes);
             return (numStackArgs % 2) * Assembler.RegisterSize;
+        }
+
+        /// <summary>
+        /// Calculates the size of the shadow stack
+        /// </summary>
+        public int CalculateShadowStackSize()
+        {
+            return 32;
         }
 
         /// <summary>
@@ -313,11 +311,11 @@ namespace SharpJIT.Compiler.Win64
             {
                 if (def.ReturnType.IsPrimitiveType(PrimitiveTypes.Float))
                 {
-                    compilationData.OperandStack.PopRegister(FloatCallingConvetions.ReturnValue);
+                    compilationData.OperandStack.PopRegister(FloatCallingConventions.ReturnValue);
                 }
                 else
                 {
-                    compilationData.OperandStack.PopRegister(IntCallingConvetions.ReturnValue);
+                    compilationData.OperandStack.PopRegister(IntCallingConventions.ReturnValue);
                 }
             }
         }
@@ -334,8 +332,7 @@ namespace SharpJIT.Compiler.Win64
 
             if (numStackArgs > 0)
             {
-                Assembler.Add(
-                    compilationData.Function.GeneratedCode,
+                compilationData.Assembler.Add(
                     Register.SP,
                     numStackArgs * Assembler.RegisterSize);
             }
@@ -344,11 +341,11 @@ namespace SharpJIT.Compiler.Win64
             {
                 if (toCall.ReturnType.IsPrimitiveType(PrimitiveTypes.Float))
                 {
-                    compilationData.OperandStack.PushRegister(FloatCallingConvetions.ReturnValue);
+                    compilationData.OperandStack.PushRegister(FloatCallingConventions.ReturnValue);
                 }
                 else
                 {
-                    compilationData.OperandStack.PushRegister(IntCallingConvetions.ReturnValue);
+                    compilationData.OperandStack.PushRegister(IntCallingConventions.ReturnValue);
                 }
             }
         }

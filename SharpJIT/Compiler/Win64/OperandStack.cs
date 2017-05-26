@@ -15,15 +15,18 @@ namespace SharpJIT.Compiler.Win64
     public class OperandStack
     {
         private readonly Function function;
+        private readonly Assembler assembler;
         private int operandTopIndex;
 
         /// <summary>
         /// Creates a new operand stack
         /// </summary>
         /// <param name="function">The function</param>
-        public OperandStack(Function function)
+        /// <param name="assembler">The assembler</param>
+        public OperandStack(Function function, Assembler assembler)
         {
             this.function = function;
+            this.assembler = assembler;
             this.operandTopIndex = -1;
         }
 
@@ -58,6 +61,14 @@ namespace SharpJIT.Compiler.Win64
         }
 
         /// <summary>
+        /// Reserves space for an operand on the stack
+        /// </summary>
+        public void ReserveSpace()
+        {
+            this.operandTopIndex++;
+        }
+
+        /// <summary>
         /// Pops an operand from the operand stack to the given register
         /// </summary>
         /// <param name="register">The register to pop to</param>
@@ -66,10 +77,9 @@ namespace SharpJIT.Compiler.Win64
             this.AssertNotEmpty();
 
             int stackOffset = GetStackOperandOffset(this.operandTopIndex);
-            Assembler.Move(
-                this.function.GeneratedCode,
+            this.assembler.Move(
                 register,
-                new MemoryOperand(Register.BP, stackOffset)); //mov <reg>, [rbp+<operand offset>]
+                new MemoryOperand(Register.BP, stackOffset));
 
             this.operandTopIndex--;
         }
@@ -83,8 +93,7 @@ namespace SharpJIT.Compiler.Win64
             this.AssertNotEmpty();
 
             int stackOffset = GetStackOperandOffset(this.operandTopIndex);
-            Assembler.Move(
-                this.function.GeneratedCode,
+            this.assembler.Move(
                 register,
                 new MemoryOperand(Register.BP, stackOffset));
 
@@ -100,9 +109,7 @@ namespace SharpJIT.Compiler.Win64
             this.operandTopIndex++;
             int stackOffset = GetStackOperandOffset(this.operandTopIndex);
 
-            //mov [rbp+<operand offset>], <reg>
-            Assembler.Move(
-                this.function.GeneratedCode,
+            this.assembler.Move(
                 new MemoryOperand(Register.BP, stackOffset),
                 register);
         }
@@ -116,9 +123,7 @@ namespace SharpJIT.Compiler.Win64
             this.operandTopIndex++;
             int stackOffset = GetStackOperandOffset(this.operandTopIndex);
 
-            //movss [rbp+<operand offset>], <reg>
-            Assembler.Move(
-                this.function.GeneratedCode,
+            this.assembler.Move(
                 new MemoryOperand(Register.BP, stackOffset),
                 register);
         }
@@ -127,14 +132,17 @@ namespace SharpJIT.Compiler.Win64
         /// Pushes the given value to the operand stack
         /// </summary>
         /// <param name="value">The value</param>
-        public void PushInt(int value)
+        /// <param name="increaseStack">Indicates if the stack space should be increased</param>
+        public void PushInt(int value, bool increaseStack = true)
         {
-            this.operandTopIndex++;
+            if (increaseStack)
+            {
+                this.operandTopIndex++;
+            }
+
             int stackOffset = GetStackOperandOffset(this.operandTopIndex);
 
-            //mov [rbp+<operand offset>], value
-            Assembler.Move(
-                this.function.GeneratedCode,
+            this.assembler.Move(
                 new MemoryOperand(Register.BP, stackOffset),
                 value);
         }

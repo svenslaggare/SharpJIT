@@ -37,17 +37,17 @@ namespace SharpJIT.Test.Programs
         {
             using (var container = new Win64Container())
             {
-                var floatType = container.VirtualMachine.TypeProvider.GetPrimitiveType(PrimitiveTypes.Float);
-                var funcDef = new FunctionDefinition("floatMain", new List<VMType>(), floatType);
+                var floatType = container.VirtualMachine.TypeProvider.FindPrimitiveType(PrimitiveTypes.Float);
+                var funcDef = new FunctionDefinition("floatMain", new List<BaseType>(), floatType);
 
-                var instructions = new List<Instruction>();
-
-                instructions.Add(new Instruction(OpCodes.LoadFloat, 2.5f));
-                instructions.Add(new Instruction(OpCodes.LoadFloat, 1.35f));
-                instructions.Add(new Instruction(OpCodes.AddFloat));
-                instructions.Add(new Instruction(OpCodes.Ret));
-
-                var func = new Function(funcDef, instructions, new List<VMType>());
+                var instructions = new List<Instruction>
+                {
+                    new Instruction(OpCodes.LoadFloat, 2.5f),
+                    new Instruction(OpCodes.LoadFloat, 1.35f),
+                    new Instruction(OpCodes.AddFloat),
+                    new Instruction(OpCodes.Return)
+                };
+                var func = new Function(funcDef, instructions, new List<BaseType>());
                 container.LoadAssembly(Assembly.SingleFunction(func));
                 Assert.AreEqual(2.5f + 1.35f, ExecuteFloatProgram(container), 1E-4);
             }
@@ -61,17 +61,17 @@ namespace SharpJIT.Test.Programs
         {
             using (var container = new Win64Container())
             {
-                var floatType = container.VirtualMachine.TypeProvider.GetPrimitiveType(PrimitiveTypes.Float);
-                var funcDef = new FunctionDefinition("floatMain", new List<VMType>(), floatType);
+                var floatType = container.VirtualMachine.TypeProvider.FindPrimitiveType(PrimitiveTypes.Float);
+                var funcDef = new FunctionDefinition("floatMain", new List<BaseType>(), floatType);
 
-                var instructions = new List<Instruction>();
-
-                instructions.Add(new Instruction(OpCodes.LoadFloat, 2.5f));
-                instructions.Add(new Instruction(OpCodes.LoadFloat, 1.35f));
-                instructions.Add(new Instruction(OpCodes.SubFloat));
-                instructions.Add(new Instruction(OpCodes.Ret));
-
-                var func = new Function(funcDef, instructions, new List<VMType>());
+                var instructions = new List<Instruction>
+                {
+                    new Instruction(OpCodes.LoadFloat, 2.5f),
+                    new Instruction(OpCodes.LoadFloat, 1.35f),
+                    new Instruction(OpCodes.SubFloat),
+                    new Instruction(OpCodes.Return)
+                };
+                var func = new Function(funcDef, instructions, new List<BaseType>());
                 container.LoadAssembly(Assembly.SingleFunction(func));
                 Assert.AreEqual(2.5f - 1.35f, ExecuteFloatProgram(container), 1E-4);
             }
@@ -85,17 +85,17 @@ namespace SharpJIT.Test.Programs
         {
             using (var container = new Win64Container())
             {
-                var floatType = container.VirtualMachine.TypeProvider.GetPrimitiveType(PrimitiveTypes.Float);
-                var funcDef = new FunctionDefinition("floatMain", new List<VMType>(), floatType);
+                var floatType = container.VirtualMachine.TypeProvider.FindPrimitiveType(PrimitiveTypes.Float);
+                var funcDef = new FunctionDefinition("floatMain", new List<BaseType>(), floatType);
 
-                var instructions = new List<Instruction>();
-
-                instructions.Add(new Instruction(OpCodes.LoadFloat, 2.5f));
-                instructions.Add(new Instruction(OpCodes.LoadFloat, 1.35f));
-                instructions.Add(new Instruction(OpCodes.MulFloat));
-                instructions.Add(new Instruction(OpCodes.Ret));
-
-                var func = new Function(funcDef, instructions, new List<VMType>());
+                var instructions = new List<Instruction>
+                {
+                    new Instruction(OpCodes.LoadFloat, 2.5f),
+                    new Instruction(OpCodes.LoadFloat, 1.35f),
+                    new Instruction(OpCodes.MulFloat),
+                    new Instruction(OpCodes.Return)
+                };
+                var func = new Function(funcDef, instructions, new List<BaseType>());
                 container.LoadAssembly(Assembly.SingleFunction(func));
                 Assert.AreEqual(2.5f * 1.35f, ExecuteFloatProgram(container), 1E-4);
             }
@@ -109,17 +109,17 @@ namespace SharpJIT.Test.Programs
         {
             using (var container = new Win64Container())
             {
-                var floatType = container.VirtualMachine.TypeProvider.GetPrimitiveType(PrimitiveTypes.Float);
-                var funcDef = new FunctionDefinition("floatMain", new List<VMType>(), floatType);
+                var floatType = container.VirtualMachine.TypeProvider.FindPrimitiveType(PrimitiveTypes.Float);
+                var funcDef = new FunctionDefinition("floatMain", new List<BaseType>(), floatType);
 
-                var instructions = new List<Instruction>();
-
-                instructions.Add(new Instruction(OpCodes.LoadFloat, 2.5f));
-                instructions.Add(new Instruction(OpCodes.LoadFloat, 1.35f));
-                instructions.Add(new Instruction(OpCodes.DivFloat));
-                instructions.Add(new Instruction(OpCodes.Ret));
-
-                var func = new Function(funcDef, instructions, new List<VMType>());
+                var instructions = new List<Instruction>
+                {
+                    new Instruction(OpCodes.LoadFloat, 2.5f),
+                    new Instruction(OpCodes.LoadFloat, 1.35f),
+                    new Instruction(OpCodes.DivFloat),
+                    new Instruction(OpCodes.Return)
+                };
+                var func = new Function(funcDef, instructions, new List<BaseType>());
                 container.LoadAssembly(Assembly.SingleFunction(func));
                 Assert.AreEqual(2.5f / 1.35f, ExecuteFloatProgram(container), 1E-4);
             }

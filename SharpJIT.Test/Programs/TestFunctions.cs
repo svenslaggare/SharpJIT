@@ -20,16 +20,16 @@ namespace SharpJIT.Test.Programs
         {
             using (var container = new Win64Container())
             {
-                var intType = container.VirtualMachine.TypeProvider.GetPrimitiveType(PrimitiveTypes.Int);
+                var intType = container.VirtualMachine.TypeProvider.FindPrimitiveType(PrimitiveTypes.Int);
 
                 var testFunc = new Function(
-                    new FunctionDefinition("test", new List<VMType>() { intType }, intType),
+                    new FunctionDefinition("test", new List<BaseType>() { intType }, intType),
                     new List<Instruction>()
                     {
                         new Instruction(OpCodes.LoadInt, 0),
-                        new Instruction(OpCodes.Ret)
+                        new Instruction(OpCodes.Return)
                     },
-                    new List<VMType>());
+                    new List<BaseType>());
 
                 container.LoadAssembly(Assembly.SingleFunction(testFunc));
 
@@ -53,16 +53,16 @@ namespace SharpJIT.Test.Programs
         {
             using (var container = new Win64Container())
             {
-                var intType = container.VirtualMachine.TypeProvider.GetPrimitiveType(PrimitiveTypes.Int);
+                var intType = container.VirtualMachine.TypeProvider.FindPrimitiveType(PrimitiveTypes.Int);
 
                 var mainFunc = new Function(
-                    new FunctionDefinition("main", new List<VMType>() { intType }, intType),
+                    new FunctionDefinition("main", new List<BaseType>() { intType }, intType),
                     new List<Instruction>()
                     {
                         new Instruction(OpCodes.LoadInt, 0),
-                        new Instruction(OpCodes.Ret)
+                        new Instruction(OpCodes.Return)
                     },
-                    new List<VMType>());
+                    new List<BaseType>());
 
                 try
                 {
@@ -84,15 +84,15 @@ namespace SharpJIT.Test.Programs
         {
             using (var container = new Win64Container())
             {
-                var voidType = container.VirtualMachine.TypeProvider.GetPrimitiveType(PrimitiveTypes.Void);
+                var voidType = container.VirtualMachine.TypeProvider.FindPrimitiveType(PrimitiveTypes.Void);
 
                 var mainFunc = new Function(
-                    new FunctionDefinition("main", new List<VMType>() { }, voidType),
+                    new FunctionDefinition("main", new List<BaseType>() { }, voidType),
                     new List<Instruction>()
                     {
-                        new Instruction(OpCodes.Ret)
+                        new Instruction(OpCodes.Return)
                     },
-                    new List<VMType>());
+                    new List<BaseType>());
 
                 try
                 {
@@ -114,26 +114,26 @@ namespace SharpJIT.Test.Programs
         {
             using (var container = new Win64Container())
             {
-                var intType = container.VirtualMachine.TypeProvider.GetPrimitiveType(PrimitiveTypes.Int);
-                var floatType = container.VirtualMachine.TypeProvider.GetPrimitiveType(PrimitiveTypes.Float);
+                var intType = container.VirtualMachine.TypeProvider.FindPrimitiveType(PrimitiveTypes.Int);
+                var floatType = container.VirtualMachine.TypeProvider.FindPrimitiveType(PrimitiveTypes.Float);
 
                 var func1 = new Function(
-                    new FunctionDefinition("test", new List<VMType>() { intType }, intType),
+                    new FunctionDefinition("test", new List<BaseType>() { intType }, intType),
                     new List<Instruction>()
                     {
                         new Instruction(OpCodes.LoadInt, 0),
-                        new Instruction(OpCodes.Ret)
+                        new Instruction(OpCodes.Return)
                     },
-                    new List<VMType>());
+                    new List<BaseType>());
 
                 var func2 = new Function(
-                    new FunctionDefinition("test", new List<VMType>() { floatType }, floatType),
+                    new FunctionDefinition("test", new List<BaseType>() { floatType }, floatType),
                     new List<Instruction>()
                     {
                         new Instruction(OpCodes.LoadFloat, 0.0f),
-                        new Instruction(OpCodes.Ret)
+                        new Instruction(OpCodes.Return)
                     },
-                    new List<VMType>());
+                    new List<BaseType>());
 
                 var assembly = new Assembly(func1, func2);
                 container.LoadAssembly(assembly);
@@ -148,26 +148,26 @@ namespace SharpJIT.Test.Programs
         {
             using (var container = new Win64Container())
             {
-                var intType = container.VirtualMachine.TypeProvider.GetPrimitiveType(PrimitiveTypes.Int);
-                var floatType = container.VirtualMachine.TypeProvider.GetPrimitiveType(PrimitiveTypes.Float);
+                var intType = container.VirtualMachine.TypeProvider.FindPrimitiveType(PrimitiveTypes.Int);
+                var floatType = container.VirtualMachine.TypeProvider.FindPrimitiveType(PrimitiveTypes.Float);
 
                 var func1 = new Function(
-                    new FunctionDefinition("test", new List<VMType>() { intType }, intType),
+                    new FunctionDefinition("test", new List<BaseType>() { intType }, intType),
                     new List<Instruction>()
                     {
                         new Instruction(OpCodes.LoadInt, 0),
-                        new Instruction(OpCodes.Ret)
+                        new Instruction(OpCodes.Return)
                     },
-                    new List<VMType>());
+                    new List<BaseType>());
 
                 var func2 = new Function(
-                    new FunctionDefinition("test", new List<VMType>() { intType }, floatType),
+                    new FunctionDefinition("test", new List<BaseType>() { intType }, floatType),
                     new List<Instruction>()
                     {
                         new Instruction(OpCodes.LoadFloat, 0.0f),
-                        new Instruction(OpCodes.Ret)
+                        new Instruction(OpCodes.Return)
                     },
-                    new List<VMType>());
+                    new List<BaseType>());
 
                 var assembly = new Assembly(func1, func2);
 
@@ -191,25 +191,25 @@ namespace SharpJIT.Test.Programs
         {
             using (var container = new Win64Container())
             {
-                var intType = container.VirtualMachine.TypeProvider.GetPrimitiveType(PrimitiveTypes.Int);
+                var intType = container.VirtualMachine.TypeProvider.FindPrimitiveType(PrimitiveTypes.Int);
 
                 var func1 = new Function(
-                    new FunctionDefinition("test", new List<VMType>(), intType),
+                    new FunctionDefinition("test", new List<BaseType>(), intType),
                     new List<Instruction>()
                     {
                         new Instruction(OpCodes.LoadInt, 0),
-                        new Instruction(OpCodes.Ret)
+                        new Instruction(OpCodes.Return)
                     },
-                    new List<VMType>());
+                    new List<BaseType>());
 
                 var func2 = new Function(
-                    new FunctionDefinition("test", new List<VMType>(), intType),
+                    new FunctionDefinition("test", new List<BaseType>(), intType),
                     new List<Instruction>()
                     {
                         new Instruction(OpCodes.LoadInt, 0),
-                        new Instruction(OpCodes.Ret)
+                        new Instruction(OpCodes.Return)
                     },
-                    new List<VMType>());
+                    new List<BaseType>());
 
                 var assembly = new Assembly(func1, func2);
 

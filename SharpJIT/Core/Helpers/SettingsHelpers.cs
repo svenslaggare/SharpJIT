@@ -21,9 +21,8 @@ namespace SharpJIT.Core
         public static T? GetSetting<T>(this IDictionary<string, object> settings, string key)
             where T : struct
         {
-            object setting;
 
-            if (settings.TryGetValue(key, out setting))
+            if (settings.TryGetValue(key, out var setting))
             {
                 return (T)setting;
             }

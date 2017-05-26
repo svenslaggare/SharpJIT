@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SharpJIT.Core;
+using SharpJIT.Runtime;
 
-namespace SharpJIT.Core
+namespace SharpJIT.Runtime
 {
     /// <summary>
     /// Defines the functions that are not defined in managed code
@@ -12,7 +14,7 @@ namespace SharpJIT.Core
     public static class NativeLibrary
     {
         /// <summary>
-        /// Delegate for a '(Int) Void' function.
+        /// Delegate for a 'Fn(Int) Void' function.
         /// </summary>
         delegate void FuncVoidArgInt(int x);
 
@@ -26,7 +28,7 @@ namespace SharpJIT.Core
         }
 
         /// <summary>
-        /// Delegate for a '(Float) Void' function.
+        /// Delegate for a 'Fn(Float) Void' function.
         /// </summary>
         delegate void FuncVoidArgFloat(float x);
 
@@ -45,19 +47,19 @@ namespace SharpJIT.Core
         /// <param name="virtualMachine">The virtual machine</param>
         public static void Add(VirtualMachine virtualMachine)
         {
-            var intType = virtualMachine.TypeProvider.GetPrimitiveType(PrimitiveTypes.Int);
-            var floatType = virtualMachine.TypeProvider.GetPrimitiveType(PrimitiveTypes.Float);
-            var voidType = virtualMachine.TypeProvider.GetPrimitiveType(PrimitiveTypes.Void);
+            var intType = virtualMachine.TypeProvider.FindPrimitiveType(PrimitiveTypes.Int);
+            var floatType = virtualMachine.TypeProvider.FindPrimitiveType(PrimitiveTypes.Float);
+            var voidType = virtualMachine.TypeProvider.FindPrimitiveType(PrimitiveTypes.Void);
 
             virtualMachine.Binder.Define(FunctionDefinition.NewExternal<FuncVoidArgInt>(
                 "std.println",
-                new List<VMType>() { intType },
+                new List<BaseType>() { intType },
                 voidType,
                 Println));
 
             virtualMachine.Binder.Define(FunctionDefinition.NewExternal<FuncVoidArgFloat>(
                 "std.println",
-                new List<VMType>() { floatType },
+                new List<BaseType>() { floatType },
                 voidType,
                 Println));
         }

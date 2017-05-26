@@ -17,22 +17,23 @@ namespace SharpJIT
         /// </summary>
         private static Function CreateAddFunction(Win64Container container, int numArgs, bool optimize = false)
         {
-            var intType = container.VirtualMachine.TypeProvider.GetPrimitiveType(PrimitiveTypes.Int);
+            var intType = container.VirtualMachine.TypeProvider.FindPrimitiveType(PrimitiveTypes.Int);
 
             var def = new FunctionDefinition("add", Enumerable.Repeat(intType, numArgs).ToList(), intType);
 
-            var instructions = new List<Instruction>();
-            instructions.Add(new Instruction(OpCodes.LoadArgument, 0));
-
+            var instructions = new List<Instruction>
+            {
+                new Instruction(OpCodes.LoadArgument, 0)
+            };
             for (int i = 1; i < numArgs; i++)
             {
                 instructions.Add(new Instruction(OpCodes.LoadArgument, i));
                 instructions.Add(new Instruction(OpCodes.AddInt));
             }
 
-            instructions.Add(new Instruction(OpCodes.Ret));
+            instructions.Add(new Instruction(OpCodes.Return));
 
-            return new Function(def, instructions, new List<VMType>());
+            return new Function(def, instructions, new List<BaseType>());
         }
 
         /// <summary>
@@ -40,33 +41,33 @@ namespace SharpJIT
         /// </summary>
         private static Function CreateLoopCallAdd(Win64Container container, int count)
         {
-            var intType = container.VirtualMachine.TypeProvider.GetPrimitiveType(PrimitiveTypes.Int);
+            var intType = container.VirtualMachine.TypeProvider.FindPrimitiveType(PrimitiveTypes.Int);
 
-            var def = new FunctionDefinition("main", new List<VMType>(), intType);
+            var def = new FunctionDefinition("main", new List<BaseType>(), intType);
 
-            var instructions = new List<Instruction>();
+            var instructions = new List<Instruction>
+            {
+                new Instruction(OpCodes.LoadInt, count),
+                new Instruction(OpCodes.StoreLocal, 0),
 
-            instructions.Add(new Instruction(OpCodes.LoadInt, count));
-            instructions.Add(new Instruction(OpCodes.StoreLocal, 0));
+                new Instruction(OpCodes.LoadInt, 1),
+                new Instruction(OpCodes.LoadLocal, 1),
+                new Instruction(OpCodes.Call, "add", Enumerable.Repeat(intType, 2).ToList()),
+                new Instruction(OpCodes.StoreLocal, 1),
 
-            instructions.Add(new Instruction(OpCodes.LoadInt, 1));
-            instructions.Add(new Instruction(OpCodes.LoadLocal, 1));
-            instructions.Add(new Instruction(OpCodes.Call, "add", Enumerable.Repeat(intType, 2).ToList()));
-            instructions.Add(new Instruction(OpCodes.StoreLocal, 1));
+                new Instruction(OpCodes.LoadLocal, 0),
+                new Instruction(OpCodes.LoadInt, 1),
+                new Instruction(OpCodes.SubInt),
+                new Instruction(OpCodes.StoreLocal, 0),
+                new Instruction(OpCodes.LoadLocal, 0),
 
-            instructions.Add(new Instruction(OpCodes.LoadLocal, 0));
-            instructions.Add(new Instruction(OpCodes.LoadInt, 1));
-            instructions.Add(new Instruction(OpCodes.SubInt));
-            instructions.Add(new Instruction(OpCodes.StoreLocal, 0));
-            instructions.Add(new Instruction(OpCodes.LoadLocal, 0));
+                new Instruction(OpCodes.LoadInt, 0),
+                new Instruction(OpCodes.BranchGreaterThan, 2),
 
-            instructions.Add(new Instruction(OpCodes.LoadInt, 0));
-            instructions.Add(new Instruction(OpCodes.BranchGreaterThan, 2));
-
-            instructions.Add(new Instruction(OpCodes.LoadLocal, 1));
-            instructions.Add(new Instruction(OpCodes.Ret));
-
-            return new Function(def, instructions, new List<VMType>() { intType, intType });
+                new Instruction(OpCodes.LoadLocal, 1),
+                new Instruction(OpCodes.Return)
+            };
+            return new Function(def, instructions, new List<BaseType>() { intType, intType });
         }
 
         /// <summary>
@@ -74,31 +75,32 @@ namespace SharpJIT
         /// </summary>
         private static Function CreateFibFunction(Win64Container container)
         {
-            var intType = container.VirtualMachine.TypeProvider.GetPrimitiveType(PrimitiveTypes.Int);
+            var intType = container.VirtualMachine.TypeProvider.FindPrimitiveType(PrimitiveTypes.Int);
 
             var def = new FunctionDefinition("fib", Enumerable.Repeat(intType, 1).ToList(), intType);
 
-            var instructions = new List<Instruction>();
-            instructions.Add(new Instruction(OpCodes.LoadArgument, 0));
-            instructions.Add(new Instruction(OpCodes.LoadInt, 1));
-            instructions.Add(new Instruction(OpCodes.BranchGreaterThan, 5));
-            instructions.Add(new Instruction(OpCodes.LoadArgument, 0));
-            instructions.Add(new Instruction(OpCodes.Ret));
+            var instructions = new List<Instruction>
+            {
+                new Instruction(OpCodes.LoadArgument, 0),
+                new Instruction(OpCodes.LoadInt, 1),
+                new Instruction(OpCodes.BranchGreaterThan, 5),
+                new Instruction(OpCodes.LoadArgument, 0),
+                new Instruction(OpCodes.Return),
 
-            instructions.Add(new Instruction(OpCodes.LoadArgument, 0));
-            instructions.Add(new Instruction(OpCodes.LoadInt, 2));
-            instructions.Add(new Instruction(OpCodes.SubInt));
-            instructions.Add(new Instruction(OpCodes.Call, "fib", Enumerable.Repeat(intType, 1).ToList()));
+                new Instruction(OpCodes.LoadArgument, 0),
+                new Instruction(OpCodes.LoadInt, 2),
+                new Instruction(OpCodes.SubInt),
+                new Instruction(OpCodes.Call, "fib", Enumerable.Repeat(intType, 1).ToList()),
 
-            instructions.Add(new Instruction(OpCodes.LoadArgument, 0));
-            instructions.Add(new Instruction(OpCodes.LoadInt, 1));
-            instructions.Add(new Instruction(OpCodes.SubInt));
-            instructions.Add(new Instruction(OpCodes.Call, "fib", Enumerable.Repeat(intType, 1).ToList()));
+                new Instruction(OpCodes.LoadArgument, 0),
+                new Instruction(OpCodes.LoadInt, 1),
+                new Instruction(OpCodes.SubInt),
+                new Instruction(OpCodes.Call, "fib", Enumerable.Repeat(intType, 1).ToList()),
 
-            instructions.Add(new Instruction(OpCodes.AddInt));
-            instructions.Add(new Instruction(OpCodes.Ret));
-
-            return new Function(def, instructions, new List<VMType>());
+                new Instruction(OpCodes.AddInt),
+                new Instruction(OpCodes.Return)
+            };
+            return new Function(def, instructions, new List<BaseType>());
         }
 
         /// <summary>
@@ -106,27 +108,28 @@ namespace SharpJIT
         /// </summary>
         private static Function CreateSumFunction(Win64Container container)
         {
-            var intType = container.VirtualMachine.TypeProvider.GetPrimitiveType(PrimitiveTypes.Int);
+            var intType = container.VirtualMachine.TypeProvider.FindPrimitiveType(PrimitiveTypes.Int);
 
             var def = new FunctionDefinition("sum", Enumerable.Repeat(intType, 1).ToList(), intType);
 
-            var instructions = new List<Instruction>();
-            instructions.Add(new Instruction(OpCodes.LoadArgument, 0));
-            instructions.Add(new Instruction(OpCodes.LoadInt, 0));
-            instructions.Add(new Instruction(OpCodes.BranchNotEqual, 5));
-            instructions.Add(new Instruction(OpCodes.LoadInt, 0));
-            instructions.Add(new Instruction(OpCodes.Ret));
+            var instructions = new List<Instruction>
+            {
+                new Instruction(OpCodes.LoadArgument, 0),
+                new Instruction(OpCodes.LoadInt, 0),
+                new Instruction(OpCodes.BranchNotEqual, 5),
+                new Instruction(OpCodes.LoadInt, 0),
+                new Instruction(OpCodes.Return),
 
-            instructions.Add(new Instruction(OpCodes.LoadArgument, 0));
-            instructions.Add(new Instruction(OpCodes.LoadInt, 1));
-            instructions.Add(new Instruction(OpCodes.SubInt));
-            instructions.Add(new Instruction(OpCodes.Call, "sum", Enumerable.Repeat(intType, 1).ToList()));
+                new Instruction(OpCodes.LoadArgument, 0),
+                new Instruction(OpCodes.LoadInt, 1),
+                new Instruction(OpCodes.SubInt),
+                new Instruction(OpCodes.Call, "sum", Enumerable.Repeat(intType, 1).ToList()),
 
-            instructions.Add(new Instruction(OpCodes.LoadArgument, 0));
-            instructions.Add(new Instruction(OpCodes.AddInt));
-            instructions.Add(new Instruction(OpCodes.Ret));
-
-            return new Function(def, instructions, new List<VMType>());
+                new Instruction(OpCodes.LoadArgument, 0),
+                new Instruction(OpCodes.AddInt),
+                new Instruction(OpCodes.Return)
+            };
+            return new Function(def, instructions, new List<BaseType>());
         }
 
         /// <summary>
@@ -134,35 +137,37 @@ namespace SharpJIT
         /// </summary>
         private static Function CreateMainFunction(Win64Container container, string toCall, int n)
         {
-            var intType = container.VirtualMachine.TypeProvider.GetPrimitiveType(PrimitiveTypes.Int);
+            var intType = container.VirtualMachine.TypeProvider.FindPrimitiveType(PrimitiveTypes.Int);
 
-            var def = new FunctionDefinition("main", new List<VMType>(), intType);
+            var def = new FunctionDefinition("main", new List<BaseType>(), intType);
 
-            var instructions = new List<Instruction>();
-            instructions.Add(new Instruction(OpCodes.LoadInt, n));
-            instructions.Add(new Instruction(OpCodes.Call, toCall, Enumerable.Repeat(intType, 1).ToList()));
-            instructions.Add(new Instruction(OpCodes.Ret));
-
-            return new Function(def, instructions, new List<VMType>());
+            var instructions = new List<Instruction>
+            {
+                new Instruction(OpCodes.LoadInt, n),
+                new Instruction(OpCodes.Call, toCall, Enumerable.Repeat(intType, 1).ToList()),
+                new Instruction(OpCodes.Return)
+            };
+            return new Function(def, instructions, new List<BaseType>());
         }
 
         static void Main(string[] args)
         {
             using (var container = new Win64Container())
             {
-                var intType = container.VirtualMachine.TypeProvider.GetPrimitiveType(PrimitiveTypes.Int);
-                var floatType = container.VirtualMachine.TypeProvider.GetPrimitiveType(PrimitiveTypes.Float);
-                var def = new FunctionDefinition("main", new List<VMType>(), intType);
+                var intType = container.VirtualMachine.TypeProvider.FindPrimitiveType(PrimitiveTypes.Int);
+                var floatType = container.VirtualMachine.TypeProvider.FindPrimitiveType(PrimitiveTypes.Float);
+                var def = new FunctionDefinition("main", new List<BaseType>(), intType);
 
-                var instructions = new List<Instruction>();
-                instructions.Add(new Instruction(OpCodes.LoadFloat, 2.5f));
-                instructions.Add(new Instruction(OpCodes.LoadFloat, 1.35f));
-                instructions.Add(new Instruction(OpCodes.AddFloat));
-                instructions.Add(new Instruction(OpCodes.Call, "std.println", Enumerable.Repeat(floatType, 1).ToList()));
-                instructions.Add(new Instruction(OpCodes.LoadInt, 0));
-                instructions.Add(new Instruction(OpCodes.Ret));
-
-                var assembly = Assembly.SingleFunction(new Function(def, instructions, new List<VMType>()));
+                var instructions = new List<Instruction>
+                {
+                    new Instruction(OpCodes.LoadFloat, 2.5f),
+                    new Instruction(OpCodes.LoadFloat, 1.35f),
+                    new Instruction(OpCodes.AddFloat),
+                    new Instruction(OpCodes.Call, "std.println", Enumerable.Repeat(floatType, 1).ToList()),
+                    new Instruction(OpCodes.LoadInt, 0),
+                    new Instruction(OpCodes.Return)
+                };
+                var assembly = Assembly.SingleFunction(new Function(def, instructions, new List<BaseType>()));
 
                 container.LoadAssembly(assembly);
                 container.VirtualMachine.Compile();

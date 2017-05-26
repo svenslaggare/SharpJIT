@@ -15,13 +15,8 @@ namespace SharpJIT.Compiler
     /// <summary>
     /// Represents an interface for a JIT compiler
     /// </summary>
-    public interface IJITCompiler : IDisposable
+    public interface IJITCompiler
     {
-        /// <summary>
-        /// Returns the memory manager
-        /// </summary>
-        MemoryManager MemoryManager { get; }
-
         /// <summary>
         /// Returns the compilation data for the given function
         /// </summary>

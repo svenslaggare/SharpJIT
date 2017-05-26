@@ -22,26 +22,26 @@ namespace SharpJIT.Test.Programs
         {
             using (var container = new Win64Container())
             {
-                var intType = container.VirtualMachine.TypeProvider.GetPrimitiveType(PrimitiveTypes.Int);
-                var funcDef = new FunctionDefinition("main", new List<VMType>(), intType);
+                var intType = container.VirtualMachine.TypeProvider.FindPrimitiveType(PrimitiveTypes.Int);
+                var funcDef = new FunctionDefinition("main", new List<BaseType>(), intType);
 
-                var instructions = new List<Instruction>();
+                var instructions = new List<Instruction>
+                {
+                    new Instruction(OpCodes.LoadInt, 100),
+                    new Instruction(OpCodes.StoreLocal, 0),
 
-                instructions.Add(new Instruction(OpCodes.LoadInt, 100));
-                instructions.Add(new Instruction(OpCodes.StoreLocal, 0));
+                    new Instruction(OpCodes.LoadInt, 200),
+                    new Instruction(OpCodes.StoreLocal, 1),
 
-                instructions.Add(new Instruction(OpCodes.LoadInt, 200));
-                instructions.Add(new Instruction(OpCodes.StoreLocal, 1));
+                    new Instruction(OpCodes.LoadInt, 300),
+                    new Instruction(OpCodes.StoreLocal, 2),
 
-                instructions.Add(new Instruction(OpCodes.LoadInt, 300));
-                instructions.Add(new Instruction(OpCodes.StoreLocal, 2));
+                    new Instruction(OpCodes.LoadInt, 400),
+                    new Instruction(OpCodes.StoreLocal, 3),
 
-                instructions.Add(new Instruction(OpCodes.LoadInt, 400));
-                instructions.Add(new Instruction(OpCodes.StoreLocal, 3));
-
-                instructions.Add(new Instruction(OpCodes.LoadLocal, 3));
-                instructions.Add(new Instruction(OpCodes.Ret));
-
+                    new Instruction(OpCodes.LoadLocal, 3),
+                    new Instruction(OpCodes.Return)
+                };
                 var func = new Function(funcDef, instructions, Enumerable.Repeat(intType, 4).ToList());
                 container.LoadAssembly(Assembly.SingleFunction(func));
                 Assert.AreEqual(400, container.Execute());
@@ -56,14 +56,14 @@ namespace SharpJIT.Test.Programs
         {
             using (var container = new Win64Container())
             {
-                var intType = container.VirtualMachine.TypeProvider.GetPrimitiveType(PrimitiveTypes.Int);
-                var funcDef = new FunctionDefinition("main", new List<VMType>(), intType);
+                var intType = container.VirtualMachine.TypeProvider.FindPrimitiveType(PrimitiveTypes.Int);
+                var funcDef = new FunctionDefinition("main", new List<BaseType>(), intType);
 
-                var instructions = new List<Instruction>();
-
-                instructions.Add(new Instruction(OpCodes.LoadLocal, 0));
-                instructions.Add(new Instruction(OpCodes.Ret));
-
+                var instructions = new List<Instruction>
+                {
+                    new Instruction(OpCodes.LoadLocal, 0),
+                    new Instruction(OpCodes.Return)
+                };
                 var func = new Function(funcDef, instructions, Enumerable.Repeat(intType, 1).ToList());
                 container.LoadAssembly(Assembly.SingleFunction(func));
                 Assert.AreEqual(0, container.Execute());
@@ -80,14 +80,14 @@ namespace SharpJIT.Test.Programs
         {
             using (var container = new Win64Container())
             {
-                var floatType = container.VirtualMachine.TypeProvider.GetPrimitiveType(PrimitiveTypes.Float);
-                var funcDef = new FunctionDefinition("floatMain", new List<VMType>(), floatType);
+                var floatType = container.VirtualMachine.TypeProvider.FindPrimitiveType(PrimitiveTypes.Float);
+                var funcDef = new FunctionDefinition("floatMain", new List<BaseType>(), floatType);
 
-                var instructions = new List<Instruction>();
-
-                instructions.Add(new Instruction(OpCodes.LoadLocal, 0));
-                instructions.Add(new Instruction(OpCodes.Ret));
-
+                var instructions = new List<Instruction>
+                {
+                    new Instruction(OpCodes.LoadLocal, 0),
+                    new Instruction(OpCodes.Return)
+                };
                 var func = new Function(funcDef, instructions, Enumerable.Repeat(floatType, 1).ToList());
                 container.LoadAssembly(Assembly.SingleFunction(func));
                 container.VirtualMachine.Compile();

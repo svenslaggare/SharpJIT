@@ -19,7 +19,7 @@ namespace SharpJIT.Compiler
     /// <summary>
     /// Represents a managed disassembler
     /// </summary>
-    public class Disassembler
+    public sealed class Disassembler
     {
         private readonly INativeDisassembler nativeDisassembler;
         private readonly AbstractCompilationData compilationData;

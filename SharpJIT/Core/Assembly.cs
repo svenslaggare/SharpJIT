@@ -10,7 +10,7 @@ namespace SharpJIT.Core
     /// <summary>
     /// Represents an assembly
     /// </summary>
-    public class Assembly
+    public sealed class Assembly
     {
         /// <summary>
         /// The functions in the assembly

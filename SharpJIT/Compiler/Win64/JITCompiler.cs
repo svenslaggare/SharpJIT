@@ -5,6 +5,8 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using SharpJIT.Core;
+using SharpJIT.Runtime;
+using SharpJIT.Runtime.Memory;
 
 namespace SharpJIT.Compiler.Win64
 {
@@ -14,8 +16,7 @@ namespace SharpJIT.Compiler.Win64
     public class JITCompiler : IJITCompiler
     {
         private readonly VirtualMachine virtualMachine;
-        private readonly CodeGenerator codeGen;
-        private readonly MemoryManager memoryManager = new MemoryManager();
+        private readonly CodeGenerator codeGenerator;
         private readonly IDictionary<Function, CompilationData> compiledFunctions = new Dictionary<Function, CompilationData>();
 
         /// <summary>
@@ -25,17 +26,17 @@ namespace SharpJIT.Compiler.Win64
         public JITCompiler(VirtualMachine virtualMachine)
         {
             this.virtualMachine = virtualMachine;
-            this.codeGen = new CodeGenerator(virtualMachine);
+            this.codeGenerator = new CodeGenerator(virtualMachine);
         }
 
         /// <summary>
         /// Returns the memory manager
         /// </summary>
-        public MemoryManager MemoryManager
+        private MemoryManager MemoryManager
         {
             get
             {
-                return this.memoryManager;
+                return this.virtualMachine.MemoryManager;
             }
         }
 
@@ -46,8 +47,7 @@ namespace SharpJIT.Compiler.Win64
         /// <returns>The data or null if not compiled</returns>
         public AbstractCompilationData GetCompilationData(Function function)
         {
-            CompilationData compilationData;
-            if (this.compiledFunctions.TryGetValue(function, out compilationData))
+            if (this.compiledFunctions.TryGetValue(function, out var compilationData))
             {
                 return compilationData;
             }
@@ -63,12 +63,12 @@ namespace SharpJIT.Compiler.Win64
         public IntPtr Compile(Function function)
         {
             //Compile the function
-            var compilationData = new CompilationData(this.virtualMachine, function);
+            var compilationData = new CompilationData(function);
             this.compiledFunctions.Add(function, compilationData);
-            this.codeGen.CompileFunction(compilationData);
+            this.codeGenerator.CompileFunction(compilationData);
 
             //Allocate native memory. The instructions will be copied later when all symbols has been resolved.
-            var memory = this.memoryManager.AllocateCode(function.GeneratedCode.Count);
+            var memory = this.MemoryManager.AllocateCode(function.GeneratedCode.Count);
             function.Definition.SetEntryPoint(memory);
 
             return memory;
@@ -106,11 +106,11 @@ namespace SharpJIT.Compiler.Win64
         private void ResolveCallTargets(CompilationData compilationData)
         {
             var generatedCode = compilationData.Function.GeneratedCode;
-            long entryPoint = compilationData.Function.Definition.EntryPoint.ToInt64();
+            var entryPoint = compilationData.Function.Definition.EntryPoint.ToInt64();
 
             foreach (var unresolvedCall in compilationData.UnresolvedFunctionCalls)
             {
-                long toCallAddress = unresolvedCall.Function.EntryPoint.ToInt64();
+                var toCallAddress = unresolvedCall.Function.EntryPoint.ToInt64();
 
                 //Update the call target
                 if (unresolvedCall.AddressMode == FunctionCallAddressModes.Absolute)
@@ -133,19 +133,23 @@ namespace SharpJIT.Compiler.Win64
         /// <param name="compilationData">The compilation data</param>
         private void ResolveNativeLabels(CompilationData compilationData)
         {
-            //var generatedCode = compilationData.Function.GeneratedCode;
-            //long entryPoint = compilationData.Function.Definition.EntryPoint.ToInt64();
+            var generatedCode = compilationData.Function.GeneratedCode;
+            var entryPoint = compilationData.Function.Definition.EntryPoint.ToInt64();
 
-            //foreach (var nativeLabel in compilationData.UnresolvedNativeLabels)
-            //{
-            //    var source = nativeLabel.Key;
-            //    var target = nativeLabel.Value.ToInt64();
+            foreach (var nativeLabel in compilationData.UnresolvedNativeLabels)
+            {
+                var source = nativeLabel.Key;
+                var target = nativeLabel.Value.ToInt64();
 
-            //    int nativeTarget = (int)(target - (entryPoint + source - 5));
-            //    NativeHelpers.SetInt(generatedCode, source, (int)target);
-            //}
+                //Calculate the native jump location
+                var nativeTarget = (int)(target - (entryPoint + source) - 6);
 
-            //compilationData.UnresolvedNativeLabels.Clear();
+                //Update the source with the native target
+                var sourceOffset = source + 6 - sizeof(int);
+                NativeHelpers.SetInt(generatedCode, sourceOffset, nativeTarget);
+            }
+
+            compilationData.UnresolvedNativeLabels.Clear();
         }
 
         /// <summary>
@@ -170,15 +174,7 @@ namespace SharpJIT.Compiler.Win64
         public void MakeExecutable()
         {
             this.ResolveSymbols();
-            this.memoryManager.MakeExecutable();
-        }
-
-        /// <summary>
-        /// Disposes resources
-        /// </summary>
-        public void Dispose()
-        {
-            this.memoryManager.Dispose();
+            this.MemoryManager.MakeExecutable();
         }
     }
 }

@@ -4,7 +4,9 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SharpAssembler.x64;
 using SharpJIT.Core;
+using SharpJIT.Runtime;
 
 namespace SharpJIT.Compiler.Win64
 {
@@ -19,20 +21,24 @@ namespace SharpJIT.Compiler.Win64
         public int StackSize { get; set; }
 
         /// <summary>
+        /// The assembler
+        /// </summary>
+        public Assembler Assembler { get; }
+
+        /// <summary>
         /// The operand stack
         /// </summary>
-        /// <remarks>Only has value if the function is not optimized.</remarks>
         public OperandStack OperandStack { get; }
 
         /// <summary>
         /// Creates new compilation data
         /// </summary>
-        /// <param name="virtualMachine">The virtual macine</param>
         /// <param name="function">The function</param>
-        public CompilationData(VirtualMachine virtualMachine, Function function)
+        public CompilationData(Function function)
             : base(function)
         {
-            this.OperandStack = new OperandStack(function);
+            this.Assembler = new Assembler(function.GeneratedCode);
+            this.OperandStack = new OperandStack(function, this.Assembler);
         }
     }
 }
