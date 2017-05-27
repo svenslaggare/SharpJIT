@@ -14,7 +14,7 @@ namespace SharpJIT.Compiler.Win64
     /// <summary>
     /// Represents a code generator
     /// </summary>
-    public class CodeGenerator
+    public sealed class CodeGenerator
     {
         private readonly VirtualMachine virtualMachine;
         private readonly CallingConventions callingConventions = new CallingConventions();
@@ -40,21 +40,6 @@ namespace SharpJIT.Compiler.Win64
         {
             compilationData.Assembler.Move(callRegister, toCall.ToInt64());
             compilationData.Assembler.CallInRegister(callRegister);
-        }
-
-        /// <summary>
-        /// Compiles the given function
-        /// </summary>
-        /// <param name="function">The compilation data</param>
-        public void CompileFunction(CompilationData compilationData)
-        {
-            var function = compilationData.Function;
-            this.CreateProlog(compilationData);
-
-            for (int i = 0; i < function.Instructions.Count; i++)
-            {
-                this.GenerateInstruction(compilationData, function.Instructions[i], i);
-            }
         }
 
         /// <summary>
@@ -123,6 +108,21 @@ namespace SharpJIT.Compiler.Win64
             //Restore the base pointer
             assembler.Move(Register.SP, Register.BP);
             assembler.Pop(Register.BP);
+        }
+
+        /// <summary>
+        /// Compiles the given function
+        /// </summary>
+        /// <param name="function">The compilation data</param>
+        public void CompileFunction(CompilationData compilationData)
+        {
+            var function = compilationData.Function;
+            this.CreateProlog(compilationData);
+
+            for (int i = 0; i < function.Instructions.Count; i++)
+            {
+                this.GenerateInstruction(compilationData, function.Instructions[i], i);
+            }
         }
 
         /// <summary>
@@ -272,7 +272,7 @@ namespace SharpJIT.Compiler.Win64
                         {
                             //Mark that the function call needs to be patched with the entry point later
                             compilationData.UnresolvedFunctionCalls.Add(new UnresolvedFunctionCall(
-                                FunctionCallAddressModes.Relative,
+                                FunctionCallAddressMode.Relative,
                                 funcToCall,
                                 generatedCode.Count));
 
@@ -347,7 +347,7 @@ namespace SharpJIT.Compiler.Win64
                 case OpCodes.BranchEqual:
                 case OpCodes.BranchNotEqual:
                 case OpCodes.BranchGreaterThan:
-                case OpCodes.BranchGreaterOrEqual:
+                case OpCodes.BranchGreaterThanOrEqual:
                 case OpCodes.BranchLessThan:
                 case OpCodes.BranchLessOrEqual:
                     {
@@ -356,20 +356,14 @@ namespace SharpJIT.Compiler.Win64
 
                         if (opType.IsPrimitiveType(PrimitiveTypes.Int))
                         {
-                            //Pop 2 operands
                             operandStack.PopRegister(Register.CX);
                             operandStack.PopRegister(Register.AX);
-
-                            //Compare
                             assembler.Compare(Register.AX, Register.CX);
                         }
                         else if (opType.IsPrimitiveType(PrimitiveTypes.Float))
                         {
-                            //Pop 2 operands
                             operandStack.PopRegister(FloatRegister.XMM1);
                             operandStack.PopRegister(FloatRegister.XMM0);
-
-                            //Compare
                             assembler.Compare(FloatRegister.XMM0, FloatRegister.XMM1);
                             unsignedComparison = true;
                         }
@@ -386,7 +380,7 @@ namespace SharpJIT.Compiler.Win64
                             case OpCodes.BranchGreaterThan:
                                 condition = JumpCondition.GreaterThan;
                                 break;
-                            case OpCodes.BranchGreaterOrEqual:
+                            case OpCodes.BranchGreaterThanOrEqual:
                                 condition = JumpCondition.GreaterThanOrEqual;
                                 break;
                             case OpCodes.BranchLessThan:
@@ -407,7 +401,7 @@ namespace SharpJIT.Compiler.Win64
                 case OpCodes.CompareEqual:
                 case OpCodes.CompareNotEqual:
                 case OpCodes.CompareGreaterThan:
-                case OpCodes.CompareGreaterOrEqual:
+                case OpCodes.CompareGreaterThanOrEqual:
                 case OpCodes.CompareLessThan:
                 case OpCodes.CompareLessThanOrEqual:
                     {
@@ -450,7 +444,7 @@ namespace SharpJIT.Compiler.Win64
                             case OpCodes.CompareGreaterThan:
                                 condition = JumpCondition.GreaterThan;
                                 break;
-                            case OpCodes.CompareGreaterOrEqual:
+                            case OpCodes.CompareGreaterThanOrEqual:
                                 condition = JumpCondition.GreaterThanOrEqual;
                                 break;
                             case OpCodes.CompareLessThan:
@@ -521,8 +515,50 @@ namespace SharpJIT.Compiler.Win64
 
                         //Push the size
                         operandStack.PushRegister(Register.AX);
-                        break;
                     }
+                    break;
+                case OpCodes.LoadElement:
+                    {
+                        var elementType = this.virtualMachine.TypeProvider.FindType(instruction.StringValue);
+
+                        //Pop the operands
+                        operandStack.PopRegister(ExtendedRegister.R10); //The index of the element
+                        operandStack.PopRegister(Register.AX); //The address of the array
+
+                        //Error checks
+                        this.exceptionHandling.AddNullCheck(compilationData);
+                        this.exceptionHandling.AddArrayBoundsCheck(compilationData);
+
+                        //Compute the address of the element
+                        assembler.Multiply(ExtendedRegister.R10, (int)TypeSystem.SizeOf(elementType));
+                        assembler.Add(Register.AX, ExtendedRegister.R10);
+                        assembler.Add(Register.AX, Constants.ArrayLengthSize);
+
+                        //Load the element
+                        var elementSize = TypeSystem.SizeOf(elementType);
+                        var dataSize = DataSize.Size64;
+                        if (elementSize == 4)
+                        {
+                            dataSize = DataSize.Size32;
+                        }
+                        else if (elementSize == 1)
+                        {
+                            dataSize = DataSize.Size8;
+                        }
+
+                        var elementOffset = new MemoryOperand(Register.AX);
+                        if (dataSize != DataSize.Size8)
+                        {
+                            assembler.Move(Register.CX, elementOffset, dataSize);
+                        }
+                        else
+                        {
+                            assembler.Move(Register8Bits.CL, elementOffset);
+                        }
+
+                        operandStack.PushRegister(Register.CX);
+                    }
+                    break;
                 case OpCodes.StoreElement:
                     {
                         var elementType = this.virtualMachine.TypeProvider.FindType(instruction.StringValue);
@@ -567,48 +603,6 @@ namespace SharpJIT.Compiler.Win64
                         //{
                         //    addCardMarking(vmState, assembler, Registers::AX);
                         //}
-                    }
-                    break;
-                case OpCodes.LoadElement:
-                    {
-                        var elementType = this.virtualMachine.TypeProvider.FindType(instruction.StringValue);
-
-                        //Pop the operands
-                        operandStack.PopRegister(ExtendedRegister.R10); //The index of the element
-                        operandStack.PopRegister(Register.AX); //The address of the array
-
-                        //Error checks
-                        this.exceptionHandling.AddNullCheck(compilationData);
-                        this.exceptionHandling.AddArrayBoundsCheck(compilationData);
-
-                        //Compute the address of the element
-                        assembler.Multiply(ExtendedRegister.R10, (int)TypeSystem.SizeOf(elementType));
-                        assembler.Add(Register.AX, ExtendedRegister.R10);
-                        assembler.Add(Register.AX, Constants.ArrayLengthSize);
-
-                        //Load the element
-                        var elementSize = TypeSystem.SizeOf(elementType);
-                        var dataSize = DataSize.Size64;
-                        if (elementSize == 4)
-                        {
-                            dataSize = DataSize.Size32;
-                        }
-                        else if (elementSize == 1)
-                        {
-                            dataSize = DataSize.Size8;
-                        }
-
-                        var elementOffset = new MemoryOperand(Register.AX);
-                        if (dataSize != DataSize.Size8)
-                        {
-                            assembler.Move(Register.CX, elementOffset, dataSize);
-                        }
-                        else
-                        {
-                            assembler.Move(Register8Bits.CL, elementOffset);
-                        }
-
-                        operandStack.PushRegister(Register.CX);
                     }
                     break;
             }

@@ -4,9 +4,10 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SharpJIT.Core;
 using SharpJIT.Runtime;
 
-namespace SharpJIT.Core
+namespace SharpJIT.Loader
 {
     /// <summary>
     /// Represents a verification exception
@@ -767,14 +768,10 @@ namespace SharpJIT.Core
                     VerifyFloatArithmetic(function, instruction, index, operandStack);
                     break;
                 case OpCodes.LoadTrue:
-                    VerifyLoadBoolean(function, instruction, index, operandStack);
-                    break;
                 case OpCodes.LoadFalse:
                     VerifyLoadBoolean(function, instruction, index, operandStack);
                     break;
                 case OpCodes.And:
-                    VerifyBinaryLogicalOperators(function, instruction, index, operandStack);
-                    break;
                 case OpCodes.Or:
                     VerifyBinaryLogicalOperators(function, instruction, index, operandStack);
                     break;
@@ -802,7 +799,7 @@ namespace SharpJIT.Core
                 case OpCodes.BranchEqual:
                 case OpCodes.BranchNotEqual:
                 case OpCodes.BranchGreaterThan:
-                case OpCodes.BranchGreaterOrEqual:
+                case OpCodes.BranchGreaterThanOrEqual:
                 case OpCodes.BranchLessThan:
                 case OpCodes.BranchLessOrEqual:
                     VerifyConditionalBranch(function, instruction, index, operandStack, branches);
@@ -810,7 +807,7 @@ namespace SharpJIT.Core
                 case OpCodes.CompareEqual:
                 case OpCodes.CompareNotEqual:
                 case OpCodes.CompareGreaterThan:
-                case OpCodes.CompareGreaterOrEqual:
+                case OpCodes.CompareGreaterThanOrEqual:
                 case OpCodes.CompareLessThan:
                 case OpCodes.CompareLessThanOrEqual:
                     VerifyCompare(function, instruction, index, operandStack);

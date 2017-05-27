@@ -37,13 +37,13 @@ namespace SharpJIT.Core
         BranchEqual,
         BranchNotEqual,
         BranchGreaterThan,
-        BranchGreaterOrEqual,
+        BranchGreaterThanOrEqual,
         BranchLessThan,
         BranchLessOrEqual,
         CompareEqual,
         CompareNotEqual,
         CompareGreaterThan,
-        CompareGreaterOrEqual,
+        CompareGreaterThanOrEqual,
         CompareLessThan,
         CompareLessThanOrEqual,
         LoadNull,
@@ -117,13 +117,13 @@ namespace SharpJIT.Core
                 { OpCodes.BranchEqual, "beq" },
                 { OpCodes.BranchNotEqual, "bne" },
                 { OpCodes.BranchGreaterThan, "bgt" },
-                { OpCodes.BranchGreaterOrEqual, "bge" },
+                { OpCodes.BranchGreaterThanOrEqual, "bge" },
                 { OpCodes.BranchLessThan, "blt"  },
                 { OpCodes.BranchLessOrEqual, "ble" },
                 { OpCodes.CompareEqual, "cmpeq" },
                 { OpCodes.CompareNotEqual, "cmpne" },
                 { OpCodes.CompareGreaterThan, "cmpgt" },
-                { OpCodes.CompareGreaterOrEqual, "cmpge" },
+                { OpCodes.CompareGreaterThanOrEqual, "cmpge" },
                 { OpCodes.CompareLessThan, "cmplt"  },
                 { OpCodes.CompareLessThanOrEqual, "cmple" },
                 { OpCodes.LoadNull, "loadnull" },
@@ -244,7 +244,7 @@ namespace SharpJIT.Core
             return instruction.OpCode == OpCodes.BranchEqual
                     || instruction.OpCode == OpCodes.BranchNotEqual
                     || instruction.OpCode == OpCodes.BranchGreaterThan
-                    || instruction.OpCode == OpCodes.BranchGreaterOrEqual
+                    || instruction.OpCode == OpCodes.BranchGreaterThanOrEqual
                     || instruction.OpCode == OpCodes.BranchLessThan
                     || instruction.OpCode == OpCodes.BranchLessOrEqual;
         }

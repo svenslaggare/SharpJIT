@@ -37,7 +37,7 @@ namespace SharpJIT.Compiler
     /// <summary>
     /// The function call address modes
     /// </summary>
-    public enum FunctionCallAddressModes
+    public enum FunctionCallAddressMode
     {
         Absolute,
         Relative
@@ -51,7 +51,7 @@ namespace SharpJIT.Compiler
         /// <summary>
         /// The address mode
         /// </summary>
-        public FunctionCallAddressModes AddressMode { get; }
+        public FunctionCallAddressMode AddressMode { get; }
 
         /// <summary>
         /// The function to call
@@ -69,7 +69,7 @@ namespace SharpJIT.Compiler
         /// <param name="addressMode">The address mode</param>
         /// <param name="function">The function</param>
         /// <param name="callSiteOffset">The offset in the function that makes the call</param>
-        public UnresolvedFunctionCall(FunctionCallAddressModes addressMode, FunctionDefinition function, int callSiteOffset)
+        public UnresolvedFunctionCall(FunctionCallAddressMode addressMode, FunctionDefinition function, int callSiteOffset)
         {
             this.AddressMode = addressMode;
             this.Function = function;
@@ -86,6 +86,11 @@ namespace SharpJIT.Compiler
         /// The function
         /// </summary>
         public Function Function { get; }
+
+        /// <summary>
+        /// Returns the definition of the function to compile
+        /// </summary>
+        public FunctionDefinition FunctionDefinition => this.Function.Definition;
 
         /// <summary>
         /// Mapping from instruction number to native instruction offset

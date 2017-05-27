@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using SharpJIT.Compiler;
 using SharpJIT.Core;
 using SharpJIT.Core.Objects;
+using SharpJIT.Loader;
 using SharpJIT.Runtime.Memory;
 
 namespace SharpJIT.Runtime

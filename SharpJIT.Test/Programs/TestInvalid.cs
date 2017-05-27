@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SharpJIT;
 using SharpJIT.Core;
+using SharpJIT.Loader;
 
 namespace SharpJIT.Test.Programs
 {

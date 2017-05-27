@@ -876,7 +876,7 @@ namespace SharpJIT.Test.Programs
                 {
                     new Instruction(OpCodes.LoadInt, 5),
                     new Instruction(OpCodes.LoadInt, 2),
-                    new Instruction(OpCodes.CompareGreaterOrEqual),
+                    new Instruction(OpCodes.CompareGreaterThanOrEqual),
                     new Instruction(OpCodes.Return)
                 };
 
@@ -901,7 +901,7 @@ namespace SharpJIT.Test.Programs
                 {
                     new Instruction(OpCodes.LoadInt, 1),
                     new Instruction(OpCodes.LoadInt, 2),
-                    new Instruction(OpCodes.CompareGreaterOrEqual),
+                    new Instruction(OpCodes.CompareGreaterThanOrEqual),
                     new Instruction(OpCodes.Return)
                 };
 
@@ -926,7 +926,7 @@ namespace SharpJIT.Test.Programs
                 {
                     new Instruction(OpCodes.LoadInt, 2),
                     new Instruction(OpCodes.LoadInt, 2),
-                    new Instruction(OpCodes.CompareGreaterOrEqual),
+                    new Instruction(OpCodes.CompareGreaterThanOrEqual),
                     new Instruction(OpCodes.Return)
                 };
 
@@ -951,7 +951,7 @@ namespace SharpJIT.Test.Programs
                 {
                     new Instruction(OpCodes.LoadFloat, 5.0f),
                     new Instruction(OpCodes.LoadFloat, 2.0f),
-                    new Instruction(OpCodes.CompareGreaterOrEqual),
+                    new Instruction(OpCodes.CompareGreaterThanOrEqual),
                     new Instruction(OpCodes.Return)
                 };
 
@@ -976,7 +976,7 @@ namespace SharpJIT.Test.Programs
                 {
                     new Instruction(OpCodes.LoadFloat, 1.0f),
                     new Instruction(OpCodes.LoadFloat, 2.0f),
-                    new Instruction(OpCodes.CompareGreaterOrEqual),
+                    new Instruction(OpCodes.CompareGreaterThanOrEqual),
                     new Instruction(OpCodes.Return)
                 };
 
@@ -1001,7 +1001,7 @@ namespace SharpJIT.Test.Programs
                 {
                     new Instruction(OpCodes.LoadFloat, 2.0f),
                     new Instruction(OpCodes.LoadFloat, 2.0f),
-                    new Instruction(OpCodes.CompareGreaterOrEqual),
+                    new Instruction(OpCodes.CompareGreaterThanOrEqual),
                     new Instruction(OpCodes.Return)
                 };
 
