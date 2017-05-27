@@ -51,16 +51,22 @@ namespace SharpJIT.Compiler
             var instructions = compilationData.Function.Instructions;
 
             output.AppendLine(compilationData.Function.ToString());
+            output.AppendLine("{");
+
+            void AddLine(string line = "")
+            {
+                output.AppendLine("\t" + line);
+            }
 
             //Disassemble the prolog
             if (compilationData.InstructionMapping[0] != 0)
             {
-                output.AppendLine("<prolog>");
-                this.nativeDisassembler.DisassembleBlock(0, compilationData.InstructionMapping[0], output);
+                AddLine("<prolog>");
+                this.nativeDisassembler.DisassembleBlock(0, compilationData.InstructionMapping[0], AddLine);
 
                 if (this.options.HasFlag(DisassemblerOptions.NewLineAfterInstruction))
                 {
-                    output.AppendLine();
+                    AddLine();
                 }
             }
 
@@ -80,14 +86,16 @@ namespace SharpJIT.Compiler
                 }
 
                 int size = nextStart - start;
-                output.AppendLine(instruction.Disassemble());
-                this.nativeDisassembler.DisassembleBlock(start, size, output);
+                AddLine(instruction.Disassemble());
+                this.nativeDisassembler.DisassembleBlock(start, size, AddLine);
 
                 if (this.options.HasFlag(DisassemblerOptions.NewLineAfterInstruction))
                 {
-                    output.AppendLine();
+                    AddLine();
                 }
             }
+
+            output.AppendLine("}");
 
             this.disassembledCode = output.ToString();
         }

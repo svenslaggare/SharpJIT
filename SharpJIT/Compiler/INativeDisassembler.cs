@@ -16,7 +16,7 @@ namespace SharpJIT.Compiler
         /// </summary>
         /// <param name="index">The start of the block</param>
         /// <param name="size">The size of the block</param>
-        /// <param name="output">The output</param>
-        void DisassembleBlock(int index, int size, StringBuilder output);
+        /// <param name="addLine">Adds output</param>
+        void DisassembleBlock(int index, int size, Action<string> addLine);
     }
 }

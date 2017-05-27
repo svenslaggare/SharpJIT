@@ -72,7 +72,7 @@ namespace SharpJIT.Compiler.Win64
         /// Pops an operand from the operand stack to the given register
         /// </summary>
         /// <param name="register">The register to pop to</param>
-        public void PopRegister(IntRegister register)
+        public void PopRegister(Register register)
         {
             this.AssertNotEmpty();
 
@@ -104,7 +104,7 @@ namespace SharpJIT.Compiler.Win64
         /// Pushes the given register to the operand stack
         /// </summary>
         /// <param name="register">The register</param>
-        public void PushRegister(IntRegister register)
+        public void PushRegister(Register register)
         {
             this.operandTopIndex++;
             int stackOffset = GetStackOperandOffset(this.operandTopIndex);

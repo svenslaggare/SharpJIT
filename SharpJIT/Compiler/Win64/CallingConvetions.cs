@@ -79,7 +79,7 @@ namespace SharpJIT.Compiler.Win64
     public sealed class CallingConventions
     {
         private static readonly int numRegisterArguments = 4;
-        private readonly IntRegister[] intArgumentRegisters = new IntRegister[]
+        private readonly Register[] intArgumentRegisters = new Register[]
         {
             IntCallingConventions.Argument0,
             IntCallingConventions.Argument1,

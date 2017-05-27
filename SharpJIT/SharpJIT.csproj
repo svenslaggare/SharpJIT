@@ -53,13 +53,16 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>SharpJIT.Program</StartupObject>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="BeaEngine.Net, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\BeaEngine.Net.0.13\lib\net35\BeaEngine.Net.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="SharpAssembler, Version=1.0.0.0, Culture=neutral, processorArchitecture=AMD64">
-      <HintPath>..\packages\SharpAssembler.0.1.6\lib\SharpAssembler.dll</HintPath>
+      <HintPath>..\packages\SharpAssembler.0.1.7\lib\SharpAssembler.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

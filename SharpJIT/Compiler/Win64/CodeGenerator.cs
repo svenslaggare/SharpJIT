@@ -37,10 +37,23 @@ namespace SharpJIT.Compiler.Win64
         /// <param name="compilationData">The compilation data</param>
         /// <param name="toCall">The address of the function to call</param>
         /// <param name="callRegister">The register where the address will be stored in</param>
-        private void GenerateCall(CompilationData compilationData, IntPtr toCall, Register callRegister = Register.AX)
+        /// <param name="shadowStackNeeded">Indicates if the shadow stack is needed</param>
+        private void GenerateCall(CompilationData compilationData, IntPtr toCall, Register callRegister = Register.AX, bool shadowStackNeeded = true)
         {
+            var shadowStackSize = this.callingConventions.CalculateShadowStackSize();
+
+            if (shadowStackNeeded)
+            {
+                compilationData.Assembler.Sub(Register.SP, shadowStackSize);
+            }
+
             compilationData.Assembler.Move(callRegister, toCall.ToInt64());
             compilationData.Assembler.CallInRegister(callRegister);
+
+            if (shadowStackNeeded)
+            {
+                compilationData.Assembler.Add(Register.SP, shadowStackSize);
+            }
         }
 
         /// <summary>
@@ -177,7 +190,7 @@ namespace SharpJIT.Compiler.Win64
             compilationData.OperandStack.PopRegister(Register.CX);
             compilationData.OperandStack.PopRegister(Register.AX);
 
-            //Sign extends the eax register
+            //Sign extend the eax register
             compilationData.Assembler.GeneratedCode.Add(0x99); //cdq
             compilationData.Assembler.Divide(Register.CX);
 
@@ -318,7 +331,7 @@ namespace SharpJIT.Compiler.Win64
             }
             else
             {
-                this.GenerateCall(compilationData, funcToCall.EntryPoint);
+                this.GenerateCall(compilationData, funcToCall.EntryPoint, shadowStackNeeded: false);
             }
 
             //Unalign the stack
@@ -567,7 +580,7 @@ namespace SharpJIT.Compiler.Win64
             }
             else
             {
-                compilationData.Assembler.Move(Register8Bits.CL, elementOffset);
+                compilationData.Assembler.Move(Register8Bit.CL, elementOffset);
             }
 
             compilationData.OperandStack.PushRegister(Register.CX);
@@ -601,7 +614,7 @@ namespace SharpJIT.Compiler.Win64
             }
             else
             {
-                compilationData.Assembler.Move(elementOffset, Register8Bits.DL);
+                compilationData.Assembler.Move(elementOffset, Register8Bit.DL);
             }
 
             //if (elementType.IsReference())

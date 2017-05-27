@@ -36,9 +36,9 @@ namespace SharpJIT.Compiler.Win64
         /// Disassembles the given code
         /// </summary>
         /// <param name="generatedCode">The generated code</param>
-        public static string Disassemble(IList<byte> generatedCode)
+        public string Disassemble(IList<byte> generatedCode)
         {
-            var strBuffer = new StringBuilder();
+            var output = new StringBuilder();
             var buffer = new UnmanagedBuffer(generatedCode.ToArray());
 
             var disasm = new Disasm()
@@ -58,11 +58,11 @@ namespace SharpJIT.Compiler.Win64
                 }
 
                 //strBuffer.AppendLine("0x" + offset.ToString("X") + " " + disasm.CompleteInstr);
-                strBuffer.AppendLine(disasm.CompleteInstr);
+                output.AppendLine(disasm.CompleteInstr);
                 offset += result;
             }
 
-            return strBuffer.ToString();
+            return output.ToString();
         }
 
         /// <summary>
@@ -70,8 +70,8 @@ namespace SharpJIT.Compiler.Win64
         /// </summary>
         /// <param name="index">The start of the block</param>
         /// <param name="size">The size of the block</param>
-        /// <param name="output">The output</param>
-        public void DisassembleBlock(int index, int size, StringBuilder output)
+        /// <param name="addLine">Adds output</param>
+        public void DisassembleBlock(int index, int size, Action<string> addLine)
         {
             int offset = index;
             while (offset < index + size)
@@ -84,7 +84,7 @@ namespace SharpJIT.Compiler.Win64
                     break;
                 }
 
-                output.AppendLine(this.disassembler.CompleteInstr);
+                addLine(this.disassembler.CompleteInstr);
                 //output.AppendLine("0x" + this.disassembler.EIP.ToString("X") + " " + this.disassembler.CompleteInstr);
                 offset += result;
             }
