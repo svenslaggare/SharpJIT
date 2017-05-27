@@ -14,7 +14,7 @@ namespace SharpJIT.Compiler.Win64
     /// <summary>
     /// Handles exceptions
     /// </summary>
-    public class ExceptionHandling
+    public sealed class ExceptionHandling
     {
         private IntPtr nullCheckHandler;
         private IntPtr arrayBoundsCheckHandler;

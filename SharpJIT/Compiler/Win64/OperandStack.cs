@@ -12,7 +12,7 @@ namespace SharpJIT.Compiler.Win64
     /// <summary>
     /// Represents an operand stack
     /// </summary>
-    public class OperandStack
+    public sealed class OperandStack
     {
         private readonly Function function;
         private readonly Assembler assembler;

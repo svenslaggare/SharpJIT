@@ -103,7 +103,7 @@ namespace SharpJIT.Test.Programs
                 }
                 catch (VerificationException e)
                 {
-                    Assert.AreEqual("0: Functions must end with a return instruction.", e.Message);
+                    Assert.AreEqual("0: Functions must end with a 'RET' instruction.", e.Message);
                 }
             }
         }

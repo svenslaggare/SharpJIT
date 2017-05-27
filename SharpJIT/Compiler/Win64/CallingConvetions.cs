@@ -76,7 +76,7 @@ namespace SharpJIT.Compiler.Win64
     /// <remarks>
     /// See <see href="https://en.wikipedia.org/wiki/X86_calling_conventions#Microsoft_x64_calling_convention">link<see/> for more details.
     /// </remarks>
-    public class CallingConventions
+    public sealed class CallingConventions
     {
         private static readonly int numRegisterArguments = 4;
         private readonly IntRegister[] intArgumentRegisters = new IntRegister[]

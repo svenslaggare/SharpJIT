@@ -312,7 +312,7 @@ namespace SharpJIT.Loader
                             verifierData,
                             instruction,
                             i,
-                            "Functions must end with a return instruction.");
+                            "Functions must end with a 'RET' instruction.");
                     }
                 }
             }

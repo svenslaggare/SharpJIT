@@ -13,7 +13,7 @@ namespace SharpJIT.Compiler.Win64
     /// <summary>
     /// Represents a JIT compiler
     /// </summary>
-    public class JITCompiler : IJITCompiler
+    public sealed class JITCompiler : IJITCompiler
     {
         private readonly VirtualMachine virtualMachine;
         private readonly CodeGenerator codeGenerator;

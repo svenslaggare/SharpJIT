@@ -89,9 +89,7 @@ namespace SharpJIT.Runtime
                 throw new InvalidOperationException("There is no entry point defined.");
             }
 
-            return (EntryPoint)Marshal.GetDelegateForFunctionPointer(
-                entryPoint.EntryPoint,
-                typeof(EntryPoint));
+            return Marshal.GetDelegateForFunctionPointer<EntryPoint>(entryPoint.EntryPoint);
         }
 
         /// <summary>
