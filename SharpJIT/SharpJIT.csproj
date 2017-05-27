@@ -86,7 +86,6 @@
     <Compile Include="Runtime\Memory\MemoryManager.cs" />
     <Compile Include="Compiler\NativeHelpers.cs" />
     <Compile Include="Compiler\Win64\CallingConvetions.cs" />
-    <Compile Include="Compiler\Win64\OldCodeGenerator.cs" />
     <Compile Include="Compiler\Win64\CompilationData.cs" />
     <Compile Include="Compiler\Win64\Disassembler.cs" />
     <Compile Include="Compiler\Win64\JITCompiler.cs" />
@@ -102,7 +101,6 @@
     <Compile Include="Core\Constants.cs" />
     <Compile Include="Core\Helpers\SettingsHelpers.cs" />
     <Compile Include="Core\TypeProvider.cs" />
-    <Compile Include="Loader\OldVerifier.cs" />
     <Compile Include="Runtime\Memory\CollectorGeneration.cs" />
     <Compile Include="Runtime\Memory\ManagedHeap.cs" />
     <Compile Include="Runtime\Memory\ObjectReferences.cs" />
