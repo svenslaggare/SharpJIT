@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SharpJIT.Compiler.Win64;
 using SharpJIT.Core;
 using SharpJIT.Runtime;
 
@@ -75,14 +76,46 @@ namespace SharpJIT.Loader
         {
             this.Source = source;
             this.Target = target;
-            this.BranchTypes = new ReadOnlyCollection<BaseType>(branchTypes);
+            this.BranchTypes = new List<BaseType>(branchTypes);
+        }
+    }
+
+    /// <summary>
+    /// Holds data for the verification of a function
+    /// </summary>
+    public sealed class VerifierData
+    {
+        /// <summary>
+        /// The function to verify
+        /// </summary>
+        public Function Function { get; }
+
+        /// <summary>
+        /// The operand stack
+        /// </summary>
+        public Stack<BaseType> OperandStack { get; }
+
+        /// <summary>
+        /// The branches
+        /// </summary>
+        public IList<BranchCheck> Branches { get; }
+
+        /// <summary>
+        /// Creates new verifier data
+        /// </summary>
+        /// <param name="function">The function</param>
+        public VerifierData(Function function)
+        {
+            this.Function = function;
+            this.OperandStack = new Stack<BaseType>();
+            this.Branches = new List<BranchCheck>();
         }
     }
 
     /// <summary>
     /// Represents a verifier
     /// </summary>
-    public sealed class Verifier
+    public sealed class Verifier : InstructionPass<VerifierData>
     {
         private readonly VirtualMachine virtualMachine;
 
@@ -107,28 +140,48 @@ namespace SharpJIT.Loader
         }
 
         /// <summary>
+        /// Throws an error
+        /// </summary>
+        /// <param name="verifierData">The verifier data</param>
+        /// <param name="instruction">The current instruction</param>
+        /// <param name="index">The current index</param>
+        /// <param name="message">The message</param>
+        private void ThrowError(VerifierData verifierData, Instruction instruction, int index, string message)
+        {
+            throw new VerificationException(
+                message,
+                verifierData.Function,
+                instruction,
+                index);
+        }
+
+        /// <summary>
         /// Asserts that the given amount of operand exists on the stack.
         /// </summary>
-        private void AssertOperandCount(Function function, Instruction instruction, int index, Stack<BaseType> operandStack, int count)
+        private void AssertOperandCount(VerifierData verifierData, Instruction instruction, int index, int count)
         {
-            if (operandStack.Count < count)
+            if (verifierData.OperandStack.Count < count)
             {
-                throw new VerificationException(
-                    $"Expected {count} operands on the stack, but got: {operandStack.Count}.",
-                    function, instruction, index);
+                this.ThrowError(
+                    verifierData,
+                    instruction,
+                    index,
+                    $"Expected {count} operands on the stack, but got: {verifierData.OperandStack.Count}.");
             }
         }
 
         /// <summary>
         /// Asserts that the given types are equal
         /// </summary>
-        private void AssertSameType(Function function, Instruction instruction, int index, BaseType expectedType, BaseType actualType)
+        private void AssertSameType(VerifierData verifierData, Instruction instruction, int index, BaseType expectedType, BaseType actualType)
         {
             if (expectedType != actualType)
             {
-                throw new VerificationException(
-                    $"Expected type '{expectedType}' but got type '{actualType}'.",
-                    function, instruction, index);
+                this.ThrowError(
+                    verifierData,
+                    instruction,
+                    index,
+                    $"Expected type '{expectedType}' but got type '{actualType}'.");
             }
         }
 
@@ -137,12 +190,16 @@ namespace SharpJIT.Loader
         /// </summary>
         /// <param name="typeName">The name of the type</param>
         /// <returns>The type</returns>
-        private BaseType AssertTypeExists(Function function, Instruction instruction, int index, string typeName)
+        private BaseType AssertTypeExists(VerifierData verifierData, Instruction instruction, int index, string typeName)
         {
             var type = this.virtualMachine.TypeProvider.FindType(typeName);
             if (type == null)
             {
-                throw new VerificationException($"'{typeName}' is not a valid type.", function, instruction, index);
+                this.ThrowError(
+                    verifierData,
+                    instruction,
+                    index,
+                    $"'{typeName}' is not a valid type.");
             }
 
             return type;
@@ -152,33 +209,33 @@ namespace SharpJIT.Loader
         /// Asserts that the given type is not the void type
         /// </summary>
         /// <param name="type">The type</param>
-        private void AssertNotVoidType(Function function, Instruction instruction, int index, BaseType type)
+        private void AssertNotVoidType(VerifierData verifierData, Instruction instruction, int index, BaseType type)
         {
             if (type == voidType)
             {
-                throw new VerificationException(
-                    "The void type is not allowed for this instruction",
-                    function,
+                this.ThrowError(
+                    verifierData,
                     instruction,
-                    index);
+                    index,
+                    "The void type is not allowed for this instruction");
             }
         }
 
         /// <summary>
         /// Verifies the definition for the given function
         /// </summary>
-        /// <param name="function">The function</param>
-        private void VerifyDefinition(Function function)
+        /// <param name="verifierData">The verifier data</param>
+        private void VerifyDefinition(VerifierData verifierData)
         {
-            foreach (var parameter in function.Definition.Parameters)
+            foreach (var parameter in verifierData.Function.Definition.Parameters)
             {
                 if (parameter == this.voidType)
                 {
-                    throw new VerificationException(
-                        "'Void' is not a valid parameter type.",
-                        function,
+                    this.ThrowError(
+                        verifierData,
                         new Instruction(),
-                        0);
+                        0,
+                        "'Void' is not a valid parameter type.");
                 }
             }
         }
@@ -186,14 +243,12 @@ namespace SharpJIT.Loader
         /// <summary>
         /// Verifies the given branches
         /// </summary>
-        /// <param name="function">The function being verified</param>
-        /// <param name="branches">The branches</param>
-        private void VerifyBranches(Function function, IList<BranchCheck> branches)
+        private void VerifyBranches(VerifierData verifierData)
         {
-            foreach (var branch in branches)
+            foreach (var branch in verifierData.Branches)
             {
                 var postSourceTypes = branch.BranchTypes;
-                var preTargetTypes = function.OperandTypes[branch.Target];
+                var preTargetTypes = verifierData.Function.OperandTypes[branch.Target];
 
                 if (postSourceTypes.Count == preTargetTypes.Count)
                 {
@@ -203,8 +258,8 @@ namespace SharpJIT.Loader
                         var preType = preTargetTypes[i];
 
                         this.AssertSameType(
-                            function,
-                            function.Instructions[branch.Source],
+                            verifierData,
+                            verifierData.Function.Instructions[branch.Source],
                             branch.Source,
                             preType,
                             postType);
@@ -212,103 +267,233 @@ namespace SharpJIT.Loader
                 }
                 else
                 {
-                    throw new VerificationException(
-                        "Expected the number of types before and after branch to be the same.",
-                        function,
-                        function.Instructions[branch.Source],
-                        branch.Source);
+                    this.ThrowError(
+                        verifierData,
+                        verifierData.Function.Instructions[branch.Source],
+                        branch.Source,
+                        "Expected the number of types before and after branch to be the same.");
                 }
             }
         }
 
         /// <summary>
+        /// Verifies that given function has the correct semantics
+        /// </summary>
+        /// <param name="function">The function</param>
+        public void VerifyFunction(Function function)
+        {
+            var verifierData = new VerifierData(function);
+
+            if (function.Instructions.Count == 0)
+            {
+                this.ThrowError(
+                    verifierData,
+                    new Instruction(),
+                    0,
+                    "Empty functions are not allowed.");
+            }
+
+            this.VerifyDefinition(verifierData);
+
+            for (int i = 0; i < function.Instructions.Count; i++)
+            {
+                var instruction = function.Instructions[i];
+
+                //Calculate the maximum size of the operand stack
+                function.OperandStackSize = Math.Max(function.OperandStackSize, verifierData.OperandStack.Count);
+
+                this.Handle(verifierData, instruction, i);
+
+                if (i == function.Instructions.Count - 1)
+                {
+                    if (instruction.OpCode != OpCodes.Return)
+                    {
+                        this.ThrowError(
+                            verifierData,
+                            instruction,
+                            i,
+                            "Functions must end with a return instruction.");
+                    }
+                }
+            }
+
+            this.VerifyBranches(verifierData);
+        }
+
+        public override void Handle(VerifierData data, Instruction instruction, int index)
+        {
+            data.Function.OperandTypes[index].AddRange(data.OperandStack.ToList());
+            base.Handle(data, instruction, index);
+        }
+
+        protected override void HandlePop(VerifierData verifierData, Instruction instruction, int index)
+        {
+            this.AssertOperandCount(verifierData, instruction, index, 1);
+            verifierData.OperandStack.Pop();
+        }
+
+        protected override void HandleLoadInt(VerifierData verifierData, Instruction instruction, int index)
+        {
+            verifierData.OperandStack.Push(this.intType);
+        }
+
+        protected override void HandleLoadFloat(VerifierData verifierData, Instruction instruction, int index)
+        {
+            verifierData.OperandStack.Push(this.floatType);
+        }
+
+        /// <summary>
         /// Verifies the given int arithmetic operations
         /// </summary>
-        private void VerifyIntArithmetic(Function function, Instruction instruction, int index, Stack<BaseType> operandStack)
+        private void VerifyIntArithmetic(VerifierData verifierData, Instruction instruction, int index)
         {
-            this.AssertOperandCount(function, instruction, index, operandStack, 2);
-            var op1 = operandStack.Pop();
-            var op2 = operandStack.Pop();
+            this.AssertOperandCount(verifierData, instruction, index, 2);
+            var op1 = verifierData.OperandStack.Pop();
+            var op2 = verifierData.OperandStack.Pop();
 
-            this.AssertSameType(function, instruction, index, this.intType, op1);
-            this.AssertSameType(function, instruction, index, this.intType, op2);
+            this.AssertSameType(verifierData, instruction, index, this.intType, op1);
+            this.AssertSameType(verifierData, instruction, index, this.intType, op2);
 
-            operandStack.Push(this.intType);
+            verifierData.OperandStack.Push(this.intType);
         }
+
+        protected override void HandleAddInt(VerifierData verifierData, Instruction instruction, int index)
+            => this.VerifyIntArithmetic(verifierData, instruction, index);
+
+        protected override void HandleSubInt(VerifierData verifierData, Instruction instruction, int index)
+            => this.VerifyIntArithmetic(verifierData, instruction, index);
+
+        protected override void HandleMulInt(VerifierData verifierData, Instruction instruction, int index)
+            => this.VerifyIntArithmetic(verifierData, instruction, index);
+
+        protected override void HandleDivInt(VerifierData verifierData, Instruction instruction, int index)
+            => this.VerifyIntArithmetic(verifierData, instruction, index);
 
         /// <summary>
         /// Verifies the given float arithmetic operations
         /// </summary>
-        private void VerifyFloatArithmetic(Function function, Instruction instruction, int index, Stack<BaseType> operandStack)
+        private void VerifyFloatArithmetic(VerifierData verifierData, Instruction instruction, int index)
         {
-            this.AssertOperandCount(function, instruction, index, operandStack, 2);
-            var op1 = operandStack.Pop();
-            var op2 = operandStack.Pop();
+            this.AssertOperandCount(verifierData, instruction, index, 2);
+            var op1 = verifierData.OperandStack.Pop();
+            var op2 = verifierData.OperandStack.Pop();
 
-            this.AssertSameType(function, instruction, index, this.floatType, op1);
-            this.AssertSameType(function, instruction, index, this.floatType, op2);
+            this.AssertSameType(verifierData, instruction, index, this.floatType, op1);
+            this.AssertSameType(verifierData, instruction, index, this.floatType, op2);
 
-            operandStack.Push(this.floatType);
+            verifierData.OperandStack.Push(this.floatType);
         }
 
-        /// <summary>
-        /// Verifies the given load boolean instruction
-        /// </summary>
-        private void VerifyLoadBoolean(Function function, Instruction instruction, int index, Stack<BaseType> operandStack)
+        protected override void HandleAddFloat(VerifierData verifierData, Instruction instruction, int index)
+            => this.VerifyFloatArithmetic(verifierData, instruction, index);
+
+        protected override void HandleSubFloat(VerifierData verifierData, Instruction instruction, int index)
+            => this.VerifyFloatArithmetic(verifierData, instruction, index);
+
+        protected override void HandleMulFloat(VerifierData verifierData, Instruction instruction, int index)
+            => this.VerifyFloatArithmetic(verifierData, instruction, index);
+
+        protected override void HandleDivFloat(VerifierData verifierData, Instruction instruction, int index)
+            => this.VerifyFloatArithmetic(verifierData, instruction, index);
+
+        protected override void HandleLoadTrue(VerifierData verifierData, Instruction instruction, int index)
         {
-            operandStack.Push(this.boolType);
+            verifierData.OperandStack.Push(this.boolType);
+        }
+
+        protected override void HandleLoadFalse(VerifierData verifierData, Instruction instruction, int index)
+        {
+            verifierData.OperandStack.Push(this.boolType);
         }
 
         /// <summary>
         /// Verifies the given binary logical operations
         /// </summary>
-        private void VerifyBinaryLogicalOperators(Function function, Instruction instruction, int index, Stack<BaseType> operandStack)
+        private void VerifyBinaryLogicalOperators(VerifierData verifierData, Instruction instruction, int index)
         {
-            this.AssertOperandCount(function, instruction, index, operandStack, 2);
-
-            var op1 = operandStack.Pop();
-            var op2 = operandStack.Pop();
+            this.AssertOperandCount(verifierData, instruction, index, 2);
+        
+            var op1 = verifierData.OperandStack.Pop();
+            var op2 = verifierData.OperandStack.Pop();
 
             if (op1.IsPrimitiveType(PrimitiveTypes.Bool) && op2.IsPrimitiveType(PrimitiveTypes.Bool))
             {
-                operandStack.Push(this.boolType);
+                verifierData.OperandStack.Push(this.boolType);
             }
             else
             {
-                throw new VerificationException(
-                    $"Expected two operands of type '{this.boolType.Name}' on the stack.",
-                    function,
+                this.ThrowError(
+                    verifierData,
                     instruction,
-                    index);
+                    index,
+                    $"Expected two operands of type '{this.boolType.Name}' on the stack.");
             }
         }
 
-        /// <summary>
-        /// Verifies the given not instruction
-        /// </summary>
-        private void VerifyNot(Function function, Instruction instruction, int index, Stack<BaseType> operandStack)
-        {
-            this.AssertOperandCount(function, instruction, index, operandStack, 1);
+        protected override void HandleAnd(VerifierData verifierData, Instruction instruction, int index)
+            => this.VerifyBinaryLogicalOperators(verifierData, instruction, index);
 
-            var op = operandStack.Pop();
+        protected override void HandleOr(VerifierData verifierData, Instruction instruction, int index)
+            => this.VerifyBinaryLogicalOperators(verifierData, instruction, index);
+
+        protected override void HandleNot(VerifierData verifierData, Instruction instruction, int index)
+        {
+            this.AssertOperandCount(verifierData, instruction, index, 1);
+
+            var op = verifierData.OperandStack.Pop();
             if (op.IsPrimitiveType(PrimitiveTypes.Bool))
             {
-                operandStack.Push(this.boolType);
+                verifierData.OperandStack.Push(this.boolType);
             }
             else
             {
-                throw new VerificationException(
-                    $"Expected one operand of type '{this.boolType.Name}' on the stack.",
-                    function,
+                this.ThrowError(
+                    verifierData,
                     instruction,
-                    index);
+                    index,
+                    $"Expected one operand of type '{this.boolType.Name}' on the stack.");
             }
         }
 
-        /// <summary>
-        /// Verifies the given call instruction
-        /// </summary>
-        private void VerifyCall(Function function, Instruction instruction, int index, Stack<BaseType> operandStack)
+        protected override void HandleLoadLocal(VerifierData verifierData, Instruction instruction, int index)
+        {
+            var locals = verifierData.Function.Locals;
+            if (instruction.IntValue >= 0 && instruction.IntValue < locals.Count)
+            {
+                verifierData.OperandStack.Push(locals[instruction.IntValue]);
+            }
+            else
+            {
+                this.ThrowError(
+                    verifierData,
+                    instruction,
+                    index,
+                    $"Local index {instruction.IntValue} is not valid.");
+            }
+        }
+
+        protected override void HandleStoreLocal(VerifierData verifierData, Instruction instruction, int index)
+        {
+            this.AssertOperandCount(verifierData, instruction, index, 1);
+            var locals = verifierData.Function.Locals;
+
+            if (instruction.IntValue >= 0 && instruction.IntValue < locals.Count)
+            {
+                var op = verifierData.OperandStack.Pop();
+                var local = locals[instruction.IntValue];
+                this.AssertSameType(verifierData, instruction, index, local, op);
+            }
+            else
+            {
+                this.ThrowError(
+                    verifierData,
+                    instruction,
+                    index,
+                    $"Local index {instruction.IntValue} is not valid.");
+            }
+        }
+
+        protected override void HandleCall(VerifierData verifierData, Instruction instruction, int index)
         {
             var signature = this.virtualMachine.Binder.FunctionSignature(
                 instruction.StringValue,
@@ -319,115 +504,186 @@ namespace SharpJIT.Loader
             //Check that the function exists
             if (funcToCall == null)
             {
-                throw new VerificationException(
-                    $"There exists no function with the signature '{signature}'.",
-                    function, instruction, index);
+                this.ThrowError(
+                    verifierData,
+                    instruction,
+                    index,
+                    $"There exists no function with the signature '{signature}'.");
             }
 
             //Check argument types
             int numParams = funcToCall.Parameters.Count;
-            this.AssertOperandCount(function, instruction, index, operandStack, numParams);
+            this.AssertOperandCount(verifierData, instruction, index, numParams);
 
             for (int argIndex = numParams - 1; argIndex >= 0; argIndex--)
             {
-                var op = operandStack.Pop();
+                var op = verifierData.OperandStack.Pop();
                 var arg = funcToCall.Parameters[argIndex];
-                this.AssertSameType(function, instruction, index, arg, op);
+                this.AssertSameType(verifierData, instruction, index, arg, op);
             }
 
             if (funcToCall.ReturnType != this.voidType)
             {
-                operandStack.Push(funcToCall.ReturnType);
+                verifierData.OperandStack.Push(funcToCall.ReturnType);
             }
         }
+
+        protected override void HandleReturn(VerifierData verifierData, Instruction instruction, int index)
+        {
+            int returnCount = 0;
+            var functionDefinition = verifierData.Function.Definition;
+
+            if (functionDefinition.ReturnType != this.voidType)
+            {
+                returnCount = 1;
+            }
+
+            if (verifierData.OperandStack.Count == returnCount)
+            {
+                if (returnCount > 0)
+                {
+                    var returnType = verifierData.OperandStack.Pop();
+
+                    if (returnType != functionDefinition.ReturnType)
+                    {
+                        this.ThrowError(
+                            verifierData,
+                            instruction,
+                            index,
+                            $"Expected return type of '{functionDefinition.ReturnType}' but got type '{returnType}'.");
+                    }
+                }
+            }
+            else
+            {
+                this.ThrowError(
+                    verifierData,
+                    instruction,
+                    index,
+                    $"Expected {returnCount} operand(s) on the stack when returning but got {verifierData.OperandStack.Count} operands.");
+            }
+        }
+
+        protected override void HandleLoadArgument(VerifierData verifierData, Instruction instruction, int index)
+        {
+            var functionDefinition = verifierData.Function.Definition;
+            if (instruction.IntValue >= 0 && instruction.IntValue < functionDefinition.Parameters.Count)
+            {
+                verifierData.OperandStack.Push(functionDefinition.Parameters[instruction.IntValue]);
+            }
+            else
+            {
+                this.ThrowError(
+                    verifierData,
+                    instruction,
+                    index,
+                    $"Argument index {instruction.IntValue} is not valid.");
+            }
+        }
+
+        protected override void HandleBranch(VerifierData verifierData, Instruction instruction, int index)
+        {
+            //Check if valid target
+            if (!(instruction.IntValue >= 0 && instruction.IntValue <= verifierData.Function.Instructions.Count))
+            {
+                this.ThrowError(
+                    verifierData,
+                    instruction,
+                    index,
+                    $"Invalid jump target ({instruction.IntValue}).");
+            }
+
+            verifierData.Branches.Add(new BranchCheck(index, instruction.IntValue, verifierData.OperandStack.ToList()));
+        }
+
 
         /// <summary>
         /// Verifies the given conditional branch instruction
         /// </summary>
-        private void VerifyConditionalBranch(Function function, Instruction instruction, int index, Stack<BaseType> operandStack, IList<BranchCheck> branches)
+        private void HandleConditionalBranch(VerifierData verifierData, Instruction instruction, int index)
         {
-            this.AssertOperandCount(function, instruction, index, operandStack, 2);
+            this.AssertOperandCount(verifierData, instruction, index, 2);
 
             //Check if valid target
-            if (!(instruction.IntValue >= 0 && instruction.IntValue <= function.Instructions.Count))
+            if (!(instruction.IntValue >= 0 && instruction.IntValue <= verifierData.Function.Instructions.Count))
             {
-                throw new VerificationException(
-                    $"Invalid jump target ({instruction.IntValue}).",
-                    function,
+                this.ThrowError(
+                    verifierData,
                     instruction,
-                    index);
+                    index,
+                    $"Invalid jump target ({instruction.IntValue}).");
             }
 
-            var op1 = operandStack.Pop();
-            var op2 = operandStack.Pop();
+            var op1 = verifierData.OperandStack.Pop();
+            var op2 = verifierData.OperandStack.Pop();
 
             if (op1 == this.intType)
             {
                 if (op2.IsPrimitiveType(PrimitiveTypes.Int))
                 {
-                    branches.Add(new BranchCheck(index, instruction.IntValue, operandStack.ToList()));
+                    verifierData.Branches.Add(new BranchCheck(index, instruction.IntValue, verifierData.OperandStack.ToList()));
                 }
                 else
                 {
-                    throw new VerificationException(
-                        "Expected two operands of type 'Int' on the stack.",
-                        function,
+                    this.ThrowError(
+                        verifierData,
                         instruction,
-                        index);
+                        index,
+                        "Expected two operands of type 'Int' on the stack.");
                 }
             }
             else if (op2 == this.floatType)
             {
                 if (op2.IsPrimitiveType(PrimitiveTypes.Float))
                 {
-                    branches.Add(new BranchCheck(index, instruction.IntValue, operandStack.ToList()));
+                    verifierData.Branches.Add(new BranchCheck(index, instruction.IntValue, verifierData.OperandStack.ToList()));
                 }
                 else
                 {
-                    throw new VerificationException(
-                        "Expected two operands of type 'Float' on the stack.",
-                        function,
+                    this.ThrowError(
+                        verifierData,
                         instruction,
-                        index);
+                        index,
+                        "Expected two operands of type 'Float' on the stack.");
                 }
             }
             else
             {
-                throw new VerificationException(
-                    "Expected two operands of comparable type on the stack.",
-                    function,
+                this.ThrowError(
+                    verifierData,
                     instruction,
-                    index);
+                    index,
+                    "Expected two operands of comparable type on the stack.");
             }
         }
 
-        /// <summary>
-        /// Verifies the given branch instruction
-        /// </summary>
-        private void VerifyBranch(Function function, Instruction instruction, int index, Stack<BaseType> operandStack, IList<BranchCheck> branches)
-        {
-            //Check if valid target
-            if (!(instruction.IntValue >= 0 && instruction.IntValue <= function.Instructions.Count))
-            {
-                throw new VerificationException(
-                    $"Invalid jump target ({instruction.IntValue}).",
-                    function,
-                    instruction,
-                    index);
-            }
+        protected override void HandleBranchEqual(VerifierData verifierData, Instruction instruction, int index)
+            => this.HandleConditionalBranch(verifierData, instruction, index);
 
-            branches.Add(new BranchCheck(index, instruction.IntValue, operandStack.ToList()));
-        }
+        protected override void HandleBranchNotEqual(VerifierData verifierData, Instruction instruction, int index)
+            => this.HandleConditionalBranch(verifierData, instruction, index);
+
+        protected override void HandleBranchGreaterThan(VerifierData verifierData, Instruction instruction, int index)
+            => this.HandleConditionalBranch(verifierData, instruction, index);
+
+        protected override void HandleBranchGreaterThanOrEqual(VerifierData verifierData, Instruction instruction, int index)
+            => this.HandleConditionalBranch(verifierData, instruction, index);
+
+        protected override void HandleBranchLessThan(VerifierData verifierData, Instruction instruction, int index)
+            => this.HandleConditionalBranch(verifierData, instruction, index);
+
+        protected override void HandleBranchLessThanOrEqual(VerifierData verifierData, Instruction instruction, int index)
+            => this.HandleConditionalBranch(verifierData, instruction, index);
 
         /// <summary>
         /// Verifies the given compare instruction
         /// </summary>
-        private void VerifyCompare(Function function, Instruction instruction, int index, Stack<BaseType> operandStack)
+        private void HandleCompare(VerifierData verifierData, Instruction instruction, int index)
         {
-            this.AssertOperandCount(function, instruction, index, operandStack, 2);
+            this.AssertOperandCount(verifierData, instruction, index, 2);
 
-            var op1 = operandStack.Pop();
-            var op2 = operandStack.Pop();
+            var op1 = verifierData.OperandStack.Pop();
+            var op2 = verifierData.OperandStack.Pop();
 
             if (instruction.OpCode == OpCodes.CompareEqual || instruction.OpCode == OpCodes.CompareNotEqual)
             {
@@ -435,442 +691,223 @@ namespace SharpJIT.Loader
                 {
                     if (op2.IsPrimitiveType(PrimitiveTypes.Int))
                     {
-                        operandStack.Push(this.boolType);
+                        verifierData.OperandStack.Push(this.boolType);
                     }
                     else
                     {
-                        throw new VerificationException(
-                            $"Expected two operands of type {this.intType.Name} on the stack.",
-                            function,
+                        this.ThrowError(
+                            verifierData,
                             instruction,
-                            index);
+                            index,
+                            $"Expected two operands of type {this.intType.Name} on the stack.");
                     }
                 }
                 else if (op1 == this.boolType)
                 {
                     if (op2.IsPrimitiveType(PrimitiveTypes.Bool))
                     {
-                        operandStack.Push(this.boolType);
+                        verifierData.OperandStack.Push(this.boolType);
                     }
                     else
                     {
-                        throw new VerificationException(
-                            $"Expected two operands of type {this.boolType.Name} on the stack.",
-                            function,
+                        this.ThrowError(
+                            verifierData,
                             instruction,
-                            index);
+                            index,
+                            $"Expected two operands of type {this.boolType.Name} on the stack.");
                     }
                 }
                 else if (op1 == this.floatType)
                 {
                     if (op2.IsPrimitiveType(PrimitiveTypes.Float))
                     {
-                        operandStack.Push(this.boolType);
+                        verifierData.OperandStack.Push(this.boolType);
                     }
                     else
                     {
-                        throw new VerificationException(
-                            $"Expected two operands of type {this.floatType.Name} on the stack.",
-                            function,
+                        this.ThrowError(
+                            verifierData,
                             instruction,
-                            index);
+                            index,
+                            $"Expected two operands of type {this.floatType.Name} on the stack.");
                     }
                 }
                 else if (op1 == op2)
                 {
-                    operandStack.Push(this.boolType);
+                    verifierData.OperandStack.Push(this.boolType);
                 }
                 else
                 {
-                    throw new VerificationException(
-                        "Expected two operands of comparable type on the stack.",
-                        function,
+                    this.ThrowError(
+                        verifierData,
                         instruction,
-                        index);
+                        index,
+                        "Expected two operands of comparable type on the stack.");
                 }
             }
             else
             {
                 if (op1.IsPrimitiveType(PrimitiveTypes.Int) && op2.IsPrimitiveType(PrimitiveTypes.Int))
                 {
-                    operandStack.Push(this.boolType);
+                    verifierData.OperandStack.Push(this.boolType);
                 }
                 else if (op1.IsPrimitiveType(PrimitiveTypes.Float) && op2.IsPrimitiveType(PrimitiveTypes.Float))
                 {
-                    operandStack.Push(this.boolType);
+                    verifierData.OperandStack.Push(this.boolType);
                 }
                 else
                 {
-                    throw new VerificationException(
-                        $"Expected two operands of type {this.intType.Name} or {this.floatType.Name} on the stack.",
-                        function,
+                    this.ThrowError(
+                        verifierData,
                         instruction,
-                        index);
+                        index,
+                        $"Expected two operands of type {this.intType.Name} or {this.floatType.Name} on the stack.");
                 }
             }
         }
 
-        /// <summary>
-        /// Verifies the given store local instruction
-        /// </summary>
-        private void VerifyStoreLocal(Function function, Instruction instruction, int index, Stack<BaseType> operandStack)
-        {
-            this.AssertOperandCount(function, instruction, index, operandStack, 1);
+        protected override void HandleCompareEqual(VerifierData verifierData, Instruction instruction, int index)
+            => this.HandleCompare(verifierData, instruction, index);
 
-            if (instruction.IntValue >= 0 && instruction.IntValue < function.Locals.Count)
-            {
-                var op = operandStack.Pop();
-                var local = function.Locals[instruction.IntValue];
-                this.AssertSameType(function, instruction, index, local, op);
-            }
-            else
-            {
-                throw new VerificationException(
-                    $"Local index {instruction.IntValue} is not valid.",
-                    function, instruction, index);
-            }
+        protected override void HandleCompareNotEqual(VerifierData verifierData, Instruction instruction, int index)
+            => this.HandleCompare(verifierData, instruction, index);
+
+        protected override void HandleCompareGreaterThan(VerifierData verifierData, Instruction instruction, int index)
+            => this.HandleCompare(verifierData, instruction, index);
+
+        protected override void HandleCompareGreaterThanOrEqual(VerifierData verifierData, Instruction instruction, int index)
+           => this.HandleCompare(verifierData, instruction, index);
+
+        protected override void HandleCompareLessThan(VerifierData verifierData, Instruction instruction, int index)
+            => this.HandleCompare(verifierData, instruction, index);
+
+        protected override void HandleCompareLessThanOrEqual(VerifierData verifierData, Instruction instruction, int index)
+            => this.HandleCompare(verifierData, instruction, index);
+
+        protected override void HandleLoadNull(VerifierData verifierData, Instruction instruction, int index)
+        {
+            verifierData.OperandStack.Push(this.nullType);
         }
 
-        /// <summary>
-        /// Verifies the given load local instruction
-        /// </summary>
-        private void VerifyLoadLocal(Function function, Instruction instruction, int index, Stack<BaseType> operandStack)
+        protected override void HandleNewArray(VerifierData verifierData, Instruction instruction, int index)
         {
-            if (instruction.IntValue >= 0 && instruction.IntValue < function.Locals.Count)
-            {
-                operandStack.Push(function.Locals[instruction.IntValue]);
-            }
-            else
-            {
-                throw new VerificationException(
-                    $"Local index {instruction.IntValue} is not valid.",
-                    function, instruction, index);
-            }
-        }
-
-        /// <summary>
-        /// Verifies the given load argument instruction
-        /// </summary>
-        private void VerifyLoadArgument(Function function, Instruction instruction, int index, Stack<BaseType> operandStack)
-        {
-            if (instruction.IntValue >= 0 && instruction.IntValue < function.Definition.Parameters.Count)
-            {
-                operandStack.Push(function.Definition.Parameters[instruction.IntValue]);
-            }
-            else
-            {
-                throw new VerificationException(
-                    $"Argument index {instruction.IntValue} is not valid.",
-                    function, instruction, index);
-            }
-        }
-
-        /// <summary>
-        /// Verifies the given load argument function
-        /// </summary>
-        private void VerifyReturn(Function function, Instruction instruction, int index, Stack<BaseType> operandStack)
-        {
-            int returnCount = 0;
-
-            if (function.Definition.ReturnType != this.voidType)
-            {
-                returnCount = 1;
-            }
-
-            if (operandStack.Count == returnCount)
-            {
-                if (returnCount > 0)
-                {
-                    var returnType = operandStack.Pop();
-
-                    if (returnType != function.Definition.ReturnType)
-                    {
-                        throw new VerificationException(
-                            $"Expected return type of '{function.Definition.ReturnType}' but got type '{returnType}'.",
-                            function, instruction, index);
-                    }
-                }
-            }
-            else
-            {
-                throw new VerificationException(
-                    $"Expected {returnCount} operand(s) on the stack when returning but got {operandStack.Count} operands.",
-                    function, instruction, index);
-            }
-        }
-
-        /// <summary>
-        /// Verifies the given load null instruction
-        /// </summary>
-        private void VerifyLoadNull(Function function, Instruction instruction, int index, Stack<BaseType> operandStack)
-        {
-            operandStack.Push(this.nullType);
-        }
-
-        /// <summary>
-        /// Verifies the given create array instruction
-        /// </summary>
-        private void VerifyCreateArray(Function function, Instruction instruction, int index, Stack<BaseType> operandStack)
-        {
-            AssertOperandCount(function, instruction, index, operandStack, 1);
-            AssertSameType(function, instruction, index, this.intType, operandStack.Pop());
-            var elementType = AssertTypeExists(function, instruction, index, instruction.StringValue);
+            AssertOperandCount(verifierData, instruction, index, 1);
+            AssertSameType(verifierData, instruction, index, this.intType, verifierData.OperandStack.Pop());
+            var elementType = AssertTypeExists(verifierData, instruction, index, instruction.StringValue);
 
             if (elementType == this.voidType)
             {
-                throw new VerificationException($"Arrays of type '{elementType.Name}' are not allowed.", function, instruction, index);
+                this.ThrowError(
+                    verifierData,
+                    instruction,
+                    index,
+                    $"Arrays of type '{elementType.Name}' are not allowed.");
             }
 
-            operandStack.Push(this.virtualMachine.TypeProvider.FindArrayType(elementType));
+            verifierData.OperandStack.Push(this.virtualMachine.TypeProvider.FindArrayType(elementType));
         }
 
-        /// <summary>
-        /// Verifies the given load array length instruction
-        /// </summary>
-        private void VerifyLoadArrayLength(Function function, Instruction instruction, int index, Stack<BaseType> operandStack)
+        protected override void HandleLoadArrayLength(VerifierData verifierData, Instruction instruction, int index)
         {
-            AssertOperandCount(function, instruction, index, operandStack, 1);
-            var arrayRefType = operandStack.Pop();
+            AssertOperandCount(verifierData, instruction, index, 1);
+            var arrayRefType = verifierData.OperandStack.Pop();
 
             if (!arrayRefType.IsArray() && arrayRefType != this.nullType)
             {
-                throw new VerificationException(
-                    "Expected operand to be an array reference.",
-                    function,
+                this.ThrowError(
+                    verifierData,
                     instruction,
-                    index);
+                    index,
+                    "Expected operand to be an array reference.");
             }
 
-            operandStack.Push(this.intType);
+            verifierData.OperandStack.Push(this.intType);
         }
 
-        /// <summary>
-        /// Verifies the given store element instruction
-        /// </summary>
-        private void VerifyStoreElement(Function function, Instruction instruction, int index, Stack<BaseType> operandStack)
+        protected override void HandleLoadElement(VerifierData verifierData, Instruction instruction, int index)
         {
-            AssertOperandCount(function, instruction, index, operandStack, 3);
+            AssertOperandCount(verifierData, instruction, index, 2);
 
-            var valueType = operandStack.Pop();
-            var indexType = operandStack.Pop();
-            var arrayReferenceType = operandStack.Pop();
-
-            var isNullType = arrayReferenceType == this.nullType;
-
-            if (!arrayReferenceType.IsArray() && !isNullType)
-            {
-                throw new VerificationException(
-                    $"Expected first operand to be an array reference, but got type: {arrayReferenceType.Name}.",
-                    function,
-                    instruction,
-                    index);
-            }
-
-            if (!indexType.IsPrimitiveType(PrimitiveTypes.Int))
-            {
-                throw new VerificationException(
-                    $"Expected second operand to be of type {this.intType.Name} but got type: {indexType.Name}.",
-                    function,
-                    instruction,
-                    index);
-            }
-
-            var elementType = AssertTypeExists(function, instruction, index, instruction.StringValue);
-            AssertNotVoidType(function, instruction, index, elementType);
-
-            if (!isNullType)
-            {
-                var arrayElementType = (arrayReferenceType as ArrayType).ElementType;
-                AssertSameType(function, instruction, index, arrayElementType, elementType);
-            }
-
-            if (valueType != elementType)
-            {
-                throw new VerificationException(
-                    $"Expected third operand to be of type {elementType.Name}.",
-                    function,
-                    instruction,
-                    index);
-            }
-        }
-
-        /// <summary>
-        /// Verifies the given load element instruction
-        /// </summary>
-        private void VerifyLoadElement(Function function, Instruction instruction, int index, Stack<BaseType> operandStack)
-        {
-            AssertOperandCount(function, instruction, index, operandStack, 2);
-
-            var indexType = operandStack.Pop();
-            var arrayReferenceType = operandStack.Pop();
+            var indexType = verifierData.OperandStack.Pop();
+            var arrayReferenceType = verifierData.OperandStack.Pop();
 
             bool isNullType = arrayReferenceType == this.nullType;
 
             if (!arrayReferenceType.IsArray() && !isNullType)
             {
-                throw new VerificationException(
-                    $"Expected first operand to be an array reference, but got type: {arrayReferenceType.Name}.",
-                    function,
+                this.ThrowError(
+                    verifierData,
                     instruction,
-                    index);
+                    index,
+                    $"Expected first operand to be an array reference, but got type: {arrayReferenceType.Name}.");
             }
 
             if (!indexType.IsPrimitiveType(PrimitiveTypes.Int))
             {
-                throw new VerificationException(
-                    $"Expected second operand to be of type {this.intType.Name} but got type: {indexType.Name}.",
-                    function,
+                this.ThrowError(
+                    verifierData,
                     instruction,
-                    index);
+                    index,
+                    $"Expected second operand to be of type {this.intType.Name} but got type: {indexType.Name}.");
             }
 
-            var elementType = this.AssertTypeExists(function, instruction, index, instruction.StringValue);
-            AssertNotVoidType(function, instruction, index, elementType);
+            var elementType = this.AssertTypeExists(verifierData, instruction, index, instruction.StringValue);
+            AssertNotVoidType(verifierData, instruction, index, elementType);
 
             if (!isNullType)
             {
                 var arrayElementType = (arrayReferenceType as ArrayType).ElementType;
-                AssertSameType(function, instruction, index, arrayElementType, elementType);
+                AssertSameType(verifierData, instruction, index, arrayElementType, elementType);
             }
 
-            operandStack.Push(elementType);
+            verifierData.OperandStack.Push(elementType);
         }
 
-        /// <summary>
-        /// Verifies the given instruction
-        /// </summary>
-        private void VerifyInstruction(Function function, Instruction instruction, int index, Stack<BaseType> operandStack, IList<BranchCheck> branches)
+        protected override void HandleStoreElement(VerifierData verifierData, Instruction instruction, int index)
         {
-            function.OperandTypes[index].AddRange(operandStack.ToList());
+            AssertOperandCount(verifierData, instruction, index, 3);
 
-            switch (instruction.OpCode)
+            var valueType = verifierData.OperandStack.Pop();
+            var indexType = verifierData.OperandStack.Pop();
+            var arrayReferenceType = verifierData.OperandStack.Pop();
+
+            var isNullType = arrayReferenceType == this.nullType;
+
+            if (!arrayReferenceType.IsArray() && !isNullType)
             {
-                case OpCodes.Pop:
-                    this.AssertOperandCount(function, instruction, index, operandStack, 1);
-                    operandStack.Pop();
-                    break;
-                case OpCodes.LoadInt:
-                    operandStack.Push(this.intType);
-                    break;
-                case OpCodes.LoadFloat:
-                    operandStack.Push(this.floatType);
-                    break;
-                case OpCodes.AddInt:
-                case OpCodes.SubInt:
-                case OpCodes.MulInt:
-                case OpCodes.DivInt:
-                    VerifyIntArithmetic(function, instruction, index, operandStack);
-                    break;
-                case OpCodes.AddFloat:
-                case OpCodes.SubFloat:
-                case OpCodes.MulFloat:
-                case OpCodes.DivFloat:
-                    VerifyFloatArithmetic(function, instruction, index, operandStack);
-                    break;
-                case OpCodes.LoadTrue:
-                case OpCodes.LoadFalse:
-                    VerifyLoadBoolean(function, instruction, index, operandStack);
-                    break;
-                case OpCodes.And:
-                case OpCodes.Or:
-                    VerifyBinaryLogicalOperators(function, instruction, index, operandStack);
-                    break;
-                case OpCodes.Not:
-                    VerifyNot(function, instruction, index, operandStack);
-                    break;
-                case OpCodes.Call:
-                    VerifyCall(function, instruction, index, operandStack);
-                    break;
-                case OpCodes.Return:
-                    VerifyReturn(function, instruction, index, operandStack);
-                    break;
-                case OpCodes.LoadArgument:
-                    VerifyLoadArgument(function, instruction, index, operandStack);
-                    break;
-                case OpCodes.LoadLocal:
-                    VerifyLoadLocal(function, instruction, index, operandStack);
-                    break;
-                case OpCodes.StoreLocal:
-                    VerifyStoreLocal(function, instruction, index, operandStack);
-                    break;
-                case OpCodes.Branch:
-                    VerifyBranch(function, instruction, index, operandStack, branches);
-                    break;
-                case OpCodes.BranchEqual:
-                case OpCodes.BranchNotEqual:
-                case OpCodes.BranchGreaterThan:
-                case OpCodes.BranchGreaterThanOrEqual:
-                case OpCodes.BranchLessThan:
-                case OpCodes.BranchLessOrEqual:
-                    VerifyConditionalBranch(function, instruction, index, operandStack, branches);
-                    break;
-                case OpCodes.CompareEqual:
-                case OpCodes.CompareNotEqual:
-                case OpCodes.CompareGreaterThan:
-                case OpCodes.CompareGreaterThanOrEqual:
-                case OpCodes.CompareLessThan:
-                case OpCodes.CompareLessThanOrEqual:
-                    VerifyCompare(function, instruction, index, operandStack);
-                    break;
-                case OpCodes.LoadNull:
-                    VerifyLoadNull(function, instruction, index, operandStack);
-                    break;
-                case OpCodes.NewArray:
-                    VerifyCreateArray(function, instruction, index, operandStack);
-                    break;
-                case OpCodes.LoadArrayLength:
-                    VerifyLoadArrayLength(function, instruction, index, operandStack);
-                    break;
-                case OpCodes.StoreElement:
-                    VerifyStoreElement(function, instruction, index, operandStack);
-                    break;
-                case OpCodes.LoadElement:
-                    VerifyLoadElement(function, instruction, index, operandStack);
-                    break;
-            }
-        }
-
-        /// <summary>
-        /// Verifies that given function has the correct semantics
-        /// </summary>
-        /// <param name="function">The function</param>
-        public void VerifyFunction(Function function)
-        {
-            var operandStack = new Stack<BaseType>();
-            var branches = new List<BranchCheck>();
-
-            if (function.Instructions.Count == 0)
-            {
-                throw new VerificationException(
-                    "Empty functions are not allowed.",
-                    function,
-                    new Instruction(),
-                    0);
+                this.ThrowError(
+                    verifierData,
+                    instruction,
+                    index,
+                    $"Expected first operand to be an array reference, but got type: {arrayReferenceType.Name}.");
             }
 
-            this.VerifyDefinition(function);
-
-            for (int i = 0; i < function.Instructions.Count; i++)
+            if (!indexType.IsPrimitiveType(PrimitiveTypes.Int))
             {
-                var instruction = function.Instructions[i];
-
-                //Calculate the maximum size of the operand stack
-                function.OperandStackSize = Math.Max(function.OperandStackSize, operandStack.Count);
-
-                this.VerifyInstruction(function, instruction, i, operandStack, branches);
-
-                if (i == function.Instructions.Count - 1)
-                {
-                    if (instruction.OpCode != OpCodes.Return)
-                    {
-                        throw new VerificationException(
-                            "Functions must end with a return instruction.",
-                            function, instruction, i);
-                    }
-                }
+                this.ThrowError(
+                    verifierData,
+                    instruction,
+                    index,
+                    $"Expected second operand to be of type {this.intType.Name} but got type: {indexType.Name}.");
             }
 
-            this.VerifyBranches(function, branches);
+            var elementType = AssertTypeExists(verifierData, instruction, index, instruction.StringValue);
+            AssertNotVoidType(verifierData, instruction, index, elementType);
+
+            if (!isNullType)
+            {
+                var arrayElementType = (arrayReferenceType as ArrayType).ElementType;
+                AssertSameType(verifierData, instruction, index, arrayElementType, elementType);
+            }
+
+            if (valueType != elementType)
+            {
+                this.ThrowError(
+                    verifierData,
+                    instruction,
+                    index,
+                    $"Expected third operand to be of type {elementType.Name}.");
+            }
         }
     }
 }

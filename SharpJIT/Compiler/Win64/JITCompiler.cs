@@ -16,7 +16,7 @@ namespace SharpJIT.Compiler.Win64
     public class JITCompiler : IJITCompiler
     {
         private readonly VirtualMachine virtualMachine;
-        private readonly CodeGenerator2 codeGenerator;
+        private readonly CodeGenerator codeGenerator;
         private readonly IDictionary<Function, CompilationData> compiledFunctions = new Dictionary<Function, CompilationData>();
 
         /// <summary>
@@ -26,7 +26,7 @@ namespace SharpJIT.Compiler.Win64
         public JITCompiler(VirtualMachine virtualMachine)
         {
             this.virtualMachine = virtualMachine;
-            this.codeGenerator = new CodeGenerator2(virtualMachine);
+            this.codeGenerator = new CodeGenerator(virtualMachine);
         }
 
         /// <summary>

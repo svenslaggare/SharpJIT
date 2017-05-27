@@ -38,8 +38,8 @@ namespace SharpJIT.Compiler.Win64
             }
 
             var handlerFunctionPointer = Marshal.GetFunctionPointerForDelegate(handlerFunction);
-            assembler.Move(ExtendedRegister.R11, handlerFunctionPointer.ToInt64());
-            assembler.CallInRegister(ExtendedRegister.R11);
+            assembler.Move(Register.R11, handlerFunctionPointer.ToInt64());
+            assembler.CallInRegister(Register.R11);
 
             if (shadowSpace > 0)
             {
@@ -82,7 +82,10 @@ namespace SharpJIT.Compiler.Win64
         /// <param name="compilationData">The function compilation data</param>
         /// <param name="refRegister">The register where the reference is located</param>
         /// <param name="compareRegister">The register where the result of the comparison will be stored</param>
-        public void AddNullCheck(CompilationData compilationData, Register refRegister = Register.AX, ExtendedRegister compareRegister = ExtendedRegister.R11)
+        public void AddNullCheck(
+            CompilationData compilationData,
+            Register refRegister = Register.AX,
+            Register compareRegister = Register.R11)
         {
             var assembler = compilationData.Assembler;
 
@@ -99,15 +102,22 @@ namespace SharpJIT.Compiler.Win64
         /// Adds an array bounds check
         /// </summary>
         /// <param name="compilationData">The function compilation data</param>
-        public void AddArrayBoundsCheck(CompilationData compilationData)
+        /// <param name="refRegister">The register where the array is stored</param>
+        /// <param name="indexRegister">The register where the index is stored</param>
+        /// <param name="compareRegister">The register used for comparison</param>
+        public void AddArrayBoundsCheck(
+            CompilationData compilationData,
+            Register refRegister = Register.AX,
+            Register indexRegister = Register.R10,
+            Register compareRegister = Register.CX)
         {
             var assembler = compilationData.Assembler;
 
             //Get the size of the array (an int)
-            assembler.Move(Register.CX, new MemoryOperand(Register.AX), DataSize.Size32);
+            assembler.Move(compareRegister, new MemoryOperand(refRegister), DataSize.Size32);
 
             //Compare the index and size
-            assembler.Compare(ExtendedRegister.R10, Register.CX);
+            assembler.Compare(indexRegister, compareRegister);
 
             //Jump to handler if out of bounds. By using an unsigned comparison, we only need one check.
             assembler.Jump(JumpCondition.GreaterThanOrEqual, 0, true);
@@ -118,12 +128,17 @@ namespace SharpJIT.Compiler.Win64
         /// Adds an array creation check
         /// </summary>
         /// <param name="compilationData">The function compilation data</param>
-        public void AddArrayCreationCheck(CompilationData compilationData)
+        /// <param name="sizeRegister">The register where the size is stored</param>
+        /// <param name="compareRegister">The register used for comparison</param>
+        public void AddArrayCreationCheck(
+            CompilationData compilationData,
+            Register sizeRegister = IntCallingConventions.Argument1,
+            Register compareRegister = Register.R11)
         {
             var assembler = compilationData.Assembler;
 
-            assembler.Xor(ExtendedRegister.R11, ExtendedRegister.R11); //Zero the register
-            assembler.Compare(ExtendedRegister.R11, IntCallingConventions.Argument1);
+            assembler.Xor(compareRegister, compareRegister); //Zero the register
+            assembler.Compare(compareRegister, sizeRegister);
 
             //Jump to handler if invalid
             assembler.Jump(JumpCondition.GreaterThan, 0);

@@ -57,12 +57,12 @@ namespace SharpJIT.Compiler.Win64
         /// <summary>
         /// The third argument
         /// </summary>
-        public const ExtendedRegister Argument2 = ExtendedRegister.R8;
+        public const Register Argument2 = Register.R8;
 
         /// <summary>
         /// The fourth argument
         /// </summary>
-        public const ExtendedRegister Argument3 = ExtendedRegister.R9;
+        public const Register Argument3 = Register.R9;
 
         /// <summary>
         /// The return value register

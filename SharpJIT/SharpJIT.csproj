@@ -59,7 +59,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="SharpAssembler, Version=1.0.0.0, Culture=neutral, processorArchitecture=AMD64">
-      <HintPath>..\packages\SharpAssembler.0.1.5\lib\SharpAssembler.dll</HintPath>
+      <HintPath>..\packages\SharpAssembler.0.1.6\lib\SharpAssembler.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -75,18 +75,18 @@
     <Compile Include="Compiler\Disassembler.cs" />
     <Compile Include="Compiler\IJITCompiler.cs" />
     <Compile Include="Compiler\INativeDisassembler.cs" />
-    <Compile Include="Compiler\Win64\CodeGenerator2.cs" />
+    <Compile Include="Compiler\Win64\CodeGenerator.cs" />
     <Compile Include="Compiler\Win64\ExceptionHandling.cs" />
     <Compile Include="Core\InstructionPass.cs" />
     <Compile Include="Core\Objects\ClassMetadata.cs" />
     <Compile Include="Core\Objects\ClassMetadataProvider.cs" />
     <Compile Include="Core\Objects\Field.cs" />
     <Compile Include="Core\SampleInstructionPass.cs" />
-    <Compile Include="Loader\Verifier2.cs" />
+    <Compile Include="Loader\Verifier.cs" />
     <Compile Include="Runtime\Memory\MemoryManager.cs" />
     <Compile Include="Compiler\NativeHelpers.cs" />
     <Compile Include="Compiler\Win64\CallingConvetions.cs" />
-    <Compile Include="Compiler\Win64\CodeGenerator.cs" />
+    <Compile Include="Compiler\Win64\OldCodeGenerator.cs" />
     <Compile Include="Compiler\Win64\CompilationData.cs" />
     <Compile Include="Compiler\Win64\Disassembler.cs" />
     <Compile Include="Compiler\Win64\JITCompiler.cs" />
@@ -102,7 +102,7 @@
     <Compile Include="Core\Constants.cs" />
     <Compile Include="Core\Helpers\SettingsHelpers.cs" />
     <Compile Include="Core\TypeProvider.cs" />
-    <Compile Include="Loader\Verifier.cs" />
+    <Compile Include="Loader\OldVerifier.cs" />
     <Compile Include="Runtime\Memory\CollectorGeneration.cs" />
     <Compile Include="Runtime\Memory\ManagedHeap.cs" />
     <Compile Include="Runtime\Memory\ObjectReferences.cs" />

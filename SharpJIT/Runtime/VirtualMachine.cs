@@ -41,7 +41,7 @@ namespace SharpJIT.Runtime
         /// <summary>
         /// The verifier
         /// </summary>
-        public Verifier2 Verifier { get; }
+        public Verifier Verifier { get; }
 
         /// <summary>
         /// The object references
@@ -73,7 +73,7 @@ namespace SharpJIT.Runtime
         {
             this.TypeProvider = new TypeProvider(this.ClassMetadataProvider);
             this.Compiler = createCompilerFn(this);
-            this.Verifier = new Verifier2(this);
+            this.Verifier = new Verifier(this);
             this.GarbageCollector = new GarbageCollector(this);
         }
 
