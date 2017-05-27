@@ -46,6 +46,40 @@ namespace SharpJIT.Loader
     }
 
     /// <summary>
+    /// Represents a branch check
+    /// </summary>
+    public sealed class BranchCheck
+    {
+        /// <summary>
+        /// The source instruction
+        /// </summary>
+        public int Source { get; }
+
+        /// <summary>
+        /// The target instruction
+        /// </summary>
+        public int Target { get; }
+
+        /// <summary>
+        /// The types before the branch
+        /// </summary>
+        public IReadOnlyList<BaseType> BranchTypes { get; }
+
+        /// <summary>
+        /// Creates a new branch check
+        /// </summary>
+        /// <param name="source">The source</param>
+        /// <param name="target">The target</param>
+        /// <param name="branchTypes">The branch types</param>
+        public BranchCheck(int source, int target, IList<BaseType> branchTypes)
+        {
+            this.Source = source;
+            this.Target = target;
+            this.BranchTypes = new ReadOnlyCollection<BaseType>(branchTypes);
+        }
+    }
+
+    /// <summary>
     /// Represents a verifier
     /// </summary>
     public sealed class Verifier
@@ -70,40 +104,6 @@ namespace SharpJIT.Loader
             this.boolType = this.virtualMachine.TypeProvider.FindPrimitiveType(PrimitiveTypes.Bool);
             this.voidType = this.virtualMachine.TypeProvider.FindPrimitiveType(PrimitiveTypes.Void);
             this.nullType = this.virtualMachine.TypeProvider.FindType("Ref.Null");
-        }
-
-        /// <summary>
-        /// Represents a branch check
-        /// </summary>
-        private class BranchCheck
-        {
-            /// <summary>
-            /// The source instruction
-            /// </summary>
-            public int Source { get; }
-
-            /// <summary>
-            /// The target instruction
-            /// </summary>
-            public int Target { get; }
-
-            /// <summary>
-            /// The types before the branch
-            /// </summary>
-            public IReadOnlyList<BaseType> BranchTypes { get; }
-
-            /// <summary>
-            /// Creates a new branch check
-            /// </summary>
-            /// <param name="source">The source</param>
-            /// <param name="target">The target</param>
-            /// <param name="branchTypes">The branch types</param>
-            public BranchCheck(int source, int target, IList<BaseType> branchTypes)
-            {
-                this.Source = source;
-                this.Target = target;
-                this.BranchTypes = new ReadOnlyCollection<BaseType>(branchTypes);
-            }
         }
 
         /// <summary>

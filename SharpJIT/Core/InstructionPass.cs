@@ -10,187 +10,188 @@ namespace SharpJIT.Core
     /// <summary>
     /// Represents a pass for instructions
     /// </summary>
-    public abstract class InstructionPass
+    /// <typeparam name="T">Type of extra argument</typeparam>
+    public abstract class InstructionPass<T>
     {
         /// <summary>
         /// Handles the given instruction
         /// </summary>
-        /// <param name="compilationData">The complation data for the function</param>
+        /// <param name="data">The complation data for the function</param>
         /// <param name="instruction">The instruction</param>
         /// <param name="index">The index of the instruction</param>
-        public virtual void Handle(CompilationData compilationData, Instruction instruction, int index)
+        public virtual void Handle(T data, Instruction instruction, int index)
         {
             switch (instruction.OpCode)
             {
                 case OpCodes.Pop:
-                    this.HandlePop(compilationData, instruction, index);
+                    this.HandlePop(data, instruction, index);
                     break;
                 case OpCodes.LoadInt:
-                    this.HandleLoadInt(compilationData, instruction, index);
+                    this.HandleLoadInt(data, instruction, index);
                     break;
                 case OpCodes.LoadFloat:
-                    this.HandleLoadFloat(compilationData, instruction, index);
+                    this.HandleLoadFloat(data, instruction, index);
                     break;
                 case OpCodes.AddInt:
-                    this.HandleAddInt(compilationData, instruction, index);
+                    this.HandleAddInt(data, instruction, index);
                     break;
                 case OpCodes.SubInt:
-                    this.HandleSubInt(compilationData, instruction, index);
+                    this.HandleSubInt(data, instruction, index);
                     break;
                 case OpCodes.MulInt:
-                    this.HandleMulInt(compilationData, instruction, index);
+                    this.HandleMulInt(data, instruction, index);
                     break;
                 case OpCodes.DivInt:
-                    this.HandleDivInt(compilationData, instruction, index);
+                    this.HandleDivInt(data, instruction, index);
                     break;
                 case OpCodes.AddFloat:
-                    this.HandleAddFloat(compilationData, instruction, index);
+                    this.HandleAddFloat(data, instruction, index);
                     break;
                 case OpCodes.SubFloat:
-                    this.HandleSubFloat(compilationData, instruction, index);
+                    this.HandleSubFloat(data, instruction, index);
                     break;
                 case OpCodes.MulFloat:
-                    this.HandleMulFloat(compilationData, instruction, index);
+                    this.HandleMulFloat(data, instruction, index);
                     break;
                 case OpCodes.DivFloat:
-                    this.HandleDivFloat(compilationData, instruction, index);
+                    this.HandleDivFloat(data, instruction, index);
                     break;
                 case OpCodes.LoadTrue:
-                    this.HandleLoadTrue(compilationData, instruction, index);
+                    this.HandleLoadTrue(data, instruction, index);
                     break;
                 case OpCodes.LoadFalse:
-                    this.HandleLoadFalse(compilationData, instruction, index);
+                    this.HandleLoadFalse(data, instruction, index);
                     break;
                 case OpCodes.And:
-                    this.HandleAnd(compilationData, instruction, index);
+                    this.HandleAnd(data, instruction, index);
                     break;
                 case OpCodes.Or:
-                    this.HandleOr(compilationData, instruction, index);
+                    this.HandleOr(data, instruction, index);
                     break;
                 case OpCodes.Not:
-                    this.HandleNot(compilationData, instruction, index);
+                    this.HandleNot(data, instruction, index);
                     break;
                 case OpCodes.Call:
-                    this.HandleCall(compilationData, instruction, index);
+                    this.HandleCall(data, instruction, index);
                     break;
                 case OpCodes.Return:
-                    this.HandleReturn(compilationData, instruction, index);
+                    this.HandleReturn(data, instruction, index);
                     break;
                 case OpCodes.LoadArgument:
-                    this.HandleLoadArgument(compilationData, instruction, index);
+                    this.HandleLoadArgument(data, instruction, index);
                     break;
                 case OpCodes.LoadLocal:
-                    this.HandleLoadLocal(compilationData, instruction, index);
+                    this.HandleLoadLocal(data, instruction, index);
                     break;
                 case OpCodes.StoreLocal:
-                    this.HandleStoreLocal(compilationData, instruction, index);
+                    this.HandleStoreLocal(data, instruction, index);
                     break;
                 case OpCodes.Branch:
-                    this.HandleBranch(compilationData, instruction, index);
+                    this.HandleBranch(data, instruction, index);
                     break;
                 case OpCodes.BranchEqual:
-                    this.HandleBranchEqual(compilationData, instruction, index);
+                    this.HandleBranchEqual(data, instruction, index);
                     break;
                 case OpCodes.BranchNotEqual:
-                    this.HandleBranchNotEqual(compilationData, instruction, index);
+                    this.HandleBranchNotEqual(data, instruction, index);
                     break;
                 case OpCodes.BranchGreaterThan:
-                    this.HandleBranchGreaterThan(compilationData, instruction, index);
+                    this.HandleBranchGreaterThan(data, instruction, index);
                     break;
                 case OpCodes.BranchGreaterThanOrEqual:
-                    this.HandleBranchGreaterThanOrEqual(compilationData, instruction, index);
+                    this.HandleBranchGreaterThanOrEqual(data, instruction, index);
                     break;
                 case OpCodes.BranchLessThan:
-                    this.HandleBranchLessThan(compilationData, instruction, index);
+                    this.HandleBranchLessThan(data, instruction, index);
                     break;
                 case OpCodes.BranchLessOrEqual:
-                    this.HandleBranchLessThanOrEqual(compilationData, instruction, index);
+                    this.HandleBranchLessThanOrEqual(data, instruction, index);
                     break;
                 case OpCodes.CompareEqual:
-                    this.HandleCompareEqual(compilationData, instruction, index);
+                    this.HandleCompareEqual(data, instruction, index);
                     break;
                 case OpCodes.CompareNotEqual:
-                    this.HandleCompareNotEqual(compilationData, instruction, index);
+                    this.HandleCompareNotEqual(data, instruction, index);
                     break;
                 case OpCodes.CompareGreaterThan:
-                    this.HandleCompareGreaterThan(compilationData, instruction, index);
+                    this.HandleCompareGreaterThan(data, instruction, index);
                     break;
                 case OpCodes.CompareGreaterThanOrEqual:
-                    this.HandleCompareGreaterThanOrEqual(compilationData, instruction, index);
+                    this.HandleCompareGreaterThanOrEqual(data, instruction, index);
                     break;
                 case OpCodes.CompareLessThan:
-                    this.HandleCompareLessThan(compilationData, instruction, index);
+                    this.HandleCompareLessThan(data, instruction, index);
                     break;
                 case OpCodes.CompareLessThanOrEqual:
-                    this.HandleCompareLessThanOrEqual(compilationData, instruction, index);
+                    this.HandleCompareLessThanOrEqual(data, instruction, index);
                     break;
                 case OpCodes.LoadNull:
-                    this.HandleLoadNull(compilationData, instruction, index);
+                    this.HandleLoadNull(data, instruction, index);
                     break;
                 case OpCodes.NewArray:
-                    this.HandleNewArray(compilationData, instruction, index);
+                    this.HandleNewArray(data, instruction, index);
                     break;
                 case OpCodes.LoadArrayLength:
-                    this.HandleLoadArrayLength(compilationData, instruction, index);
+                    this.HandleLoadArrayLength(data, instruction, index);
                     break;
                 case OpCodes.StoreElement:
-                    this.HandleStoreElement(compilationData, instruction, index);
+                    this.HandleStoreElement(data, instruction, index);
                     break;
                 case OpCodes.LoadElement:
-                    this.HandleLoadElement(compilationData, instruction, index);
+                    this.HandleLoadElement(data, instruction, index);
                     break;
             }
         }
 
-        protected abstract void HandlePop(CompilationData compilationData, Instruction instruction, int index);
+        protected abstract void HandlePop(T data, Instruction instruction, int index);
 
-        protected abstract void HandleLoadInt(CompilationData compilationData, Instruction instruction, int index);
-        protected abstract void HandleLoadFloat(CompilationData compilationData, Instruction instruction, int index);
+        protected abstract void HandleLoadInt(T data, Instruction instruction, int index);
+        protected abstract void HandleLoadFloat(T data, Instruction instruction, int index);
 
-        protected abstract void HandleAddInt(CompilationData compilationData, Instruction instruction, int index);
-        protected abstract void HandleSubInt(CompilationData compilationData, Instruction instruction, int index);
-        protected abstract void HandleMulInt(CompilationData compilationData, Instruction instruction, int index);
-        protected abstract void HandleDivInt(CompilationData compilationData, Instruction instruction, int index);
+        protected abstract void HandleAddInt(T data, Instruction instruction, int index);
+        protected abstract void HandleSubInt(T data, Instruction instruction, int index);
+        protected abstract void HandleMulInt(T data, Instruction instruction, int index);
+        protected abstract void HandleDivInt(T data, Instruction instruction, int index);
 
-        protected abstract void HandleAddFloat(CompilationData compilationData, Instruction instruction, int index);
-        protected abstract void HandleSubFloat(CompilationData compilationData, Instruction instruction, int index);
-        protected abstract void HandleMulFloat(CompilationData compilationData, Instruction instruction, int index);
-        protected abstract void HandleDivFloat(CompilationData compilationData, Instruction instruction, int index);
+        protected abstract void HandleAddFloat(T data, Instruction instruction, int index);
+        protected abstract void HandleSubFloat(T data, Instruction instruction, int index);
+        protected abstract void HandleMulFloat(T data, Instruction instruction, int index);
+        protected abstract void HandleDivFloat(T data, Instruction instruction, int index);
 
-        protected abstract void HandleLoadTrue(CompilationData compilationData, Instruction instruction, int index);
-        protected abstract void HandleLoadFalse(CompilationData compilationData, Instruction instruction, int index);
+        protected abstract void HandleLoadTrue(T data, Instruction instruction, int index);
+        protected abstract void HandleLoadFalse(T data, Instruction instruction, int index);
 
-        protected abstract void HandleAnd(CompilationData compilationData, Instruction instruction, int index);
-        protected abstract void HandleOr(CompilationData compilationData, Instruction instruction, int index);
-        protected abstract void HandleNot(CompilationData compilationData, Instruction instruction, int index);
+        protected abstract void HandleAnd(T data, Instruction instruction, int index);
+        protected abstract void HandleOr(T data, Instruction instruction, int index);
+        protected abstract void HandleNot(T data, Instruction instruction, int index);
 
-        protected abstract void HandleLoadLocal(CompilationData compilationData, Instruction instruction, int index);
-        protected abstract void HandleStoreLocal(CompilationData compilationData, Instruction instruction, int index);
+        protected abstract void HandleLoadLocal(T data, Instruction instruction, int index);
+        protected abstract void HandleStoreLocal(T data, Instruction instruction, int index);
 
-        protected abstract void HandleCall(CompilationData compilationData, Instruction instruction, int index);
-        protected abstract void HandleReturn(CompilationData compilationData, Instruction instruction, int index);
-        protected abstract void HandleLoadArgument(CompilationData compilationData, Instruction instruction, int index);
+        protected abstract void HandleCall(T data, Instruction instruction, int index);
+        protected abstract void HandleReturn(T data, Instruction instruction, int index);
+        protected abstract void HandleLoadArgument(T data, Instruction instruction, int index);
 
-        protected abstract void HandleBranch(CompilationData compilationData, Instruction instruction, int index);
-        protected abstract void HandleBranchEqual(CompilationData compilationData, Instruction instruction, int index);
-        protected abstract void HandleBranchNotEqual(CompilationData compilationData, Instruction instruction, int index);
-        protected abstract void HandleBranchLessThan(CompilationData compilationData, Instruction instruction, int index);
-        protected abstract void HandleBranchLessThanOrEqual(CompilationData compilationData, Instruction instruction, int index);
-        protected abstract void HandleBranchGreaterThan(CompilationData compilationData, Instruction instruction, int index);
-        protected abstract void HandleBranchGreaterThanOrEqual(CompilationData compilationData, Instruction instruction, int index);
+        protected abstract void HandleBranch(T data, Instruction instruction, int index);
+        protected abstract void HandleBranchEqual(T data, Instruction instruction, int index);
+        protected abstract void HandleBranchNotEqual(T data, Instruction instruction, int index);
+        protected abstract void HandleBranchLessThan(T data, Instruction instruction, int index);
+        protected abstract void HandleBranchLessThanOrEqual(T data, Instruction instruction, int index);
+        protected abstract void HandleBranchGreaterThan(T data, Instruction instruction, int index);
+        protected abstract void HandleBranchGreaterThanOrEqual(T data, Instruction instruction, int index);
 
-        protected abstract void HandleCompareEqual(CompilationData compilationData, Instruction instruction, int index);
-        protected abstract void HandleCompareNotEqual(CompilationData compilationData, Instruction instruction, int index);
-        protected abstract void HandleCompareLessThan(CompilationData compilationData, Instruction instruction, int index);
-        protected abstract void HandleCompareLessThanOrEqual(CompilationData compilationData, Instruction instruction, int index);
-        protected abstract void HandleCompareGreaterThan(CompilationData compilationData, Instruction instruction, int index);
-        protected abstract void HandleCompareGreaterThanOrEqual(CompilationData compilationData, Instruction instruction, int index);
+        protected abstract void HandleCompareEqual(T data, Instruction instruction, int index);
+        protected abstract void HandleCompareNotEqual(T data, Instruction instruction, int index);
+        protected abstract void HandleCompareLessThan(T data, Instruction instruction, int index);
+        protected abstract void HandleCompareLessThanOrEqual(T data, Instruction instruction, int index);
+        protected abstract void HandleCompareGreaterThan(T data, Instruction instruction, int index);
+        protected abstract void HandleCompareGreaterThanOrEqual(T data, Instruction instruction, int index);
 
-        protected abstract void HandleLoadNull(CompilationData compilationData, Instruction instruction, int index);
+        protected abstract void HandleLoadNull(T data, Instruction instruction, int index);
 
-        protected abstract void HandleNewArray(CompilationData compilationData, Instruction instruction, int index);
-        protected abstract void HandleLoadArrayLength(CompilationData compilationData, Instruction instruction, int index);
-        protected abstract void HandleLoadElement(CompilationData compilationData, Instruction instruction, int index);
-        protected abstract void HandleStoreElement(CompilationData compilationData, Instruction instruction, int index);
+        protected abstract void HandleNewArray(T data, Instruction instruction, int index);
+        protected abstract void HandleLoadArrayLength(T data, Instruction instruction, int index);
+        protected abstract void HandleLoadElement(T data, Instruction instruction, int index);
+        protected abstract void HandleStoreElement(T data, Instruction instruction, int index);
     }
 }

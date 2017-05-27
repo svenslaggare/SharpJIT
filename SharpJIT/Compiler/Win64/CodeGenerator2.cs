@@ -13,7 +13,7 @@ namespace SharpJIT.Compiler.Win64
     /// <summary>
     /// Represents a code generator
     /// </summary>
-    public class CodeGenerator2 : InstructionPass
+    public class CodeGenerator2 : InstructionPass<CompilationData>
     {
         private readonly VirtualMachine virtualMachine;
         private readonly CallingConventions callingConventions = new CallingConventions();

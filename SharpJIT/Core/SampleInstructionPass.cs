@@ -7,7 +7,7 @@ using SharpJIT.Compiler.Win64;
 
 namespace SharpJIT.Core
 {
-    public class SampleInstructionPass : InstructionPass
+    public class SampleInstructionPass : InstructionPass<CompilationData>
     {
         protected override void HandlePop(CompilationData compilationData, Instruction instruction, int index)
         {
