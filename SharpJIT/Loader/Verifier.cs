@@ -18,7 +18,7 @@ namespace SharpJIT.Loader
         /// <summary>
         /// The function being verified
         /// </summary>
-        public Function Function { get; }
+        public ManagedFunction Function { get; }
 
         /// <summary>
         /// The instruction being verified
@@ -37,7 +37,7 @@ namespace SharpJIT.Loader
         /// <param name="function">The function being verified</param>
         /// <param name="instruction">The instruction being verified</param>
         /// <param name="index">The index of the instruction</param>
-        public VerificationException(string message, Function function, Instruction instruction, int index)
+        public VerificationException(string message, ManagedFunction function, Instruction instruction, int index)
             : base($"{index}: {message}")
         {
             this.Function = function;
@@ -88,7 +88,7 @@ namespace SharpJIT.Loader
         /// <summary>
         /// The function to verify
         /// </summary>
-        public Function Function { get; }
+        public ManagedFunction Function { get; }
 
         /// <summary>
         /// The operand stack
@@ -104,7 +104,7 @@ namespace SharpJIT.Loader
         /// Creates new verifier data
         /// </summary>
         /// <param name="function">The function</param>
-        public VerifierData(Function function)
+        public VerifierData(ManagedFunction function)
         {
             this.Function = function;
             this.OperandStack = new Stack<BaseType>();
@@ -280,7 +280,7 @@ namespace SharpJIT.Loader
         /// Verifies that given function has the correct semantics
         /// </summary>
         /// <param name="function">The function</param>
-        public void VerifyFunction(Function function)
+        public void VerifyFunction(ManagedFunction function)
         {
             var verifierData = new VerifierData(function);
 

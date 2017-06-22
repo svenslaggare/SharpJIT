@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 namespace SharpJIT.Core
 {
 	/// <summary>
-	/// Represents a function
+	/// Represents a managed function
 	/// </summary>
-	public class Function
+	public sealed class ManagedFunction
 	{
         /// <summary>
         /// The function definition
@@ -23,7 +23,7 @@ namespace SharpJIT.Core
         public IReadOnlyList<Instruction> Instructions { get; }
 
         /// <summary>
-        /// The types of locals
+        /// The type of locals
         /// </summary>
         public IReadOnlyList<BaseType> Locals { get; }
 
@@ -43,16 +43,16 @@ namespace SharpJIT.Core
         public IReadOnlyList<IList<BaseType>> OperandTypes { get; }
 
         /// <summary>
-        /// Creates a new function
+        /// Creates a new managed function
         /// </summary>
         /// <param name="definition">The function definition</param>
-        /// <param name="instructions">The instructions</param>
         /// <param name="locals">The type of the locals</param>
-        public Function(FunctionDefinition definition, IList<Instruction> instructions, IList<BaseType> locals)
-		{
+        /// <param name="instructions">The instructions</param>
+        public ManagedFunction(FunctionDefinition definition, IList<BaseType> locals, IList<Instruction> instructions)
+        {
             this.Definition = definition;
-            this.Instructions = new ReadOnlyCollection<Instruction>(instructions);
-            this.Locals = new ReadOnlyCollection<BaseType>(locals);
+            this.Instructions = new ReadOnlyCollection<Instruction>(new List<Instruction>(instructions));
+            this.Locals = new ReadOnlyCollection<BaseType>(new List<BaseType>(locals));
 
             this.OperandTypes = new ReadOnlyCollection<IList<BaseType>>(
                 instructions.Select<Instruction, IList<BaseType>>(x => new List<BaseType>()).ToList());

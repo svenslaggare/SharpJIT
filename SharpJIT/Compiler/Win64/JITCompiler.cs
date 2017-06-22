@@ -17,7 +17,7 @@ namespace SharpJIT.Compiler.Win64
     {
         private readonly VirtualMachine virtualMachine;
         private readonly CodeGenerator codeGenerator;
-        private readonly IDictionary<Function, CompilationData> compiledFunctions = new Dictionary<Function, CompilationData>();
+        private readonly IDictionary<ManagedFunction, CompilationData> compiledFunctions = new Dictionary<ManagedFunction, CompilationData>();
 
         /// <summary>
         /// Creates a new compiler
@@ -45,7 +45,7 @@ namespace SharpJIT.Compiler.Win64
         /// </summary>
         /// <param name="function">The function</param>
         /// <returns>The data or null if not compiled</returns>
-        public AbstractCompilationData GetCompilationData(Function function)
+        public AbstractCompilationData GetCompilationData(ManagedFunction function)
         {
             if (this.compiledFunctions.TryGetValue(function, out var compilationData))
             {
@@ -60,7 +60,7 @@ namespace SharpJIT.Compiler.Win64
         /// </summary>
         /// <param name="function">The function to compile</param>
         /// <returns>A pointer to the start of the compiled function</returns>
-        public IntPtr Compile(Function function)
+        public IntPtr Compile(ManagedFunction function)
         {
             //Compile the function
             var compilationData = new CompilationData(function);

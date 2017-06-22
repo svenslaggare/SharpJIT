@@ -14,7 +14,7 @@ namespace SharpJIT.Compiler.Win64
     /// </summary>
     public sealed class OperandStack
     {
-        private readonly Function function;
+        private readonly ManagedFunction function;
         private readonly Assembler assembler;
         private int operandTopIndex;
 
@@ -23,7 +23,7 @@ namespace SharpJIT.Compiler.Win64
         /// </summary>
         /// <param name="function">The function</param>
         /// <param name="assembler">The assembler</param>
-        public OperandStack(Function function, Assembler assembler)
+        public OperandStack(ManagedFunction function, Assembler assembler)
         {
             this.function = function;
             this.assembler = assembler;

@@ -15,7 +15,7 @@ namespace SharpJIT.Test.Programs
         /// <summary>
         /// Creates a new branch program
         /// </summary>
-        private Function CreateBranchProgram(Win64Container container, OpCodes branchInstruction, int value1, int value2)
+        private ManagedFunction CreateBranchProgram(Win64Container container, OpCodes branchInstruction, int value1, int value2)
         {
             var intType = container.VirtualMachine.TypeProvider.FindPrimitiveType(PrimitiveTypes.Int);
 
@@ -32,16 +32,16 @@ namespace SharpJIT.Test.Programs
                 new Instruction(OpCodes.LoadLocal, 0),
                 new Instruction(OpCodes.Return)
             };
-            return new Function(
+            return new ManagedFunction(
                 new FunctionDefinition("main", new List<BaseType>(), intType),
-                instructions,
-                new List<BaseType>() { intType });
+                new List<BaseType>() { intType },
+                instructions);
         }
 
         /// <summary>
         /// Creates a new float branch program
         /// </summary>
-        private Function CreateBranchFloatProgram(Win64Container container, OpCodes branchInstruction, float value1, float value2)
+        private ManagedFunction CreateBranchFloatProgram(Win64Container container, OpCodes branchInstruction, float value1, float value2)
         {
             var floatType = container.VirtualMachine.TypeProvider.FindPrimitiveType(PrimitiveTypes.Float);
             var intType = container.VirtualMachine.TypeProvider.FindPrimitiveType(PrimitiveTypes.Int);
@@ -59,10 +59,10 @@ namespace SharpJIT.Test.Programs
                 new Instruction(OpCodes.LoadLocal, 0),
                 new Instruction(OpCodes.Return)
             };
-            return new Function(
+            return new ManagedFunction(
                 new FunctionDefinition("main", new List<BaseType>(), intType),
-                instructions,
-                new List<BaseType>() { intType });
+                new List<BaseType>() { intType },
+                instructions);
         }
 
         /// <summary>

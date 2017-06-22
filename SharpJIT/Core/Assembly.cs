@@ -13,35 +13,45 @@ namespace SharpJIT.Core
     public sealed class Assembly
     {
         /// <summary>
+        /// The name of the assembly
+        /// </summary>
+        public string Name { get; }
+
+        /// <summary>
         /// The functions in the assembly
         /// </summary>
-        public IReadOnlyList<Function> Functions { get; }
+        public IReadOnlyList<ManagedFunction> Functions { get; }
 
         /// <summary>
         /// Creates a new assembly
         /// </summary>
+        /// <param name="name">The name of the assembly</param>
         /// <param name="functions">The functions</param>
-        public Assembly(IList<Function> functions)
+        public Assembly(string name, IList<ManagedFunction> functions)
         {
-            this.Functions = new ReadOnlyCollection<Function>(functions);
+            this.Name = name;
+            this.Functions = new ReadOnlyCollection<ManagedFunction>(new List<ManagedFunction>(functions));
         }
 
         /// <summary>
         /// Creates a new assembly
         /// </summary>
+        /// <param name="name">The name of the assembly</param>
         /// <param name="functions">The functions</param>
-        public Assembly(params Function[] functions)
+        public Assembly(string name, params ManagedFunction[] functions)
         {
-            this.Functions = new ReadOnlyCollection<Function>(functions.ToList());
+            this.Name = name;
+            this.Functions = new ReadOnlyCollection<ManagedFunction>(functions.ToList());
         }
 
         /// <summary>
         /// Creates an assembly that just has one function
         /// </summary>
         /// <param name="function">The function</param>
-        public static Assembly SingleFunction(Function function)
+        /// <param name="name">The name of the assembly</param>
+        public static Assembly SingleFunction(ManagedFunction function, string name = "")
         {
-            return new Assembly(new List<Function>() { function });
+            return new Assembly(name, new List<ManagedFunction>() { function });
         }
     }
 }

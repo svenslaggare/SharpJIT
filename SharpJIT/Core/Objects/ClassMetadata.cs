@@ -37,7 +37,7 @@ namespace SharpJIT.Core.Objects
         /// Returns the fields
         /// </summary>
         /// <remarks>
-        ///     If <see cref="CreateFields"/> has not been called, this returns zero, even if fields has been defined.
+        ///     If <see cref="CreateFields"/> has not been called, this returns zero, even if fields have been defined.
         /// </remarks>
         public IEnumerable<Field> Fields => this.fields.Values;
 

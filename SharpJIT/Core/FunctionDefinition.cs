@@ -11,7 +11,7 @@ namespace SharpJIT.Core
     /// <summary>
     /// Represents a definition for a function
     /// </summary>
-    public class FunctionDefinition
+    public sealed class FunctionDefinition
     {
         /// <summary>
         /// The name of the function

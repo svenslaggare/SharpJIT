@@ -34,13 +34,13 @@ namespace SharpJIT
                 {
                     new Instruction(OpCodes.LoadInt, 10),
                     new Instruction(OpCodes.NewArray, intType.Name),
-                    new Instruction(OpCodes.Pop),
-                    //new Instruction(OpCodes.Call, "std.println", new List<BaseType>() { intArrayType }),
+                    //new Instruction(OpCodes.Pop),
+                    new Instruction(OpCodes.Call, "std.println", new List<BaseType>() { intArrayType }),
                     new Instruction(OpCodes.LoadInt, 0),
                     new Instruction(OpCodes.Return)
                 };
 
-                var assembly = Assembly.SingleFunction(new Function(def, instructions, new List<BaseType>() {}));
+                var assembly = Assembly.SingleFunction(new ManagedFunction(def, new List<BaseType>() { }, instructions));
 
                 container.LoadAssembly(assembly);
                 container.VirtualMachine.Compile();

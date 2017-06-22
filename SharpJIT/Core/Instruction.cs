@@ -211,7 +211,7 @@ namespace SharpJIT.Core
             this.IntValue = 0;
             this.FloatValue = 0.0f;
             this.StringValue = value;
-            this.Parameters = new ReadOnlyCollection<BaseType>(parameters);
+            this.Parameters = new ReadOnlyCollection<BaseType>(new List<BaseType>(parameters));
             this.stringRepresentation = $"OpCode: {opCode}, StringValue: {value}, Parameters: {string.Join(" ", parameters)}";
             this.disassembledInstruction = $"{opCodeNames[opCode].ToUpper()} {value}({string.Join(" ", parameters)})";
         }

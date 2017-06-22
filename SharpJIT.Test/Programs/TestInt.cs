@@ -30,7 +30,7 @@ namespace SharpJIT.Test.Programs
                     new Instruction(OpCodes.AddInt),
                     new Instruction(OpCodes.Return)
                 };
-                var func = new Function(funcDef, instructions, new List<BaseType>());
+                var func = new ManagedFunction(funcDef, new List<BaseType>(), instructions);
                 container.LoadAssembly(Assembly.SingleFunction(func));
                 Assert.AreEqual(3, container.Execute());
             }
@@ -54,7 +54,7 @@ namespace SharpJIT.Test.Programs
                     new Instruction(OpCodes.SubInt),
                     new Instruction(OpCodes.Return)
                 };
-                var func = new Function(funcDef, instructions, new List<BaseType>());
+                var func = new ManagedFunction(funcDef, new List<BaseType>(), instructions);
                 container.LoadAssembly(Assembly.SingleFunction(func));
                 Assert.AreEqual(2, container.Execute());
             }
@@ -78,7 +78,7 @@ namespace SharpJIT.Test.Programs
                     new Instruction(OpCodes.MulInt),
                     new Instruction(OpCodes.Return)
                 };
-                var func = new Function(funcDef, instructions, new List<BaseType>());
+                var func = new ManagedFunction(funcDef, new List<BaseType>(), instructions);
                 container.LoadAssembly(Assembly.SingleFunction(func));
                 Assert.AreEqual(6, container.Execute());
             }
@@ -102,7 +102,7 @@ namespace SharpJIT.Test.Programs
                     new Instruction(OpCodes.DivInt),
                     new Instruction(OpCodes.Return)
                 };
-                var func = new Function(funcDef, instructions, new List<BaseType>());
+                var func = new ManagedFunction(funcDef, new List<BaseType>(), instructions);
                 container.LoadAssembly(Assembly.SingleFunction(func));
                 Assert.AreEqual(4 / 2, container.Execute());
             }

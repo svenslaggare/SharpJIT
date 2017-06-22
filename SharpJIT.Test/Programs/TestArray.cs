@@ -35,8 +35,9 @@ namespace SharpJIT.Test.Programs
             {
                 var intType = container.VirtualMachine.TypeProvider.FindPrimitiveType(PrimitiveTypes.Int);
 
-                var func = new Function(
+                var func = new ManagedFunction(
                     new FunctionDefinition("main", new List<BaseType>(), intType),
+                    new List<BaseType>(),
                     new List<Instruction>()
                     {
                         new Instruction(OpCodes.LoadInt, 10),
@@ -44,8 +45,7 @@ namespace SharpJIT.Test.Programs
                         new Instruction(OpCodes.Pop),
                         new Instruction(OpCodes.LoadInt, 0),
                         new Instruction(OpCodes.Return)
-                    },
-                    new List<BaseType>());
+                    });
 
                 var assembly = Assembly.SingleFunction(func);
 
@@ -95,16 +95,16 @@ namespace SharpJIT.Test.Programs
             {
                 var intType = container.VirtualMachine.TypeProvider.FindPrimitiveType(PrimitiveTypes.Int);
 
-                var func = new Function(
+                var func = new ManagedFunction(
                     new FunctionDefinition("main", new List<BaseType>(), intType),
+                    new List<BaseType>(),
                     new List<Instruction>()
                     {
                         new Instruction(OpCodes.LoadInt, 10),
                         new Instruction(OpCodes.NewArray, intType.Name),
                         new Instruction(OpCodes.LoadArrayLength),
                         new Instruction(OpCodes.Return)
-                    },
-                    new List<BaseType>());
+                    });
 
                 var assembly = Assembly.SingleFunction(func);
 
@@ -152,8 +152,9 @@ namespace SharpJIT.Test.Programs
             {
                 var intType = container.VirtualMachine.TypeProvider.FindPrimitiveType(PrimitiveTypes.Int);
 
-                var func = new Function(
+                var func = new ManagedFunction(
                     new FunctionDefinition("main", new List<BaseType>(), intType),
+                    new List<BaseType>(),
                     new List<Instruction>()
                     {
                         new Instruction(OpCodes.LoadInt, 10),
@@ -163,8 +164,7 @@ namespace SharpJIT.Test.Programs
                         new Instruction(OpCodes.StoreElement, intType.Name),
                         new Instruction(OpCodes.LoadInt, 0),
                         new Instruction(OpCodes.Return)
-                    },
-                    new List<BaseType>());
+                    });
 
                 var assembly = Assembly.SingleFunction(func);
 
@@ -184,8 +184,9 @@ namespace SharpJIT.Test.Programs
             {
                 var intType = container.VirtualMachine.TypeProvider.FindPrimitiveType(PrimitiveTypes.Int);
 
-                var func = new Function(
+                var func = new ManagedFunction(
                     new FunctionDefinition("main", new List<BaseType>(), intType),
+                    new List<BaseType>(),
                     new List<Instruction>()
                     {
                         new Instruction(OpCodes.LoadInt, 10),
@@ -193,8 +194,7 @@ namespace SharpJIT.Test.Programs
                         new Instruction(OpCodes.LoadInt, 0),
                         new Instruction(OpCodes.LoadElement, intType.Name),
                         new Instruction(OpCodes.Return)
-                    },
-                    new List<BaseType>());
+                    });
 
                 var assembly = Assembly.SingleFunction(func);
 
@@ -215,8 +215,9 @@ namespace SharpJIT.Test.Programs
                 var intType = container.VirtualMachine.TypeProvider.FindPrimitiveType(PrimitiveTypes.Int);
                 var arrayIntType = container.VirtualMachine.TypeProvider.FindArrayType(intType);
 
-                var func = new Function(
+                var func = new ManagedFunction(
                     new FunctionDefinition("main", new List<BaseType>(), intType),
+                    new List<BaseType>() { arrayIntType },
                     new List<Instruction>()
                     {
                         new Instruction(OpCodes.LoadInt, 10),
@@ -230,8 +231,7 @@ namespace SharpJIT.Test.Programs
                         new Instruction(OpCodes.LoadInt, 0),
                         new Instruction(OpCodes.LoadElement, intType.Name),
                         new Instruction(OpCodes.Return)
-                    },
-                    new List<BaseType>() { arrayIntType });
+                    });
 
                 var assembly = Assembly.SingleFunction(func);
 
@@ -252,8 +252,9 @@ namespace SharpJIT.Test.Programs
                 var intType = container.VirtualMachine.TypeProvider.FindPrimitiveType(PrimitiveTypes.Int);
                 var arrayIntType = container.VirtualMachine.TypeProvider.FindArrayType(intType);
 
-                var func = new Function(
+                var func = new ManagedFunction(
                     new FunctionDefinition("main", new List<BaseType>(), intType),
+                    new List<BaseType>() { arrayIntType },
                     new List<Instruction>()
                     {
                         new Instruction(OpCodes.LoadInt, 10),
@@ -267,8 +268,7 @@ namespace SharpJIT.Test.Programs
                         new Instruction(OpCodes.LoadInt, 4),
                         new Instruction(OpCodes.LoadElement, intType.Name),
                         new Instruction(OpCodes.Return)
-                    },
-                    new List<BaseType>() { arrayIntType });
+                    });
 
                 var assembly = Assembly.SingleFunction(func);
 

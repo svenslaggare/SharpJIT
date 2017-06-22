@@ -34,7 +34,7 @@ namespace SharpJIT.Compiler.Win64
         /// Creates new compilation data
         /// </summary>
         /// <param name="function">The function</param>
-        public CompilationData(Function function)
+        public CompilationData(ManagedFunction function)
             : base(function)
         {
             this.Assembler = new Assembler(function.GeneratedCode);

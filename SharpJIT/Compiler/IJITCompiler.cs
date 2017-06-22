@@ -22,14 +22,14 @@ namespace SharpJIT.Compiler
         /// </summary>
         /// <param name="function">The function</param>
         /// <returns>The data or null if not compiled</returns>
-        AbstractCompilationData GetCompilationData(Function function);
+        AbstractCompilationData GetCompilationData(ManagedFunction function);
 
         /// <summary>
         /// Compiles the given function
         /// </summary>
         /// <param name="function">The function to compile</param>
         /// <returns>A pointer to the start of the compiled function</returns>
-        IntPtr Compile(Function function);
+        IntPtr Compile(ManagedFunction function);
 
         /// <summary>
         /// Makes the compiled functions executable

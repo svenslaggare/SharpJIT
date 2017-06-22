@@ -41,5 +41,14 @@ namespace SharpJIT.Core.Objects
                 return null;
             }
         }
+
+        /// <summary>
+        /// Indicates if the given class is defined
+        /// </summary>
+        /// <param name="className">The name of the class</param>
+        public bool IsDefined(string className)
+        {
+            return this.classesMetadata.ContainsKey(className);
+        }
     }
 }

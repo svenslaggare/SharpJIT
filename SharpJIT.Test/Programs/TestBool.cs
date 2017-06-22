@@ -45,7 +45,7 @@ namespace SharpJIT.Test.Programs
                     new Instruction(OpCodes.Return)
                 };
 
-                var func = new Function(funcDef, instructions, new List<BaseType>());
+                var func = new ManagedFunction(funcDef, new List<BaseType>(), instructions);
                 container.LoadAssembly(Assembly.SingleFunction(func));
                 Assert.AreEqual(true, ExecuteBoolProgram(container));
             }
@@ -68,7 +68,7 @@ namespace SharpJIT.Test.Programs
                     new Instruction(OpCodes.Return)
                 };
 
-                var func = new Function(funcDef, instructions, new List<BaseType>());
+                var func = new ManagedFunction(funcDef, new List<BaseType>(), instructions);
                 container.LoadAssembly(Assembly.SingleFunction(func));
                 Assert.AreEqual(false, ExecuteBoolProgram(container));
             }
@@ -93,7 +93,7 @@ namespace SharpJIT.Test.Programs
                     new Instruction(OpCodes.Return)
                 };
 
-                var func = new Function(funcDef, instructions, new List<BaseType>());
+                var func = new ManagedFunction(funcDef, new List<BaseType>(), instructions);
                 container.LoadAssembly(Assembly.SingleFunction(func));
                 Assert.AreEqual(false, ExecuteBoolProgram(container));
             }
@@ -118,7 +118,7 @@ namespace SharpJIT.Test.Programs
                     new Instruction(OpCodes.Return)
                 };
 
-                var func = new Function(funcDef, instructions, new List<BaseType>());
+                var func = new ManagedFunction(funcDef, new List<BaseType>(), instructions);
                 container.LoadAssembly(Assembly.SingleFunction(func));
                 Assert.AreEqual(false, ExecuteBoolProgram(container));
             }
@@ -143,7 +143,7 @@ namespace SharpJIT.Test.Programs
                     new Instruction(OpCodes.Return)
                 };
 
-                var func = new Function(funcDef, instructions, new List<BaseType>());
+                var func = new ManagedFunction(funcDef, new List<BaseType>(), instructions);
                 container.LoadAssembly(Assembly.SingleFunction(func));
                 Assert.AreEqual(true, ExecuteBoolProgram(container));
             }
@@ -168,7 +168,7 @@ namespace SharpJIT.Test.Programs
                     new Instruction(OpCodes.Return)
                 };
 
-                var func = new Function(funcDef, instructions, new List<BaseType>());
+                var func = new ManagedFunction(funcDef, new List<BaseType>(), instructions);
                 container.LoadAssembly(Assembly.SingleFunction(func));
                 Assert.AreEqual(true, ExecuteBoolProgram(container));
             }
@@ -193,7 +193,7 @@ namespace SharpJIT.Test.Programs
                     new Instruction(OpCodes.Return)
                 };
 
-                var func = new Function(funcDef, instructions, new List<BaseType>());
+                var func = new ManagedFunction(funcDef, new List<BaseType>(), instructions);
                 container.LoadAssembly(Assembly.SingleFunction(func));
                 Assert.AreEqual(true, ExecuteBoolProgram(container));
             }
@@ -218,7 +218,7 @@ namespace SharpJIT.Test.Programs
                     new Instruction(OpCodes.Return)
                 };
 
-                var func = new Function(funcDef, instructions, new List<BaseType>());
+                var func = new ManagedFunction(funcDef, new List<BaseType>(), instructions);
                 container.LoadAssembly(Assembly.SingleFunction(func));
                 Assert.AreEqual(true, ExecuteBoolProgram(container));
             }
@@ -243,7 +243,7 @@ namespace SharpJIT.Test.Programs
                     new Instruction(OpCodes.Return)
                 };
 
-                var func = new Function(funcDef, instructions, new List<BaseType>());
+                var func = new ManagedFunction(funcDef, new List<BaseType>(), instructions);
                 container.LoadAssembly(Assembly.SingleFunction(func));
                 Assert.AreEqual(false, ExecuteBoolProgram(container));
             }
@@ -267,7 +267,7 @@ namespace SharpJIT.Test.Programs
                     new Instruction(OpCodes.Return)
                 };
 
-                var func = new Function(funcDef, instructions, new List<BaseType>());
+                var func = new ManagedFunction(funcDef, new List<BaseType>(), instructions);
                 container.LoadAssembly(Assembly.SingleFunction(func));
                 Assert.AreEqual(false, ExecuteBoolProgram(container));
             }
@@ -291,7 +291,7 @@ namespace SharpJIT.Test.Programs
                     new Instruction(OpCodes.Return)
                 };
 
-                var func = new Function(funcDef, instructions, new List<BaseType>());
+                var func = new ManagedFunction(funcDef, new List<BaseType>(), instructions);
                 container.LoadAssembly(Assembly.SingleFunction(func));
                 Assert.AreEqual(true, ExecuteBoolProgram(container));
             }
@@ -316,7 +316,7 @@ namespace SharpJIT.Test.Programs
                     new Instruction(OpCodes.Return)
                 };
 
-                var func = new Function(funcDef, instructions, new List<BaseType>());
+                var func = new ManagedFunction(funcDef, new List<BaseType>(), instructions);
                 container.LoadAssembly(Assembly.SingleFunction(func));
                 Assert.AreEqual(true, ExecuteBoolProgram(container));
             }
@@ -341,7 +341,7 @@ namespace SharpJIT.Test.Programs
                     new Instruction(OpCodes.Return)
                 };
 
-                var func = new Function(funcDef, instructions, new List<BaseType>());
+                var func = new ManagedFunction(funcDef, new List<BaseType>(), instructions);
                 container.LoadAssembly(Assembly.SingleFunction(func));
                 Assert.AreEqual(false, ExecuteBoolProgram(container));
             }
@@ -366,7 +366,7 @@ namespace SharpJIT.Test.Programs
                     new Instruction(OpCodes.Return)
                 };
 
-                var func = new Function(funcDef, instructions, new List<BaseType>());
+                var func = new ManagedFunction(funcDef, new List<BaseType>(), instructions);
                 container.LoadAssembly(Assembly.SingleFunction(func));
                 Assert.AreEqual(false, ExecuteBoolProgram(container));
             }
@@ -391,7 +391,7 @@ namespace SharpJIT.Test.Programs
                     new Instruction(OpCodes.Return)
                 };
 
-                var func = new Function(funcDef, instructions, new List<BaseType>());
+                var func = new ManagedFunction(funcDef, new List<BaseType>(), instructions);
                 container.LoadAssembly(Assembly.SingleFunction(func));
                 Assert.AreEqual(true, ExecuteBoolProgram(container));
             }
@@ -416,7 +416,7 @@ namespace SharpJIT.Test.Programs
                     new Instruction(OpCodes.Return)
                 };
 
-                var func = new Function(funcDef, instructions, new List<BaseType>());
+                var func = new ManagedFunction(funcDef, new List<BaseType>(), instructions);
                 container.LoadAssembly(Assembly.SingleFunction(func));
                 Assert.AreEqual(false, ExecuteBoolProgram(container));
             }
@@ -441,7 +441,7 @@ namespace SharpJIT.Test.Programs
                     new Instruction(OpCodes.Return)
                 };
 
-                var func = new Function(funcDef, instructions, new List<BaseType>());
+                var func = new ManagedFunction(funcDef, new List<BaseType>(), instructions);
                 container.LoadAssembly(Assembly.SingleFunction(func));
                 Assert.AreEqual(true, ExecuteBoolProgram(container));
             }
@@ -466,7 +466,7 @@ namespace SharpJIT.Test.Programs
                     new Instruction(OpCodes.Return)
                 };
 
-                var func = new Function(funcDef, instructions, new List<BaseType>());
+                var func = new ManagedFunction(funcDef, new List<BaseType>(), instructions);
                 container.LoadAssembly(Assembly.SingleFunction(func));
                 Assert.AreEqual(true, ExecuteBoolProgram(container));
             }
@@ -496,7 +496,7 @@ namespace SharpJIT.Test.Programs
                     new Instruction(OpCodes.Return)
                 };
 
-                var func = new Function(funcDef, instructions, new List<BaseType>() { intArrayType });
+                var func = new ManagedFunction(funcDef, new List<BaseType>() { intArrayType }, instructions);
                 container.LoadAssembly(Assembly.SingleFunction(func));
                 Assert.AreEqual(true, ExecuteBoolProgram(container));
             }
@@ -523,7 +523,7 @@ namespace SharpJIT.Test.Programs
                     new Instruction(OpCodes.Return)
                 };
 
-                var func = new Function(funcDef, instructions, new List<BaseType>());
+                var func = new ManagedFunction(funcDef, new List<BaseType>(), instructions);
                 container.LoadAssembly(Assembly.SingleFunction(func));
                 Assert.AreEqual(false, ExecuteBoolProgram(container));
             }
@@ -548,7 +548,7 @@ namespace SharpJIT.Test.Programs
                     new Instruction(OpCodes.Return)
                 };
 
-                var func = new Function(funcDef, instructions, new List<BaseType>());
+                var func = new ManagedFunction(funcDef, new List<BaseType>(), instructions);
                 container.LoadAssembly(Assembly.SingleFunction(func));
                 Assert.AreEqual(false, ExecuteBoolProgram(container));
             }
@@ -573,7 +573,7 @@ namespace SharpJIT.Test.Programs
                     new Instruction(OpCodes.Return)
                 };
 
-                var func = new Function(funcDef, instructions, new List<BaseType>());
+                var func = new ManagedFunction(funcDef, new List<BaseType>(), instructions);
                 container.LoadAssembly(Assembly.SingleFunction(func));
                 Assert.AreEqual(true, ExecuteBoolProgram(container));
             }
@@ -598,7 +598,7 @@ namespace SharpJIT.Test.Programs
                     new Instruction(OpCodes.Return)
                 };
 
-                var func = new Function(funcDef, instructions, new List<BaseType>());
+                var func = new ManagedFunction(funcDef, new List<BaseType>(), instructions);
                 container.LoadAssembly(Assembly.SingleFunction(func));
                 Assert.AreEqual(true, ExecuteBoolProgram(container));
             }
@@ -623,7 +623,7 @@ namespace SharpJIT.Test.Programs
                     new Instruction(OpCodes.Return)
                 };
 
-                var func = new Function(funcDef, instructions, new List<BaseType>());
+                var func = new ManagedFunction(funcDef, new List<BaseType>(), instructions);
                 container.LoadAssembly(Assembly.SingleFunction(func));
                 Assert.AreEqual(false, ExecuteBoolProgram(container));
             }
@@ -648,7 +648,7 @@ namespace SharpJIT.Test.Programs
                     new Instruction(OpCodes.Return)
                 };
 
-                var func = new Function(funcDef, instructions, new List<BaseType>());
+                var func = new ManagedFunction(funcDef, new List<BaseType>(), instructions);
                 container.LoadAssembly(Assembly.SingleFunction(func));
                 Assert.AreEqual(true, ExecuteBoolProgram(container));
             }
@@ -673,7 +673,7 @@ namespace SharpJIT.Test.Programs
                     new Instruction(OpCodes.Return)
                 };
 
-                var func = new Function(funcDef, instructions, new List<BaseType>());
+                var func = new ManagedFunction(funcDef, new List<BaseType>(), instructions);
                 container.LoadAssembly(Assembly.SingleFunction(func));
                 Assert.AreEqual(false, ExecuteBoolProgram(container));
             }
@@ -698,7 +698,7 @@ namespace SharpJIT.Test.Programs
                     new Instruction(OpCodes.Return)
                 };
 
-                var func = new Function(funcDef, instructions, new List<BaseType>());
+                var func = new ManagedFunction(funcDef, new List<BaseType>(), instructions);
                 container.LoadAssembly(Assembly.SingleFunction(func));
                 Assert.AreEqual(false, ExecuteBoolProgram(container));
             }
@@ -728,7 +728,7 @@ namespace SharpJIT.Test.Programs
                     new Instruction(OpCodes.Return)
                 };
 
-                var func = new Function(funcDef, instructions, new List<BaseType>() { intArrayType });
+                var func = new ManagedFunction(funcDef, new List<BaseType>() { intArrayType }, instructions);
                 container.LoadAssembly(Assembly.SingleFunction(func));
                 Assert.AreEqual(false, ExecuteBoolProgram(container));
             }
@@ -755,7 +755,7 @@ namespace SharpJIT.Test.Programs
                     new Instruction(OpCodes.Return)
                 };
 
-                var func = new Function(funcDef, instructions, new List<BaseType>());
+                var func = new ManagedFunction(funcDef, new List<BaseType>(), instructions);
                 container.LoadAssembly(Assembly.SingleFunction(func));
                 Assert.AreEqual(true, ExecuteBoolProgram(container));
             }
@@ -780,7 +780,7 @@ namespace SharpJIT.Test.Programs
                     new Instruction(OpCodes.Return)
                 };
 
-                var func = new Function(funcDef, instructions, new List<BaseType>());
+                var func = new ManagedFunction(funcDef, new List<BaseType>(), instructions);
                 container.LoadAssembly(Assembly.SingleFunction(func));
                 Assert.AreEqual(true, ExecuteBoolProgram(container));
             }
@@ -805,7 +805,7 @@ namespace SharpJIT.Test.Programs
                     new Instruction(OpCodes.Return)
                 };
 
-                var func = new Function(funcDef, instructions, new List<BaseType>());
+                var func = new ManagedFunction(funcDef, new List<BaseType>(), instructions);
                 container.LoadAssembly(Assembly.SingleFunction(func));
                 Assert.AreEqual(false, ExecuteBoolProgram(container));
             }
@@ -830,7 +830,7 @@ namespace SharpJIT.Test.Programs
                     new Instruction(OpCodes.Return)
                 };
 
-                var func = new Function(funcDef, instructions, new List<BaseType>());
+                var func = new ManagedFunction(funcDef, new List<BaseType>(), instructions);
                 container.LoadAssembly(Assembly.SingleFunction(func));
                 Assert.AreEqual(true, ExecuteBoolProgram(container));
             }
@@ -855,7 +855,7 @@ namespace SharpJIT.Test.Programs
                     new Instruction(OpCodes.Return)
                 };
 
-                var func = new Function(funcDef, instructions, new List<BaseType>());
+                var func = new ManagedFunction(funcDef, new List<BaseType>(), instructions);
                 container.LoadAssembly(Assembly.SingleFunction(func));
                 Assert.AreEqual(false, ExecuteBoolProgram(container));
             }
@@ -880,7 +880,7 @@ namespace SharpJIT.Test.Programs
                     new Instruction(OpCodes.Return)
                 };
 
-                var func = new Function(funcDef, instructions, new List<BaseType>());
+                var func = new ManagedFunction(funcDef, new List<BaseType>(), instructions);
                 container.LoadAssembly(Assembly.SingleFunction(func));
                 Assert.AreEqual(true, ExecuteBoolProgram(container));
             }
@@ -905,7 +905,7 @@ namespace SharpJIT.Test.Programs
                     new Instruction(OpCodes.Return)
                 };
 
-                var func = new Function(funcDef, instructions, new List<BaseType>());
+                var func = new ManagedFunction(funcDef, new List<BaseType>(), instructions);
                 container.LoadAssembly(Assembly.SingleFunction(func));
                 Assert.AreEqual(false, ExecuteBoolProgram(container));
             }
@@ -930,7 +930,7 @@ namespace SharpJIT.Test.Programs
                     new Instruction(OpCodes.Return)
                 };
 
-                var func = new Function(funcDef, instructions, new List<BaseType>());
+                var func = new ManagedFunction(funcDef, new List<BaseType>(), instructions);
                 container.LoadAssembly(Assembly.SingleFunction(func));
                 Assert.AreEqual(true, ExecuteBoolProgram(container));
             }
@@ -955,7 +955,7 @@ namespace SharpJIT.Test.Programs
                     new Instruction(OpCodes.Return)
                 };
 
-                var func = new Function(funcDef, instructions, new List<BaseType>());
+                var func = new ManagedFunction(funcDef, new List<BaseType>(), instructions);
                 container.LoadAssembly(Assembly.SingleFunction(func));
                 Assert.AreEqual(true, ExecuteBoolProgram(container));
             }
@@ -980,7 +980,7 @@ namespace SharpJIT.Test.Programs
                     new Instruction(OpCodes.Return)
                 };
 
-                var func = new Function(funcDef, instructions, new List<BaseType>());
+                var func = new ManagedFunction(funcDef, new List<BaseType>(), instructions);
                 container.LoadAssembly(Assembly.SingleFunction(func));
                 Assert.AreEqual(false, ExecuteBoolProgram(container));
             }
@@ -1005,7 +1005,7 @@ namespace SharpJIT.Test.Programs
                     new Instruction(OpCodes.Return)
                 };
 
-                var func = new Function(funcDef, instructions, new List<BaseType>());
+                var func = new ManagedFunction(funcDef, new List<BaseType>(), instructions);
                 container.LoadAssembly(Assembly.SingleFunction(func));
                 Assert.AreEqual(true, ExecuteBoolProgram(container));
             }
@@ -1030,7 +1030,7 @@ namespace SharpJIT.Test.Programs
                     new Instruction(OpCodes.Return)
                 };
 
-                var func = new Function(funcDef, instructions, new List<BaseType>());
+                var func = new ManagedFunction(funcDef, new List<BaseType>(), instructions);
                 container.LoadAssembly(Assembly.SingleFunction(func));
                 Assert.AreEqual(true, ExecuteBoolProgram(container));
             }
@@ -1055,7 +1055,7 @@ namespace SharpJIT.Test.Programs
                     new Instruction(OpCodes.Return)
                 };
 
-                var func = new Function(funcDef, instructions, new List<BaseType>());
+                var func = new ManagedFunction(funcDef, new List<BaseType>(), instructions);
                 container.LoadAssembly(Assembly.SingleFunction(func));
                 Assert.AreEqual(false, ExecuteBoolProgram(container));
             }
@@ -1080,7 +1080,7 @@ namespace SharpJIT.Test.Programs
                     new Instruction(OpCodes.Return)
                 };
 
-                var func = new Function(funcDef, instructions, new List<BaseType>());
+                var func = new ManagedFunction(funcDef, new List<BaseType>(), instructions);
                 container.LoadAssembly(Assembly.SingleFunction(func));
                 Assert.AreEqual(false, ExecuteBoolProgram(container));
             }
@@ -1105,7 +1105,7 @@ namespace SharpJIT.Test.Programs
                     new Instruction(OpCodes.Return)
                 };
 
-                var func = new Function(funcDef, instructions, new List<BaseType>());
+                var func = new ManagedFunction(funcDef, new List<BaseType>(), instructions);
                 container.LoadAssembly(Assembly.SingleFunction(func));
                 Assert.AreEqual(true, ExecuteBoolProgram(container));
             }
@@ -1130,7 +1130,7 @@ namespace SharpJIT.Test.Programs
                     new Instruction(OpCodes.Return)
                 };
 
-                var func = new Function(funcDef, instructions, new List<BaseType>());
+                var func = new ManagedFunction(funcDef, new List<BaseType>(), instructions);
                 container.LoadAssembly(Assembly.SingleFunction(func));
                 Assert.AreEqual(false, ExecuteBoolProgram(container));
             }
@@ -1155,7 +1155,7 @@ namespace SharpJIT.Test.Programs
                     new Instruction(OpCodes.Return)
                 };
 
-                var func = new Function(funcDef, instructions, new List<BaseType>());
+                var func = new ManagedFunction(funcDef, new List<BaseType>(), instructions);
                 container.LoadAssembly(Assembly.SingleFunction(func));
                 Assert.AreEqual(false, ExecuteBoolProgram(container));
             }
@@ -1180,7 +1180,7 @@ namespace SharpJIT.Test.Programs
                     new Instruction(OpCodes.Return)
                 };
 
-                var func = new Function(funcDef, instructions, new List<BaseType>());
+                var func = new ManagedFunction(funcDef, new List<BaseType>(), instructions);
                 container.LoadAssembly(Assembly.SingleFunction(func));
                 Assert.AreEqual(true, ExecuteBoolProgram(container));
             }
@@ -1205,7 +1205,7 @@ namespace SharpJIT.Test.Programs
                     new Instruction(OpCodes.Return)
                 };
 
-                var func = new Function(funcDef, instructions, new List<BaseType>());
+                var func = new ManagedFunction(funcDef, new List<BaseType>(), instructions);
                 container.LoadAssembly(Assembly.SingleFunction(func));
                 Assert.AreEqual(false, ExecuteBoolProgram(container));
             }
@@ -1230,7 +1230,7 @@ namespace SharpJIT.Test.Programs
                     new Instruction(OpCodes.Return)
                 };
 
-                var func = new Function(funcDef, instructions, new List<BaseType>());
+                var func = new ManagedFunction(funcDef, new List<BaseType>(), instructions);
                 container.LoadAssembly(Assembly.SingleFunction(func));
                 Assert.AreEqual(true, ExecuteBoolProgram(container));
             }
@@ -1256,7 +1256,7 @@ namespace SharpJIT.Test.Programs
                     new Instruction(OpCodes.Return)
                 };
 
-                var func = new Function(funcDef, instructions, new List<BaseType>());
+                var func = new ManagedFunction(funcDef, new List<BaseType>(), instructions);
                 container.LoadAssembly(Assembly.SingleFunction(func));
                 Assert.AreEqual(true, ExecuteBoolProgram(container));
             }
@@ -1281,7 +1281,7 @@ namespace SharpJIT.Test.Programs
                     new Instruction(OpCodes.Return)
                 };
 
-                var func = new Function(funcDef, instructions, new List<BaseType>());
+                var func = new ManagedFunction(funcDef, new List<BaseType>(), instructions);
                 container.LoadAssembly(Assembly.SingleFunction(func));
                 Assert.AreEqual(false, ExecuteBoolProgram(container));
             }
@@ -1306,7 +1306,7 @@ namespace SharpJIT.Test.Programs
                     new Instruction(OpCodes.Return)
                 };
 
-                var func = new Function(funcDef, instructions, new List<BaseType>());
+                var func = new ManagedFunction(funcDef, new List<BaseType>(), instructions);
                 container.LoadAssembly(Assembly.SingleFunction(func));
                 Assert.AreEqual(true, ExecuteBoolProgram(container));
             }

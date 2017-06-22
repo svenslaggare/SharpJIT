@@ -42,7 +42,7 @@ namespace SharpJIT.Test.Programs
                     new Instruction(OpCodes.LoadLocal, 3),
                     new Instruction(OpCodes.Return)
                 };
-                var func = new Function(funcDef, instructions, Enumerable.Repeat(intType, 4).ToList());
+                var func = new ManagedFunction(funcDef, Enumerable.Repeat(intType, 4).ToList(), instructions);
                 container.LoadAssembly(Assembly.SingleFunction(func));
                 Assert.AreEqual(400, container.Execute());
             }
@@ -64,7 +64,7 @@ namespace SharpJIT.Test.Programs
                     new Instruction(OpCodes.LoadLocal, 0),
                     new Instruction(OpCodes.Return)
                 };
-                var func = new Function(funcDef, instructions, Enumerable.Repeat(intType, 1).ToList());
+                var func = new ManagedFunction(funcDef, Enumerable.Repeat(intType, 1).ToList(), instructions);
                 container.LoadAssembly(Assembly.SingleFunction(func));
                 Assert.AreEqual(0, container.Execute());
             }
@@ -88,7 +88,7 @@ namespace SharpJIT.Test.Programs
                     new Instruction(OpCodes.LoadLocal, 0),
                     new Instruction(OpCodes.Return)
                 };
-                var func = new Function(funcDef, instructions, Enumerable.Repeat(floatType, 1).ToList());
+                var func = new ManagedFunction(funcDef, Enumerable.Repeat(floatType, 1).ToList(), instructions);
                 container.LoadAssembly(Assembly.SingleFunction(func));
                 container.VirtualMachine.Compile();
                 var mainFunc = Marshal.GetDelegateForFunctionPointer<FloatMain>(

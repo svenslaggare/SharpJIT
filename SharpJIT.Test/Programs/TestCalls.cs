@@ -25,6 +25,7 @@ namespace SharpJIT.Test.Programs
                 using (var container = new Win64Container())
                 {
                     var assembly = new Assembly(
+                        "test",
                         TestProgramGenerator.AddMainFunction(container, i),
                         TestProgramGenerator.AddFunction(container, i));
 
@@ -47,6 +48,7 @@ namespace SharpJIT.Test.Programs
                 using (var container = new Win64Container())
                 {
                     var assembly = new Assembly(
+                        "test",
                         TestProgramGenerator.FloatAddMainFunction(container, i),
                         TestProgramGenerator.FloatAddFunction(container, i));
 
@@ -104,7 +106,7 @@ namespace SharpJIT.Test.Programs
 
                     new Instruction(OpCodes.Return)
                 };
-                var func = new Function(def, instructions, new List<BaseType>());
+                var func = new ManagedFunction(def, new List<BaseType>(), instructions);
                 container.LoadAssembly(Assembly.SingleFunction(func));
                 Assert.AreEqual(1 + 2 + 3 + 4 + 5 + 6 + 7 + 8 + 9, container.Execute());
             }
@@ -154,7 +156,7 @@ namespace SharpJIT.Test.Programs
 
                     new Instruction(OpCodes.Return)
                 };
-                var func = new Function(def, instructions, new List<BaseType>());
+                var func = new ManagedFunction(def, new List<BaseType>(), instructions);
                 container.LoadAssembly(Assembly.SingleFunction(func));
                 Assert.AreEqual(1 + 2 + 3 + 4 + 5 + 6 + 7 + 8, container.Execute());
             }
@@ -203,7 +205,7 @@ namespace SharpJIT.Test.Programs
 
                     new Instruction(OpCodes.Return)
                 };
-                var func = new Function(def, instructions, new List<BaseType>());
+                var func = new ManagedFunction(def, new List<BaseType>(), instructions);
                 container.LoadAssembly(Assembly.SingleFunction(func));
 
                 Assert.AreEqual(1 + 2 + 3 + 4 + 5 + 6, container.Execute());
@@ -219,7 +221,7 @@ namespace SharpJIT.Test.Programs
             using (var container = new Win64Container())
             {
                 var intType = container.VirtualMachine.TypeProvider.FindPrimitiveType(PrimitiveTypes.Int);
-                var assemblyFunctions = new List<Function>();
+                var assemblyFunctions = new List<ManagedFunction>();
 
                 Action testFn = () =>
                 {
@@ -232,7 +234,7 @@ namespace SharpJIT.Test.Programs
                         new Instruction(OpCodes.AddInt),
                         new Instruction(OpCodes.Return)
                     };
-                    var func = new Function(def, instructions, new List<BaseType>());
+                    var func = new ManagedFunction(def, new List<BaseType>(), instructions);
                     assemblyFunctions.Add(func);
                 };
 
@@ -245,13 +247,13 @@ namespace SharpJIT.Test.Programs
                         new Instruction(OpCodes.Call, "test", new List<BaseType>()),
                         new Instruction(OpCodes.Return)
                     };
-                    var func = new Function(def, instructions, new List<BaseType>());
+                    var func = new ManagedFunction(def, new List<BaseType>(), instructions);
                     assemblyFunctions.Add(func);
                 };
 
                 mainFn();
                 testFn();
-                container.LoadAssembly(new Assembly(assemblyFunctions));
+                container.LoadAssembly(new Assembly("test", assemblyFunctions));
                 Assert.AreEqual(3, container.Execute());
             }
         }
@@ -265,6 +267,7 @@ namespace SharpJIT.Test.Programs
             using (var container = new Win64Container())
             {
                 var assembly = new Assembly(
+                    "test",
                     TestProgramGenerator.MainWithIntCall(container, "sum", 10),
                     TestProgramGenerator.ResursiveSum(container));
 
@@ -282,6 +285,7 @@ namespace SharpJIT.Test.Programs
             using (var container = new Win64Container())
             {
                 var assembly = new Assembly(
+                    "test",
                     TestProgramGenerator.MainWithIntCall(container, "fib", 11),
                     TestProgramGenerator.RecursiveFib(container));
 

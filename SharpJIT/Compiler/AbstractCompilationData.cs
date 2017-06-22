@@ -85,7 +85,7 @@ namespace SharpJIT.Compiler
         /// <summary>
         /// The function
         /// </summary>
-        public Function Function { get; }
+        public ManagedFunction Function { get; }
 
         /// <summary>
         /// Returns the definition of the function to compile
@@ -116,7 +116,7 @@ namespace SharpJIT.Compiler
         /// Creates new compilation data
         /// </summary>
         /// <param name="function">The function</param>
-        public AbstractCompilationData(Function function)
+        public AbstractCompilationData(ManagedFunction function)
         {
             this.Function = function;
         }
