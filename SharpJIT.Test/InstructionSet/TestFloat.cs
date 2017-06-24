@@ -5,7 +5,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SharpJIT;
 using SharpJIT.Core;
 
-namespace SharpJIT.Test.Programs
+namespace SharpJIT.Test.InstructionSet
 {
     /// <summary>
     /// Tests floating point instructions

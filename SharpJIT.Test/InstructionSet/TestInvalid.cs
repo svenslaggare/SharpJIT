@@ -5,7 +5,7 @@ using SharpJIT;
 using SharpJIT.Core;
 using SharpJIT.Loader;
 
-namespace SharpJIT.Test.Programs
+namespace SharpJIT.Test.InstructionSet
 {
     /// <summary>
     /// Tests programs that are invalid (e.g don't get pass verifier)

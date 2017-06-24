@@ -6,7 +6,7 @@ using SharpJIT.Core;
 using SharpJIT.Core.Objects;
 using SharpJIT.Runtime;
 
-namespace SharpJIT.Test.Programs
+namespace SharpJIT.Test.InstructionSet
 {
     /// <summary>
     /// Tests class instructions

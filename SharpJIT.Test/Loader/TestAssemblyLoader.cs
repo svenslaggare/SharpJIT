@@ -173,6 +173,7 @@ namespace SharpJIT.Test.Loader
             Assert.AreEqual(1, loadedAssembly.Functions.Count);
             Assert.AreEqual("test", loadedAssembly.Functions[0].Definition.Name);
 
+            Assert.AreEqual(1, loadedAssembly.Classes.Count);
             Assert.IsTrue(classMetadataProvider.IsDefined("Point"));
         }
 
@@ -223,6 +224,8 @@ namespace SharpJIT.Test.Loader
 
             var loadedFunction = loadedAssembly.Functions[0];
             var pointType = typeProvider.FindClassType("Point");
+
+            Assert.AreEqual(1, loadedAssembly.Classes.Count);
 
             Assert.IsNotNull(pointType);
             Assert.AreEqual("Point::test", loadedFunction.Definition.Name);

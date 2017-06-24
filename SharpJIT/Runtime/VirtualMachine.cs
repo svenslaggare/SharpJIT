@@ -108,17 +108,6 @@ namespace SharpJIT.Runtime
         }
 
         /// <summary>
-        /// Loads the given assembly
-        /// </summary>
-        /// <param name="assembly">The assembly</param>
-        public void LoadAssembly(Loader.Data.Assembly assembly)
-        {
-            var loadedAssembly = this.assemblyLoader.LoadAssembly(assembly);
-            this.LoadFunctions(loadedAssembly.Functions);
-            this.loadedAssemblies.Add(loadedAssembly);
-        }
-
-        /// <summary>
         /// Loads the given functions
         /// </summary>
         /// <param name="functions">The functions</param>
@@ -143,15 +132,26 @@ namespace SharpJIT.Runtime
         }
 
         /// <summary>
+        /// Loads the given assembly
+        /// </summary>
+        /// <param name="assembly">The assembly</param>
+        public void LoadAssembly(Loader.Data.Assembly assembly)
+        {
+            var loadedAssembly = this.assemblyLoader.LoadAssembly(assembly);
+            this.LoadFunctions(loadedAssembly.Functions);
+            this.loadedAssemblies.Add(loadedAssembly);
+        }
+
+        /// <summary>
         /// Loads the given functions as an assembly
         /// </summary>
         /// <param name="functions">The functions</param>
-        public void LoadFunctionsAsAssembly(IEnumerable<ManagedFunction> functions)
+        public void LoadFunctionsAsAssembly(IList<ManagedFunction> functions)
         {
             var assembly = new Assembly(
                 Guid.NewGuid().ToString(),
                 new List<ClassMetadata>(),
-                functions.ToList());
+                functions);
             this.LoadFunctions(functions);
             this.loadedAssemblies.Add(assembly);
         }

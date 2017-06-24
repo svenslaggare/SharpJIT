@@ -5,7 +5,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SharpJIT.Core;
 using SharpJIT.Runtime;
 
-namespace SharpJIT.Test.Programs
+namespace SharpJIT.Test.InstructionSet
 {
     /// <summary>
     /// Tests array instructions
