@@ -47,9 +47,9 @@ namespace SharpJIT.Test.Programs
                         new Instruction(OpCodes.Return)
                     });
 
-                var assembly = Assembly.SingleFunction(func);
+                var functions = TestHelpers.SingleFunction(func);
 
-                container.VirtualMachine.LoadAssemblyInternal(assembly);
+                container.VirtualMachine.LoadFunctionsAsAssembly(functions);
                 var result = container.Execute();
                 Assert.AreEqual(0, result);
             }
@@ -78,7 +78,7 @@ namespace SharpJIT.Test.Programs
             //        },
             //        new List<BaseType>());
 
-            //    var assembly = Assembly.SingleFunction(func);
+            //    var functions = TestHelpers.SingleFunction(func);
 
             //    container.VirtualMachine.LoadAssembly(assembly);
             //    container.Execute();
@@ -106,9 +106,9 @@ namespace SharpJIT.Test.Programs
                         new Instruction(OpCodes.Return)
                     });
 
-                var assembly = Assembly.SingleFunction(func);
+                var functions = TestHelpers.SingleFunction(func);
 
-                container.VirtualMachine.LoadAssemblyInternal(assembly);
+                container.VirtualMachine.LoadFunctionsAsAssembly(functions);
                 var result = container.Execute();
                 Assert.AreEqual(10, result);
             }
@@ -135,7 +135,7 @@ namespace SharpJIT.Test.Programs
             //        },
             //        new List<BaseType>());
 
-            //    var assembly = Assembly.SingleFunction(func);
+            //    var functions = TestHelpers.SingleFunction(func);
 
             //    container.VirtualMachine.LoadAssembly(assembly);
             //    Assert.AreEqual(0, container.Execute());
@@ -166,9 +166,9 @@ namespace SharpJIT.Test.Programs
                         new Instruction(OpCodes.Return)
                     });
 
-                var assembly = Assembly.SingleFunction(func);
+                var functions = TestHelpers.SingleFunction(func);
 
-                container.VirtualMachine.LoadAssemblyInternal(assembly);
+                container.VirtualMachine.LoadFunctionsAsAssembly(functions);
                 var result = container.Execute();
                 Assert.AreEqual(0, result);
             }
@@ -196,9 +196,9 @@ namespace SharpJIT.Test.Programs
                         new Instruction(OpCodes.Return)
                     });
 
-                var assembly = Assembly.SingleFunction(func);
+                var functions = TestHelpers.SingleFunction(func);
 
-                container.VirtualMachine.LoadAssemblyInternal(assembly);
+                container.VirtualMachine.LoadFunctionsAsAssembly(functions);
                 var result = container.Execute();
                 Assert.AreEqual(0, result);
             }
@@ -233,9 +233,9 @@ namespace SharpJIT.Test.Programs
                         new Instruction(OpCodes.Return)
                     });
 
-                var assembly = Assembly.SingleFunction(func);
+                var functions = TestHelpers.SingleFunction(func);
 
-                container.VirtualMachine.LoadAssemblyInternal(assembly);
+                container.VirtualMachine.LoadFunctionsAsAssembly(functions);
                 var result = container.Execute();
                 Assert.AreEqual(1337, result);
             }
@@ -270,9 +270,9 @@ namespace SharpJIT.Test.Programs
                         new Instruction(OpCodes.Return)
                     });
 
-                var assembly = Assembly.SingleFunction(func);
+                var functions = TestHelpers.SingleFunction(func);
 
-                container.VirtualMachine.LoadAssemblyInternal(assembly);
+                container.VirtualMachine.LoadFunctionsAsAssembly(functions);
                 var result = container.Execute();
                 Assert.AreEqual(1337, result);
             }

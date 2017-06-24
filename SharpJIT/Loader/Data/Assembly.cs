@@ -137,7 +137,7 @@ namespace SharpJIT.Loader.Data
     }
 
     /// <summary>
-    /// The instruction format
+    /// The instruction formats
     /// </summary>
     public enum InstructionFormat
     {

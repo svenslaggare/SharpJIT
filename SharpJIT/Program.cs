@@ -66,15 +66,16 @@ namespace SharpJIT
                     new Instruction(OpCodes.Return)
                 };
 
-                var assembly = new Assembly(
-                    "program",
+                var functions = new List<ManagedFunction>()
+                {
                     new ManagedFunction(def, new List<BaseType>() { }, instructions),
-                    constructorFunction);
+                    constructorFunction
+                };
 
-                container.VirtualMachine.LoadAssemblyInternal(assembly);
+                container.VirtualMachine.LoadFunctionsAsAssembly(functions);
                 container.VirtualMachine.Compile();
 
-                foreach (var function in assembly.Functions)
+                foreach (var function in functions)
                 {
                     var disassembler = new Disassembler(
                         container.VirtualMachine.Compiler.GetCompilationData(function),

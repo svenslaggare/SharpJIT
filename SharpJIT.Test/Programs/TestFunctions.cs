@@ -31,7 +31,7 @@ namespace SharpJIT.Test.Programs
                         new Instruction(OpCodes.Return)
                     });
 
-                container.VirtualMachine.LoadAssemblyInternal(Assembly.SingleFunction(testFunc));
+                container.VirtualMachine.LoadFunctionsAsAssembly(TestHelpers.SingleFunction(testFunc));
 
                 try
                 {
@@ -66,7 +66,7 @@ namespace SharpJIT.Test.Programs
 
                 try
                 {
-                    container.VirtualMachine.LoadAssemblyInternal(Assembly.SingleFunction(mainFunc));
+                    container.VirtualMachine.LoadFunctionsAsAssembly(TestHelpers.SingleFunction(mainFunc));
                     Assert.Fail("Expected invalid main to not pass.");
                 }
                 catch (Exception e)
@@ -96,7 +96,7 @@ namespace SharpJIT.Test.Programs
 
                 try
                 {
-                    container.VirtualMachine.LoadAssemblyInternal(Assembly.SingleFunction(mainFunc));
+                    container.VirtualMachine.LoadFunctionsAsAssembly(TestHelpers.SingleFunction(mainFunc));
                     Assert.Fail("Expected invalid main to not pass.");
                 }
                 catch (Exception e)
@@ -135,8 +135,7 @@ namespace SharpJIT.Test.Programs
                         new Instruction(OpCodes.Return)
                     });
 
-                var assembly = new Assembly("test", func1, func2);
-                container.VirtualMachine.LoadAssemblyInternal(assembly);
+                container.VirtualMachine.LoadFunctionsAsAssembly(new List<ManagedFunction>() { func1, func2 });
             }
         }
 
@@ -169,11 +168,9 @@ namespace SharpJIT.Test.Programs
                         new Instruction(OpCodes.Return)
                     });
 
-                var assembly = new Assembly("test", func1, func2);
-
                 try
                 {
-                    container.VirtualMachine.LoadAssemblyInternal(assembly);
+                    container.VirtualMachine.LoadFunctionsAsAssembly(new List<ManagedFunction>() { func1, func2 });
                     Assert.Fail("Expected invalid overload to not pass.");
                 }
                 catch (Exception e)
@@ -211,11 +208,9 @@ namespace SharpJIT.Test.Programs
                         new Instruction(OpCodes.Return)
                     });
 
-                var assembly = new Assembly("test", func1, func2);
-
                 try
                 {
-                    container.VirtualMachine.LoadAssemblyInternal(assembly);
+                    container.VirtualMachine.LoadFunctionsAsAssembly(new List<ManagedFunction>() { func1, func2 });
                     Assert.Fail("Expected already defined to not pass.");
                 }
                 catch (Exception e)

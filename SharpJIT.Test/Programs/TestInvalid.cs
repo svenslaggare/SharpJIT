@@ -28,7 +28,7 @@ namespace SharpJIT.Test.Programs
                     new List<BaseType>(),
                     new List<Instruction>());
 
-                container.VirtualMachine.LoadAssemblyInternal(Assembly.SingleFunction(func));
+                container.VirtualMachine.LoadFunctionsAsAssembly(TestHelpers.SingleFunction(func));
 
                 try
                 {
@@ -61,7 +61,7 @@ namespace SharpJIT.Test.Programs
                     new List<BaseType>(),
                     instructions);
 
-                container.VirtualMachine.LoadAssemblyInternal(Assembly.SingleFunction(func));
+                container.VirtualMachine.LoadFunctionsAsAssembly(TestHelpers.SingleFunction(func));
 
                 try
                 {
@@ -94,7 +94,7 @@ namespace SharpJIT.Test.Programs
                     new List<BaseType>(),
                     instructions);
 
-                container.VirtualMachine.LoadAssemblyInternal(Assembly.SingleFunction(func));
+                container.VirtualMachine.LoadFunctionsAsAssembly(TestHelpers.SingleFunction(func));
 
                 try
                 {

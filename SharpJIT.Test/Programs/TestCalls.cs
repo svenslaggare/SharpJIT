@@ -24,12 +24,12 @@ namespace SharpJIT.Test.Programs
             {
                 using (var container = new Win64Container())
                 {
-                    var assembly = new Assembly(
-                        "test",
+                    container.VirtualMachine.LoadFunctionsAsAssembly(new List<ManagedFunction>()
+                    {
                         TestProgramGenerator.AddMainFunction(container, i),
-                        TestProgramGenerator.AddFunction(container, i));
+                        TestProgramGenerator.AddFunction(container, i)
+                    });
 
-                    container.VirtualMachine.LoadAssemblyInternal(assembly);
                     Assert.AreEqual(i * (1 + i) / 2, container.Execute());
                 }
             }
@@ -47,13 +47,13 @@ namespace SharpJIT.Test.Programs
             {
                 using (var container = new Win64Container())
                 {
-                    var assembly = new Assembly(
-                        "test",
+                    container.VirtualMachine.LoadFunctionsAsAssembly(new List<ManagedFunction>()
+                    {
                         TestProgramGenerator.FloatAddMainFunction(container, i),
-                        TestProgramGenerator.FloatAddFunction(container, i));
-
-                    container.VirtualMachine.LoadAssemblyInternal(assembly);
+                        TestProgramGenerator.FloatAddFunction(container, i)
+                    });
                     container.VirtualMachine.Compile();
+
                     var funcPtr = Marshal.GetDelegateForFunctionPointer<FloatMain>(
                         container.VirtualMachine.Binder.GetFunction("floatMain()").EntryPoint);
                     Assert.AreEqual(i * (1 + i) / 2, funcPtr());
@@ -107,7 +107,7 @@ namespace SharpJIT.Test.Programs
                     new Instruction(OpCodes.Return)
                 };
                 var func = new ManagedFunction(def, new List<BaseType>(), instructions);
-                container.VirtualMachine.LoadAssemblyInternal(Assembly.SingleFunction(func));
+                container.VirtualMachine.LoadFunctionsAsAssembly(TestHelpers.SingleFunction(func));
                 Assert.AreEqual(1 + 2 + 3 + 4 + 5 + 6 + 7 + 8 + 9, container.Execute());
             }
         }
@@ -157,7 +157,7 @@ namespace SharpJIT.Test.Programs
                     new Instruction(OpCodes.Return)
                 };
                 var func = new ManagedFunction(def, new List<BaseType>(), instructions);
-                container.VirtualMachine.LoadAssemblyInternal(Assembly.SingleFunction(func));
+                container.VirtualMachine.LoadFunctionsAsAssembly(TestHelpers.SingleFunction(func));
                 Assert.AreEqual(1 + 2 + 3 + 4 + 5 + 6 + 7 + 8, container.Execute());
             }
         }
@@ -206,7 +206,7 @@ namespace SharpJIT.Test.Programs
                     new Instruction(OpCodes.Return)
                 };
                 var func = new ManagedFunction(def, new List<BaseType>(), instructions);
-                container.VirtualMachine.LoadAssemblyInternal(Assembly.SingleFunction(func));
+                container.VirtualMachine.LoadFunctionsAsAssembly(TestHelpers.SingleFunction(func));
 
                 Assert.AreEqual(1 + 2 + 3 + 4 + 5 + 6, container.Execute());
             }
@@ -247,13 +247,14 @@ namespace SharpJIT.Test.Programs
                         new Instruction(OpCodes.Call, "test", new List<BaseType>()),
                         new Instruction(OpCodes.Return)
                     };
+
                     var func = new ManagedFunction(def, new List<BaseType>(), instructions);
                     assemblyFunctions.Add(func);
                 };
 
                 mainFn();
                 testFn();
-                container.VirtualMachine.LoadAssemblyInternal(new Assembly("test", assemblyFunctions));
+                container.VirtualMachine.LoadFunctionsAsAssembly(assemblyFunctions);
                 Assert.AreEqual(3, container.Execute());
             }
         }
@@ -266,12 +267,12 @@ namespace SharpJIT.Test.Programs
         {
             using (var container = new Win64Container())
             {
-                var assembly = new Assembly(
-                    "test",
+                container.VirtualMachine.LoadFunctionsAsAssembly(new List<ManagedFunction>()
+                {
                     TestProgramGenerator.MainWithIntCall(container, "sum", 10),
-                    TestProgramGenerator.ResursiveSum(container));
+                    TestProgramGenerator.ResursiveSum(container)
+                });
 
-                container.VirtualMachine.LoadAssemblyInternal(assembly);
                 Assert.AreEqual(55, container.Execute());
             }
         }
@@ -284,12 +285,12 @@ namespace SharpJIT.Test.Programs
         {
             using (var container = new Win64Container())
             {
-                var assembly = new Assembly(
-                    "test",
+                container.VirtualMachine.LoadFunctionsAsAssembly(new List<ManagedFunction>()
+                {
                     TestProgramGenerator.MainWithIntCall(container, "fib", 11),
-                    TestProgramGenerator.RecursiveFib(container));
+                    TestProgramGenerator.RecursiveFib(container)
+                });
 
-                container.VirtualMachine.LoadAssemblyInternal(assembly);
                 Assert.AreEqual(89, container.Execute());
             }
         }

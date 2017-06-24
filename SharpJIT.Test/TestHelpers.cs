@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using SharpJIT;
 using SharpJIT.Compiler;
+using SharpJIT.Core;
 
 namespace SharpJIT.Test
 {
@@ -19,7 +20,6 @@ namespace SharpJIT.Test
         /// </summary>
         /// <param name="container">The container</param>
         /// <param name="fileName">The name of the file</param>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times")]
         public static void SaveDisassembledFunctions(Win64Container container, string fileName)
         {
             using (var fileStream = new FileStream(fileName, FileMode.Create))
@@ -38,6 +38,15 @@ namespace SharpJIT.Test
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Creates a list from a single function
+        /// </summary>
+        /// <param name="function">The function</param>
+        public static IList<ManagedFunction> SingleFunction(ManagedFunction function)
+        {
+            return new List<ManagedFunction>() { function };
         }
     }
 }

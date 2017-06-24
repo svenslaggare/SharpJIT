@@ -48,7 +48,7 @@ namespace SharpJIT.Test.Programs
                     new Instruction(OpCodes.Return)
                 };
                 var func = new ManagedFunction(funcDef, new List<BaseType>(), instructions);
-                container.VirtualMachine.LoadAssemblyInternal(Assembly.SingleFunction(func));
+                container.VirtualMachine.LoadFunctionsAsAssembly(TestHelpers.SingleFunction(func));
                 Assert.AreEqual(2.5f + 1.35f, ExecuteFloatProgram(container), 1E-4);
             }
         }
@@ -72,7 +72,7 @@ namespace SharpJIT.Test.Programs
                     new Instruction(OpCodes.Return)
                 };
                 var func = new ManagedFunction(funcDef, new List<BaseType>(), instructions);
-                container.VirtualMachine.LoadAssemblyInternal(Assembly.SingleFunction(func));
+                container.VirtualMachine.LoadFunctionsAsAssembly(TestHelpers.SingleFunction(func));
                 Assert.AreEqual(2.5f - 1.35f, ExecuteFloatProgram(container), 1E-4);
             }
         }
@@ -96,7 +96,7 @@ namespace SharpJIT.Test.Programs
                     new Instruction(OpCodes.Return)
                 };
                 var func = new ManagedFunction(funcDef, new List<BaseType>(), instructions);
-                container.VirtualMachine.LoadAssemblyInternal(Assembly.SingleFunction(func));
+                container.VirtualMachine.LoadFunctionsAsAssembly(TestHelpers.SingleFunction(func));
                 Assert.AreEqual(2.5f * 1.35f, ExecuteFloatProgram(container), 1E-4);
             }
         }
@@ -120,7 +120,7 @@ namespace SharpJIT.Test.Programs
                     new Instruction(OpCodes.Return)
                 };
                 var func = new ManagedFunction(funcDef, new List<BaseType>(), instructions);
-                container.VirtualMachine.LoadAssemblyInternal(Assembly.SingleFunction(func));
+                container.VirtualMachine.LoadFunctionsAsAssembly(TestHelpers.SingleFunction(func));
                 Assert.AreEqual(2.5f / 1.35f, ExecuteFloatProgram(container), 1E-4);
             }
         }

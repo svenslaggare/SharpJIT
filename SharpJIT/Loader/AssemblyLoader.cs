@@ -56,7 +56,8 @@ namespace SharpJIT.Loader
         /// Loads the given classes
         /// </summary>
         /// <param name="classes">The classes</param>
-        void LoadClasses(IReadOnlyList<Data.Class> classes);
+        /// <returns>The loaded classes</returns>
+        IList<ClassMetadata> LoadClasses(IReadOnlyList<Data.Class> classes);
     }
 
     /// <summary>
@@ -66,7 +67,6 @@ namespace SharpJIT.Loader
     {
         private readonly TypeProvider typeProvider;
         private readonly ClassMetadataProvider classMetadataProvider;
-
 
         /// <summary>
         /// Creates a new class loader
@@ -83,8 +83,10 @@ namespace SharpJIT.Loader
         /// Defines the classes
         /// </summary>
         /// <param name="classes">The classes</param>
-        private void DefineClasses(IReadOnlyList<Data.Class> classes)
+        private IList<ClassMetadata> DefineClasses(IReadOnlyList<Data.Class> classes)
         {
+            var definedClasses = new List<ClassMetadata>();
+
             foreach (var currentClass in classes)
             {
                 if (this.classMetadataProvider.IsDefined(currentClass.Name))
@@ -92,8 +94,12 @@ namespace SharpJIT.Loader
                     throw new LoaderException($"The class '{currentClass.Name}' is already defined.");
                 }
 
-                this.classMetadataProvider.Add(new ClassMetadata(currentClass.Name));
+                var classMetadata = new ClassMetadata(currentClass.Name);
+                this.classMetadataProvider.Add(classMetadata);
+                definedClasses.Add(classMetadata);
             }
+
+            return definedClasses;
         }
 
         /// <summary>
@@ -120,11 +126,10 @@ namespace SharpJIT.Loader
         /// Creates the fields
         /// </summary>
         /// <param name="classes">The classes</param>
-        private void CreateFields(IReadOnlyList<Data.Class> classes)
+        private void CreateFields(IList<ClassMetadata> classes)
         {
-            foreach (var currentClass in classes)
+            foreach (var classMetadata in classes)
             {
-                var classMetadata = this.classMetadataProvider.GetMetadata(currentClass.Name);
                 classMetadata.CreateFields();
             }
         }
@@ -133,11 +138,12 @@ namespace SharpJIT.Loader
         /// Loads the given classes
         /// </summary>
         /// <param name="classes">The classes</param>
-        public void LoadClasses(IReadOnlyList<Data.Class> classes)
+        public IList<ClassMetadata> LoadClasses(IReadOnlyList<Data.Class> classes)
         {
-            this.DefineClasses(classes);
+            var definedClasses = this.DefineClasses(classes);
             this.DefineFields(classes);
-            this.CreateFields(classes);
+            this.CreateFields(definedClasses);
+            return definedClasses;
         }
     }
 
@@ -279,14 +285,14 @@ namespace SharpJIT.Loader
         /// <param name="assembly">The assembly</param>
         public Assembly LoadAssembly(Data.Assembly assembly)
         {
-            this.classLoader.LoadClasses(assembly.Classes);
+            var loadedClasses = this.classLoader.LoadClasses(assembly.Classes);
             var loadedFunctions = assembly.Functions.Select(func =>
             {
                 var funcDef = this.CreateFunctionDefinition(func);
                 return this.functionLoader.LoadManagedFunction(func, funcDef);
             }).ToList();
 
-            return new Assembly(assembly.Name, loadedFunctions);
+            return new Assembly(assembly.Name, loadedClasses, loadedFunctions);
         }
     }
 }

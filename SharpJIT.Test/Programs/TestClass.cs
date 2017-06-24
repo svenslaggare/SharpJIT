@@ -77,9 +77,12 @@ namespace SharpJIT.Test.Programs
                         new Instruction(OpCodes.Return)
                     });
 
-                var assembly = new Assembly("test", func, pointConstructor);
+                container.VirtualMachine.LoadFunctionsAsAssembly(new List<ManagedFunction>()
+                {
+                    func,
+                    pointConstructor
+                });
 
-                container.VirtualMachine.LoadAssemblyInternal(assembly);
                 var result = container.Execute();
                 Assert.AreEqual(0, result);
             }
@@ -106,9 +109,12 @@ namespace SharpJIT.Test.Programs
                         new Instruction(OpCodes.Return)
                     });
 
-                var assembly = new Assembly("test", func, pointConstructor);
+                container.VirtualMachine.LoadFunctionsAsAssembly(new List<ManagedFunction>()
+                {
+                    func,
+                    pointConstructor
+                });
 
-                container.VirtualMachine.LoadAssemblyInternal(assembly);
                 var result = container.Execute();
                 Assert.AreEqual(0, result);
             }
@@ -140,9 +146,12 @@ namespace SharpJIT.Test.Programs
                         new Instruction(OpCodes.Return)
                     });
 
-                var assembly = new Assembly("test", func, pointConstructor);
+                container.VirtualMachine.LoadFunctionsAsAssembly(new List<ManagedFunction>()
+                {
+                    func,
+                    pointConstructor
+                });
 
-                container.VirtualMachine.LoadAssemblyInternal(assembly);
                 var result = container.Execute();
                 Assert.AreEqual(1337, result);
             }
@@ -174,9 +183,12 @@ namespace SharpJIT.Test.Programs
                         new Instruction(OpCodes.Return)
                     });
 
-                var assembly = new Assembly("test", func, pointConstructor);
+                container.VirtualMachine.LoadFunctionsAsAssembly(new List<ManagedFunction>()
+                {
+                    func,
+                    pointConstructor
+                });
 
-                container.VirtualMachine.LoadAssemblyInternal(assembly);
                 var result = container.Execute();
                 Assert.AreEqual(1337, result);
             }
@@ -224,9 +236,13 @@ namespace SharpJIT.Test.Programs
                         new Instruction(OpCodes.Return)
                     });
 
-                var assembly = new Assembly("test", pointConstructor, pointAddFunc, mainFunc);
+                container.VirtualMachine.LoadFunctionsAsAssembly(new List<ManagedFunction>()
+                {
+                    pointConstructor,
+                    pointAddFunc,
+                    mainFunc
+                });
 
-                container.VirtualMachine.LoadAssemblyInternal(assembly);
                 var result = container.Execute();
                 Assert.AreEqual(1337 + 4711, result);
             }

@@ -114,18 +114,17 @@ namespace SharpJIT.Runtime
         public void LoadAssembly(Loader.Data.Assembly assembly)
         {
             var loadedAssembly = this.assemblyLoader.LoadAssembly(assembly);
-            this.LoadAssemblyInternal(loadedAssembly);
+            this.LoadFunctions(loadedAssembly.Functions);
+            this.loadedAssemblies.Add(loadedAssembly);
         }
 
         /// <summary>
-        /// Loads the given assembly
+        /// Loads the given functions
         /// </summary>
-        /// <param name="assembly">The assembly</param>
-        public void LoadAssemblyInternal(Assembly assembly)
+        /// <param name="functions">The functions</param>
+        private void LoadFunctions(IEnumerable<ManagedFunction> functions)
         {
-            this.loadedAssemblies.Add(assembly);
-
-            foreach (var function in assembly.Functions)
+            foreach (var function in functions)
             {
                 if (function.Definition.Name == "main")
                 {
@@ -141,6 +140,20 @@ namespace SharpJIT.Runtime
                     throw new Exception($"The function '{function.Definition}' is already defined.");
                 }
             }
+        }
+
+        /// <summary>
+        /// Loads the given functions as an assembly
+        /// </summary>
+        /// <param name="functions">The functions</param>
+        public void LoadFunctionsAsAssembly(IEnumerable<ManagedFunction> functions)
+        {
+            var assembly = new Assembly(
+                Guid.NewGuid().ToString(),
+                new List<ClassMetadata>(),
+                functions.ToList());
+            this.LoadFunctions(functions);
+            this.loadedAssemblies.Add(assembly);
         }
 
         /// <summary>

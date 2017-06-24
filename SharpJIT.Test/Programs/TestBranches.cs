@@ -73,7 +73,7 @@ namespace SharpJIT.Test.Programs
         {
             using (var container = new Win64Container())
             {
-                container.VirtualMachine.LoadAssemblyInternal(Assembly.SingleFunction(
+                container.VirtualMachine.LoadFunctionsAsAssembly(TestHelpers.SingleFunction(
                     this.CreateBranchProgram(container, OpCodes.BranchEqual, 1, 1)));
 
                 Assert.AreEqual(1, container.Execute());
@@ -81,7 +81,7 @@ namespace SharpJIT.Test.Programs
 
             using (var container = new Win64Container())
             {
-                container.VirtualMachine.LoadAssemblyInternal(Assembly.SingleFunction(
+                container.VirtualMachine.LoadFunctionsAsAssembly(TestHelpers.SingleFunction(
                     this.CreateBranchProgram(container, OpCodes.BranchEqual, 2, 1)));
 
                 Assert.AreEqual(0, container.Execute());
@@ -96,7 +96,7 @@ namespace SharpJIT.Test.Programs
         {
             using (var container = new Win64Container())
             {
-                container.VirtualMachine.LoadAssemblyInternal(Assembly.SingleFunction(
+                container.VirtualMachine.LoadFunctionsAsAssembly(TestHelpers.SingleFunction(
                     this.CreateBranchProgram(container, OpCodes.BranchNotEqual, 2, 1)));
 
                 Assert.AreEqual(1, container.Execute());
@@ -104,7 +104,7 @@ namespace SharpJIT.Test.Programs
 
             using (var container = new Win64Container())
             {
-                container.VirtualMachine.LoadAssemblyInternal(Assembly.SingleFunction(
+                container.VirtualMachine.LoadFunctionsAsAssembly(TestHelpers.SingleFunction(
                     this.CreateBranchProgram(container, OpCodes.BranchNotEqual, 1, 1)));
 
                 Assert.AreEqual(0, container.Execute());
@@ -119,7 +119,7 @@ namespace SharpJIT.Test.Programs
         {
             using (var container = new Win64Container())
             {
-                container.VirtualMachine.LoadAssemblyInternal(Assembly.SingleFunction(
+                container.VirtualMachine.LoadFunctionsAsAssembly(TestHelpers.SingleFunction(
                     this.CreateBranchProgram(container, OpCodes.BranchLessThan, 1, 2)));
 
                 Assert.AreEqual(1, container.Execute());
@@ -127,7 +127,7 @@ namespace SharpJIT.Test.Programs
 
             using (var container = new Win64Container())
             {
-                container.VirtualMachine.LoadAssemblyInternal(Assembly.SingleFunction(
+                container.VirtualMachine.LoadFunctionsAsAssembly(TestHelpers.SingleFunction(
                     this.CreateBranchProgram(container, OpCodes.BranchLessThan, 1, 1)));
 
                 Assert.AreEqual(0, container.Execute());
@@ -135,7 +135,7 @@ namespace SharpJIT.Test.Programs
 
             using (var container = new Win64Container())
             {
-                container.VirtualMachine.LoadAssemblyInternal(Assembly.SingleFunction(
+                container.VirtualMachine.LoadFunctionsAsAssembly(TestHelpers.SingleFunction(
                     this.CreateBranchProgram(container, OpCodes.BranchLessThan, 2, 1)));
 
                 Assert.AreEqual(0, container.Execute());
@@ -150,7 +150,7 @@ namespace SharpJIT.Test.Programs
         {
             using (var container = new Win64Container())
             {
-                container.VirtualMachine.LoadAssemblyInternal(Assembly.SingleFunction(
+                container.VirtualMachine.LoadFunctionsAsAssembly(TestHelpers.SingleFunction(
                     this.CreateBranchProgram(container, OpCodes.BranchLessOrEqual, 1, 2)));
 
                 Assert.AreEqual(1, container.Execute());
@@ -158,7 +158,7 @@ namespace SharpJIT.Test.Programs
 
             using (var container = new Win64Container())
             {
-                container.VirtualMachine.LoadAssemblyInternal(Assembly.SingleFunction(
+                container.VirtualMachine.LoadFunctionsAsAssembly(TestHelpers.SingleFunction(
                     this.CreateBranchProgram(container, OpCodes.BranchLessOrEqual, 1, 1)));
 
                 Assert.AreEqual(1, container.Execute());
@@ -166,7 +166,7 @@ namespace SharpJIT.Test.Programs
 
             using (var container = new Win64Container())
             {
-                container.VirtualMachine.LoadAssemblyInternal(Assembly.SingleFunction(
+                container.VirtualMachine.LoadFunctionsAsAssembly(TestHelpers.SingleFunction(
                     this.CreateBranchProgram(container, OpCodes.BranchLessOrEqual, 2, 1)));
 
                 Assert.AreEqual(0, container.Execute());
@@ -181,7 +181,7 @@ namespace SharpJIT.Test.Programs
         {
             using (var container = new Win64Container())
             {
-                container.VirtualMachine.LoadAssemblyInternal(Assembly.SingleFunction(
+                container.VirtualMachine.LoadFunctionsAsAssembly(TestHelpers.SingleFunction(
                     this.CreateBranchProgram(container, OpCodes.BranchGreaterThan, 2, 1)));
 
                 Assert.AreEqual(1, container.Execute());
@@ -189,7 +189,7 @@ namespace SharpJIT.Test.Programs
 
             using (var container = new Win64Container())
             {
-                container.VirtualMachine.LoadAssemblyInternal(Assembly.SingleFunction(
+                container.VirtualMachine.LoadFunctionsAsAssembly(TestHelpers.SingleFunction(
                     this.CreateBranchProgram(container, OpCodes.BranchGreaterThan, 1, 1)));
 
                 Assert.AreEqual(0, container.Execute());
@@ -197,7 +197,7 @@ namespace SharpJIT.Test.Programs
 
             using (var container = new Win64Container())
             {
-                container.VirtualMachine.LoadAssemblyInternal(Assembly.SingleFunction(
+                container.VirtualMachine.LoadFunctionsAsAssembly(TestHelpers.SingleFunction(
                     this.CreateBranchProgram(container, OpCodes.BranchGreaterThan, 1, 2)));
 
                 Assert.AreEqual(0, container.Execute());
@@ -212,7 +212,7 @@ namespace SharpJIT.Test.Programs
         {
             using (var container = new Win64Container())
             {
-                container.VirtualMachine.LoadAssemblyInternal(Assembly.SingleFunction(
+                container.VirtualMachine.LoadFunctionsAsAssembly(TestHelpers.SingleFunction(
                     this.CreateBranchProgram(container, OpCodes.BranchGreaterThanOrEqual, 2, 1)));
 
                 Assert.AreEqual(1, container.Execute());
@@ -220,7 +220,7 @@ namespace SharpJIT.Test.Programs
 
             using (var container = new Win64Container())
             {
-                container.VirtualMachine.LoadAssemblyInternal(Assembly.SingleFunction(
+                container.VirtualMachine.LoadFunctionsAsAssembly(TestHelpers.SingleFunction(
                     this.CreateBranchProgram(container, OpCodes.BranchGreaterThanOrEqual, 1, 1)));
 
                 Assert.AreEqual(1, container.Execute());
@@ -228,7 +228,7 @@ namespace SharpJIT.Test.Programs
 
             using (var container = new Win64Container())
             {
-                container.VirtualMachine.LoadAssemblyInternal(Assembly.SingleFunction(
+                container.VirtualMachine.LoadFunctionsAsAssembly(TestHelpers.SingleFunction(
                     this.CreateBranchProgram(container, OpCodes.BranchGreaterThanOrEqual, 1, 2)));
 
                 Assert.AreEqual(0, container.Execute());
@@ -243,7 +243,7 @@ namespace SharpJIT.Test.Programs
         {
             using (var container = new Win64Container())
             {
-                container.VirtualMachine.LoadAssemblyInternal(Assembly.SingleFunction(
+                container.VirtualMachine.LoadFunctionsAsAssembly(TestHelpers.SingleFunction(
                     this.CreateBranchFloatProgram(container, OpCodes.BranchEqual, 1.0f, 1.0f)));
 
                 Assert.AreEqual(1, container.Execute());
@@ -251,7 +251,7 @@ namespace SharpJIT.Test.Programs
 
             using (var container = new Win64Container())
             {
-                container.VirtualMachine.LoadAssemblyInternal(Assembly.SingleFunction(
+                container.VirtualMachine.LoadFunctionsAsAssembly(TestHelpers.SingleFunction(
                     this.CreateBranchFloatProgram(container, OpCodes.BranchEqual, 2.0f, 1.0f)));
 
                 Assert.AreEqual(0, container.Execute());
@@ -266,7 +266,7 @@ namespace SharpJIT.Test.Programs
         {
             using (var container = new Win64Container())
             {
-                container.VirtualMachine.LoadAssemblyInternal(Assembly.SingleFunction(
+                container.VirtualMachine.LoadFunctionsAsAssembly(TestHelpers.SingleFunction(
                     this.CreateBranchFloatProgram(container, OpCodes.BranchNotEqual, 2, 1)));
 
                 Assert.AreEqual(1, container.Execute());
@@ -274,7 +274,7 @@ namespace SharpJIT.Test.Programs
 
             using (var container = new Win64Container())
             {
-                container.VirtualMachine.LoadAssemblyInternal(Assembly.SingleFunction(
+                container.VirtualMachine.LoadFunctionsAsAssembly(TestHelpers.SingleFunction(
                     this.CreateBranchFloatProgram(container, OpCodes.BranchNotEqual, 1, 1)));
 
                 Assert.AreEqual(0, container.Execute());
@@ -289,7 +289,7 @@ namespace SharpJIT.Test.Programs
         {
             using (var container = new Win64Container())
             {
-                container.VirtualMachine.LoadAssemblyInternal(Assembly.SingleFunction(
+                container.VirtualMachine.LoadFunctionsAsAssembly(TestHelpers.SingleFunction(
                     this.CreateBranchFloatProgram(container, OpCodes.BranchLessThan, 1, 2)));
 
                 Assert.AreEqual(1, container.Execute());
@@ -297,7 +297,7 @@ namespace SharpJIT.Test.Programs
 
             using (var container = new Win64Container())
             {
-                container.VirtualMachine.LoadAssemblyInternal(Assembly.SingleFunction(
+                container.VirtualMachine.LoadFunctionsAsAssembly(TestHelpers.SingleFunction(
                     this.CreateBranchFloatProgram(container, OpCodes.BranchLessThan, 1, 1)));
 
                 Assert.AreEqual(0, container.Execute());
@@ -305,7 +305,7 @@ namespace SharpJIT.Test.Programs
 
             using (var container = new Win64Container())
             {
-                container.VirtualMachine.LoadAssemblyInternal(Assembly.SingleFunction(
+                container.VirtualMachine.LoadFunctionsAsAssembly(TestHelpers.SingleFunction(
                     this.CreateBranchFloatProgram(container, OpCodes.BranchLessThan, 2, 1)));
 
                 Assert.AreEqual(0, container.Execute());
@@ -320,7 +320,7 @@ namespace SharpJIT.Test.Programs
         {
             using (var container = new Win64Container())
             {
-                container.VirtualMachine.LoadAssemblyInternal(Assembly.SingleFunction(
+                container.VirtualMachine.LoadFunctionsAsAssembly(TestHelpers.SingleFunction(
                     this.CreateBranchFloatProgram(container, OpCodes.BranchLessOrEqual, 1, 2)));
 
                 Assert.AreEqual(1, container.Execute());
@@ -328,7 +328,7 @@ namespace SharpJIT.Test.Programs
 
             using (var container = new Win64Container())
             {
-                container.VirtualMachine.LoadAssemblyInternal(Assembly.SingleFunction(
+                container.VirtualMachine.LoadFunctionsAsAssembly(TestHelpers.SingleFunction(
                     this.CreateBranchFloatProgram(container, OpCodes.BranchLessOrEqual, 1, 1)));
 
                 Assert.AreEqual(1, container.Execute());
@@ -336,7 +336,7 @@ namespace SharpJIT.Test.Programs
 
             using (var container = new Win64Container())
             {
-                container.VirtualMachine.LoadAssemblyInternal(Assembly.SingleFunction(
+                container.VirtualMachine.LoadFunctionsAsAssembly(TestHelpers.SingleFunction(
                     this.CreateBranchFloatProgram(container, OpCodes.BranchLessOrEqual, 2, 1)));
 
                 Assert.AreEqual(0, container.Execute());
@@ -351,7 +351,7 @@ namespace SharpJIT.Test.Programs
         {
             using (var container = new Win64Container())
             {
-                container.VirtualMachine.LoadAssemblyInternal(Assembly.SingleFunction(
+                container.VirtualMachine.LoadFunctionsAsAssembly(TestHelpers.SingleFunction(
                     this.CreateBranchFloatProgram(container, OpCodes.BranchGreaterThan, 2, 1)));
 
                 Assert.AreEqual(1, container.Execute());
@@ -359,7 +359,7 @@ namespace SharpJIT.Test.Programs
 
             using (var container = new Win64Container())
             {
-                container.VirtualMachine.LoadAssemblyInternal(Assembly.SingleFunction(
+                container.VirtualMachine.LoadFunctionsAsAssembly(TestHelpers.SingleFunction(
                     this.CreateBranchFloatProgram(container, OpCodes.BranchGreaterThan, 1, 1)));
 
                 Assert.AreEqual(0, container.Execute());
@@ -367,7 +367,7 @@ namespace SharpJIT.Test.Programs
 
             using (var container = new Win64Container())
             {
-                container.VirtualMachine.LoadAssemblyInternal(Assembly.SingleFunction(
+                container.VirtualMachine.LoadFunctionsAsAssembly(TestHelpers.SingleFunction(
                     this.CreateBranchFloatProgram(container, OpCodes.BranchGreaterThan, 1, 2)));
 
                 Assert.AreEqual(0, container.Execute());
@@ -382,7 +382,7 @@ namespace SharpJIT.Test.Programs
         {
             using (var container = new Win64Container())
             {
-                container.VirtualMachine.LoadAssemblyInternal(Assembly.SingleFunction(
+                container.VirtualMachine.LoadFunctionsAsAssembly(TestHelpers.SingleFunction(
                     this.CreateBranchFloatProgram(container, OpCodes.BranchGreaterThanOrEqual, 2, 1)));
 
                 Assert.AreEqual(1, container.Execute());
@@ -390,7 +390,7 @@ namespace SharpJIT.Test.Programs
 
             using (var container = new Win64Container())
             {
-                container.VirtualMachine.LoadAssemblyInternal(Assembly.SingleFunction(
+                container.VirtualMachine.LoadFunctionsAsAssembly(TestHelpers.SingleFunction(
                     this.CreateBranchFloatProgram(container, OpCodes.BranchGreaterThanOrEqual, 1, 1)));
 
                 Assert.AreEqual(1, container.Execute());
@@ -398,7 +398,7 @@ namespace SharpJIT.Test.Programs
 
             using (var container = new Win64Container())
             {
-                container.VirtualMachine.LoadAssemblyInternal(Assembly.SingleFunction(
+                container.VirtualMachine.LoadFunctionsAsAssembly(TestHelpers.SingleFunction(
                     this.CreateBranchFloatProgram(container, OpCodes.BranchGreaterThanOrEqual, 1, 2)));
 
                 Assert.AreEqual(0, container.Execute());
