@@ -71,7 +71,7 @@ namespace SharpJIT
                     new ManagedFunction(def, new List<BaseType>() { }, instructions),
                     constructorFunction);
 
-                container.LoadAssembly(assembly);
+                container.VirtualMachine.LoadAssemblyInternal(assembly);
                 container.VirtualMachine.Compile();
 
                 foreach (var function in assembly.Functions)

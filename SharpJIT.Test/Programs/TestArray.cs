@@ -49,7 +49,7 @@ namespace SharpJIT.Test.Programs
 
                 var assembly = Assembly.SingleFunction(func);
 
-                container.VirtualMachine.LoadAssembly(assembly);
+                container.VirtualMachine.LoadAssemblyInternal(assembly);
                 var result = container.Execute();
                 Assert.AreEqual(0, result);
             }
@@ -108,7 +108,7 @@ namespace SharpJIT.Test.Programs
 
                 var assembly = Assembly.SingleFunction(func);
 
-                container.VirtualMachine.LoadAssembly(assembly);
+                container.VirtualMachine.LoadAssemblyInternal(assembly);
                 var result = container.Execute();
                 Assert.AreEqual(10, result);
             }
@@ -168,7 +168,7 @@ namespace SharpJIT.Test.Programs
 
                 var assembly = Assembly.SingleFunction(func);
 
-                container.VirtualMachine.LoadAssembly(assembly);
+                container.VirtualMachine.LoadAssemblyInternal(assembly);
                 var result = container.Execute();
                 Assert.AreEqual(0, result);
             }
@@ -198,7 +198,7 @@ namespace SharpJIT.Test.Programs
 
                 var assembly = Assembly.SingleFunction(func);
 
-                container.VirtualMachine.LoadAssembly(assembly);
+                container.VirtualMachine.LoadAssemblyInternal(assembly);
                 var result = container.Execute();
                 Assert.AreEqual(0, result);
             }
@@ -235,7 +235,7 @@ namespace SharpJIT.Test.Programs
 
                 var assembly = Assembly.SingleFunction(func);
 
-                container.VirtualMachine.LoadAssembly(assembly);
+                container.VirtualMachine.LoadAssemblyInternal(assembly);
                 var result = container.Execute();
                 Assert.AreEqual(1337, result);
             }
@@ -272,7 +272,7 @@ namespace SharpJIT.Test.Programs
 
                 var assembly = Assembly.SingleFunction(func);
 
-                container.VirtualMachine.LoadAssembly(assembly);
+                container.VirtualMachine.LoadAssemblyInternal(assembly);
                 var result = container.Execute();
                 Assert.AreEqual(1337, result);
             }

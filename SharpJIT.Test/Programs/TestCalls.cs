@@ -29,7 +29,7 @@ namespace SharpJIT.Test.Programs
                         TestProgramGenerator.AddMainFunction(container, i),
                         TestProgramGenerator.AddFunction(container, i));
 
-                    container.VirtualMachine.LoadAssembly(assembly);
+                    container.VirtualMachine.LoadAssemblyInternal(assembly);
                     Assert.AreEqual(i * (1 + i) / 2, container.Execute());
                 }
             }
@@ -52,7 +52,7 @@ namespace SharpJIT.Test.Programs
                         TestProgramGenerator.FloatAddMainFunction(container, i),
                         TestProgramGenerator.FloatAddFunction(container, i));
 
-                    container.VirtualMachine.LoadAssembly(assembly);
+                    container.VirtualMachine.LoadAssemblyInternal(assembly);
                     container.VirtualMachine.Compile();
                     var funcPtr = Marshal.GetDelegateForFunctionPointer<FloatMain>(
                         container.VirtualMachine.Binder.GetFunction("floatMain()").EntryPoint);
@@ -107,7 +107,7 @@ namespace SharpJIT.Test.Programs
                     new Instruction(OpCodes.Return)
                 };
                 var func = new ManagedFunction(def, new List<BaseType>(), instructions);
-                container.LoadAssembly(Assembly.SingleFunction(func));
+                container.VirtualMachine.LoadAssemblyInternal(Assembly.SingleFunction(func));
                 Assert.AreEqual(1 + 2 + 3 + 4 + 5 + 6 + 7 + 8 + 9, container.Execute());
             }
         }
@@ -157,7 +157,7 @@ namespace SharpJIT.Test.Programs
                     new Instruction(OpCodes.Return)
                 };
                 var func = new ManagedFunction(def, new List<BaseType>(), instructions);
-                container.LoadAssembly(Assembly.SingleFunction(func));
+                container.VirtualMachine.LoadAssemblyInternal(Assembly.SingleFunction(func));
                 Assert.AreEqual(1 + 2 + 3 + 4 + 5 + 6 + 7 + 8, container.Execute());
             }
         }
@@ -206,7 +206,7 @@ namespace SharpJIT.Test.Programs
                     new Instruction(OpCodes.Return)
                 };
                 var func = new ManagedFunction(def, new List<BaseType>(), instructions);
-                container.LoadAssembly(Assembly.SingleFunction(func));
+                container.VirtualMachine.LoadAssemblyInternal(Assembly.SingleFunction(func));
 
                 Assert.AreEqual(1 + 2 + 3 + 4 + 5 + 6, container.Execute());
             }
@@ -253,7 +253,7 @@ namespace SharpJIT.Test.Programs
 
                 mainFn();
                 testFn();
-                container.LoadAssembly(new Assembly("test", assemblyFunctions));
+                container.VirtualMachine.LoadAssemblyInternal(new Assembly("test", assemblyFunctions));
                 Assert.AreEqual(3, container.Execute());
             }
         }
@@ -271,7 +271,7 @@ namespace SharpJIT.Test.Programs
                     TestProgramGenerator.MainWithIntCall(container, "sum", 10),
                     TestProgramGenerator.ResursiveSum(container));
 
-                container.LoadAssembly(assembly);
+                container.VirtualMachine.LoadAssemblyInternal(assembly);
                 Assert.AreEqual(55, container.Execute());
             }
         }
@@ -289,7 +289,7 @@ namespace SharpJIT.Test.Programs
                     TestProgramGenerator.MainWithIntCall(container, "fib", 11),
                     TestProgramGenerator.RecursiveFib(container));
 
-                container.LoadAssembly(assembly);
+                container.VirtualMachine.LoadAssemblyInternal(assembly);
                 Assert.AreEqual(89, container.Execute());
             }
         }

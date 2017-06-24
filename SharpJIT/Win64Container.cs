@@ -39,15 +39,6 @@ namespace SharpJIT
         }
 
         /// <summary>
-        /// Loads the given assembly
-        /// </summary>
-        /// <param name="assembly">The assembly</param>
-        public void LoadAssembly(Assembly assembly)
-        {
-            this.VirtualMachine.LoadAssembly(assembly);
-        }
-
-        /// <summary>
         /// Executes the loaded program
         /// </summary>
         /// <returns>The return value from the program</returns>

@@ -390,7 +390,7 @@ namespace SharpJIT.Test.Loader
                     new List<SharpJIT.Loader.Data.Class>() { classDef },
                     new List<SharpJIT.Loader.Data.Function>() { pointConstructor, pointAddFunction, mainFunction });
 
-                container.LoadAssembly(assembly);
+                container.VirtualMachine.LoadAssembly(assembly);
                 var result = container.Execute();
                 Assert.AreEqual(1337 + 4711, result);
             }

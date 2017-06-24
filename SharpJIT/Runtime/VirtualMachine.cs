@@ -114,14 +114,14 @@ namespace SharpJIT.Runtime
         public void LoadAssembly(Loader.Data.Assembly assembly)
         {
             var loadedAssembly = this.assemblyLoader.LoadAssembly(assembly);
-            this.LoadAssembly(loadedAssembly);
+            this.LoadAssemblyInternal(loadedAssembly);
         }
 
         /// <summary>
         /// Loads the given assembly
         /// </summary>
         /// <param name="assembly">The assembly</param>
-        public void LoadAssembly(Assembly assembly)
+        public void LoadAssemblyInternal(Assembly assembly)
         {
             this.loadedAssemblies.Add(assembly);
 

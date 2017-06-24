@@ -31,7 +31,7 @@ namespace SharpJIT.Test.Programs
                         new Instruction(OpCodes.Return)
                     });
 
-                container.LoadAssembly(Assembly.SingleFunction(testFunc));
+                container.VirtualMachine.LoadAssemblyInternal(Assembly.SingleFunction(testFunc));
 
                 try
                 {
@@ -66,7 +66,7 @@ namespace SharpJIT.Test.Programs
 
                 try
                 {
-                    container.LoadAssembly(Assembly.SingleFunction(mainFunc));
+                    container.VirtualMachine.LoadAssemblyInternal(Assembly.SingleFunction(mainFunc));
                     Assert.Fail("Expected invalid main to not pass.");
                 }
                 catch (Exception e)
@@ -96,7 +96,7 @@ namespace SharpJIT.Test.Programs
 
                 try
                 {
-                    container.LoadAssembly(Assembly.SingleFunction(mainFunc));
+                    container.VirtualMachine.LoadAssemblyInternal(Assembly.SingleFunction(mainFunc));
                     Assert.Fail("Expected invalid main to not pass.");
                 }
                 catch (Exception e)
@@ -136,7 +136,7 @@ namespace SharpJIT.Test.Programs
                     });
 
                 var assembly = new Assembly("test", func1, func2);
-                container.LoadAssembly(assembly);
+                container.VirtualMachine.LoadAssemblyInternal(assembly);
             }
         }
 
@@ -173,7 +173,7 @@ namespace SharpJIT.Test.Programs
 
                 try
                 {
-                    container.LoadAssembly(assembly);
+                    container.VirtualMachine.LoadAssemblyInternal(assembly);
                     Assert.Fail("Expected invalid overload to not pass.");
                 }
                 catch (Exception e)
@@ -215,7 +215,7 @@ namespace SharpJIT.Test.Programs
 
                 try
                 {
-                    container.LoadAssembly(assembly);
+                    container.VirtualMachine.LoadAssemblyInternal(assembly);
                     Assert.Fail("Expected already defined to not pass.");
                 }
                 catch (Exception e)
