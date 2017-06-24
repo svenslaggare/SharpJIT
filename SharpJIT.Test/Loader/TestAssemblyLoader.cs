@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SharpJIT.Core;
+using SharpJIT.Core.Objects;
 using SharpJIT.Loader;
 using SharpJIT.Runtime;
 
@@ -20,36 +21,36 @@ namespace SharpJIT.Test.Loader
         [TestMethod]
         public void TestLoadFunction()
         {
-            using (var virtualMachine = new VirtualMachine(vm => null))
-            {
-                var intType = virtualMachine.TypeProvider.FindPrimitiveType(PrimitiveTypes.Int);
-                var floatType = virtualMachine.TypeProvider.FindPrimitiveType(PrimitiveTypes.Float);
+            var classMetadataProvider = new ClassMetadataProvider();
+            var typeProvider = new TypeProvider(classMetadataProvider);
+            var functionLoader = new FunctionLoader(typeProvider);
 
-                var functionLoader = new FunctionLoader(virtualMachine);
-                var parsedFunction = new SharpJIT.Loader.Parser.Function(
-                    "test",
-                    new List<string>() { intType.Name },
-                    intType.Name,
-                    new List<string>() { floatType.Name },
-                    new List<SharpJIT.Loader.Parser.Instruction>()
-                    {
-                        new SharpJIT.Loader.Parser.Instruction(OpCodes.LoadInt, 1337),
-                        new SharpJIT.Loader.Parser.Instruction(OpCodes.Return)
-                    });
+            var intType = typeProvider.FindPrimitiveType(PrimitiveTypes.Int);
+            var floatType = typeProvider.FindPrimitiveType(PrimitiveTypes.Float);
+       
+            var parsedFunction = new SharpJIT.Loader.Data.Function(
+                "test",
+                new List<string>() { intType.Name },
+                intType.Name,
+                new List<string>() { floatType.Name },
+                new List<SharpJIT.Loader.Data.Instruction>()
+                {
+                    new SharpJIT.Loader.Data.Instruction(OpCodes.LoadInt, 1337),
+                    new SharpJIT.Loader.Data.Instruction(OpCodes.Return)
+                });
 
-                var functionDefinition = new FunctionDefinition("test", new List<BaseType>() { intType }, intType);
-                var function = functionLoader.LoadManagedFunction(parsedFunction, functionDefinition);
+            var functionDefinition = new FunctionDefinition("test", new List<BaseType>() { intType }, intType);
+            var function = functionLoader.LoadManagedFunction(parsedFunction, functionDefinition);
 
-                Assert.AreEqual(functionDefinition, function.Definition);
+            Assert.AreEqual(functionDefinition, function.Definition);
 
-                Assert.AreEqual(1, function.Locals.Count);
-                Assert.AreEqual(floatType, function.Locals[0]);
+            Assert.AreEqual(1, function.Locals.Count);
+            Assert.AreEqual(floatType, function.Locals[0]);
 
-                Assert.AreEqual(2, function.Instructions.Count);
-                Assert.AreEqual(OpCodes.LoadInt, function.Instructions[0].OpCode);
-                Assert.AreEqual(1337, function.Instructions[0].IntValue);
-                Assert.AreEqual(OpCodes.Return, function.Instructions[1].OpCode);
-            }
+            Assert.AreEqual(2, function.Instructions.Count);
+            Assert.AreEqual(OpCodes.LoadInt, function.Instructions[0].OpCode);
+            Assert.AreEqual(1337, function.Instructions[0].IntValue);
+            Assert.AreEqual(OpCodes.Return, function.Instructions[1].OpCode);
         }
 
         /// <summary>
@@ -58,35 +59,34 @@ namespace SharpJIT.Test.Loader
         [TestMethod]
         public void TestClassLoader()
         {
-            using (var virtualMachine = new VirtualMachine(vm => null))
-            {
-                var intType = virtualMachine.TypeProvider.FindPrimitiveType(PrimitiveTypes.Int);
+            var classMetadataProvider = new ClassMetadataProvider();
+            var typeProvider = new TypeProvider(classMetadataProvider);
+            var classLoader = new ClassLoader(typeProvider, classMetadataProvider);
 
-                var classLoader = new ClassLoader(virtualMachine);
+            var intType = typeProvider.FindPrimitiveType(PrimitiveTypes.Int);
 
-                var classDef = new SharpJIT.Loader.Parser.Class(
-                    "Point",
-                    new List<SharpJIT.Loader.Parser.Field>()
-                    {
-                        new SharpJIT.Loader.Parser.Field("x", intType.Name, SharpJIT.Core.Objects.AccessModifier.Public),
-                        new SharpJIT.Loader.Parser.Field("y", intType.Name, SharpJIT.Core.Objects.AccessModifier.Public)
-                    });
+            var classDef = new SharpJIT.Loader.Data.Class(
+                "Point",
+                new List<SharpJIT.Loader.Data.Field>()
+                {
+                    new SharpJIT.Loader.Data.Field("x", intType.Name, SharpJIT.Core.Objects.AccessModifier.Public),
+                    new SharpJIT.Loader.Data.Field("y", intType.Name, SharpJIT.Core.Objects.AccessModifier.Public)
+                });
 
-                classLoader.LoadClasses(new List<SharpJIT.Loader.Parser.Class>() { classDef });
+            classLoader.LoadClasses(new List<SharpJIT.Loader.Data.Class>() { classDef });
 
-                var classMetadata = virtualMachine.ClassMetadataProvider.GetMetadata(classDef.Name);
+            var classMetadata = classMetadataProvider.GetMetadata(classDef.Name);
 
-                Assert.IsNotNull(classMetadata);
-                Assert.AreEqual(classDef.Name, classMetadata.Name);
+            Assert.IsNotNull(classMetadata);
+            Assert.AreEqual(classDef.Name, classMetadata.Name);
 
-                var fields = classMetadata.Fields.ToList();
-                Assert.AreEqual(2, fields.Count);
-                Assert.AreEqual("x", fields[0].Name);
-                Assert.AreEqual(intType, fields[0].Type);
+            var fields = classMetadata.Fields.ToList();
+            Assert.AreEqual(2, fields.Count);
+            Assert.AreEqual("x", fields[0].Name);
+            Assert.AreEqual(intType, fields[0].Type);
 
-                Assert.AreEqual("y", fields[1].Name);
-                Assert.AreEqual(intType, fields[1].Type);
-            }
+            Assert.AreEqual("y", fields[1].Name);
+            Assert.AreEqual(intType, fields[1].Type);
         }
 
         /// <summary>
@@ -95,39 +95,85 @@ namespace SharpJIT.Test.Loader
         [TestMethod]
         public void TestClassLoader2()
         {
-            using (var virtualMachine = new VirtualMachine(vm => null))
-            {
-                var intType = virtualMachine.TypeProvider.FindPrimitiveType(PrimitiveTypes.Int);
+            var classMetadataProvider = new ClassMetadataProvider();
+            var typeProvider = new TypeProvider(classMetadataProvider);
+            var classLoader = new ClassLoader(typeProvider, classMetadataProvider);
 
-                var classLoader = new ClassLoader(virtualMachine);
+            var intType = typeProvider.FindPrimitiveType(PrimitiveTypes.Int);
 
-                var listClassDef = new SharpJIT.Loader.Parser.Class(
-                    "List",
-                    new List<SharpJIT.Loader.Parser.Field>()
-                    {
-                        new SharpJIT.Loader.Parser.Field("head", "Ref.Point", SharpJIT.Core.Objects.AccessModifier.Public)
-                    });
+            var listClassDef = new SharpJIT.Loader.Data.Class(
+                "List",
+                new List<SharpJIT.Loader.Data.Field>()
+                {
+                    new SharpJIT.Loader.Data.Field("head", "Ref.Point", SharpJIT.Core.Objects.AccessModifier.Public)
+                });
 
-                var pointClassDef = new SharpJIT.Loader.Parser.Class(
-                    "Point",
-                    new List<SharpJIT.Loader.Parser.Field>()
-                    {
-                        new SharpJIT.Loader.Parser.Field("x", intType.Name, SharpJIT.Core.Objects.AccessModifier.Public),
-                        new SharpJIT.Loader.Parser.Field("y", intType.Name, SharpJIT.Core.Objects.AccessModifier.Public)
-                    });
+            var pointClassDef = new SharpJIT.Loader.Data.Class(
+                "Point",
+                new List<SharpJIT.Loader.Data.Field>()
+                {
+                    new SharpJIT.Loader.Data.Field("x", intType.Name, SharpJIT.Core.Objects.AccessModifier.Public),
+                    new SharpJIT.Loader.Data.Field("y", intType.Name, SharpJIT.Core.Objects.AccessModifier.Public)
+                });
 
-                classLoader.LoadClasses(new List<SharpJIT.Loader.Parser.Class>() { listClassDef, pointClassDef });
+            classLoader.LoadClasses(new List<SharpJIT.Loader.Data.Class>() { listClassDef, pointClassDef });
 
-                Assert.IsNotNull(virtualMachine.ClassMetadataProvider.GetMetadata(pointClassDef.Name));
+            Assert.IsNotNull(classMetadataProvider.GetMetadata(pointClassDef.Name));
 
-                var listMetadata = virtualMachine.ClassMetadataProvider.GetMetadata(listClassDef.Name);
-                Assert.IsNotNull(listMetadata);
+            var listMetadata = classMetadataProvider.GetMetadata(listClassDef.Name);
+            Assert.IsNotNull(listMetadata);
 
-                var pointType = virtualMachine.TypeProvider.FindType("Ref.Point", false);
-                Assert.IsNotNull(pointType);
+            var pointType = typeProvider.FindType("Ref.Point", false);
+            Assert.IsNotNull(pointType);
 
-                Assert.AreEqual(pointType, listMetadata.Fields.First().Type);
-            }
+            Assert.AreEqual(pointType, listMetadata.Fields.First().Type);
+        }
+
+        /// <summary>
+        /// Tests loading an assembly
+        /// </summary>
+        [TestMethod]
+        public void TestLoadAssembly()
+        {
+            var classMetadataProvider = new ClassMetadataProvider();
+            var typeProvider = new TypeProvider(classMetadataProvider);
+            var assemblyLoader = new AssemblyLoader(
+                new ClassLoader(typeProvider, classMetadataProvider),
+                new FunctionLoader(typeProvider),
+                typeProvider);
+
+            var intType = typeProvider.FindPrimitiveType(PrimitiveTypes.Int);
+
+            var classDef = new SharpJIT.Loader.Data.Class(
+                "Point",
+                new List<SharpJIT.Loader.Data.Field>()
+                {
+                    new SharpJIT.Loader.Data.Field("x", intType.Name, SharpJIT.Core.Objects.AccessModifier.Public),
+                    new SharpJIT.Loader.Data.Field("y", intType.Name, SharpJIT.Core.Objects.AccessModifier.Public)
+                });
+
+            var functionDef = new SharpJIT.Loader.Data.Function(
+                "test",
+                new List<string>() { intType.Name },
+                intType.Name,
+                new List<string>() { "Ref.Point" },
+                new List<SharpJIT.Loader.Data.Instruction>()
+                {
+                    new SharpJIT.Loader.Data.Instruction(OpCodes.LoadInt, 1337),
+                    new SharpJIT.Loader.Data.Instruction(OpCodes.Return)
+                });
+
+            var assembly = new SharpJIT.Loader.Data.Assembly(
+                "test",
+                new List<SharpJIT.Loader.Data.Class>() { classDef },
+                new List<SharpJIT.Loader.Data.Function>() { functionDef });
+
+            var loadedAssembly = assemblyLoader.LoadAssembly(assembly);
+
+            Assert.AreEqual(1, loadedAssembly.Functions.Count);
+            Assert.AreEqual("test", loadedAssembly.Functions[0].Definition.Name);
+
+            Assert.IsTrue(classMetadataProvider.IsDefined("Point"));
         }
     }
 }

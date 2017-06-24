@@ -86,7 +86,7 @@
     <Compile Include="Core\Objects\Field.cs" />
     <Compile Include="Core\SampleInstructionPass.cs" />
     <Compile Include="Loader\AssemblyLoader.cs" />
-    <Compile Include="Loader\Parser\Assembly.cs" />
+    <Compile Include="Loader\Data\Assembly.cs" />
     <Compile Include="Loader\Verifier.cs" />
     <Compile Include="Runtime\Memory\MemoryManager.cs" />
     <Compile Include="Compiler\NativeHelpers.cs" />

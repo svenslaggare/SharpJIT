@@ -33,11 +33,11 @@ namespace SharpJIT.Loader
         /// <summary>
         /// Finds the given type
         /// </summary>
-        /// <param name="virtualMachine">The virtual machine</param>
+        /// <param name="typeProvider">The type provider</param>
         /// <param name="name">The name of the type</param>
-        public static BaseType FindType(VirtualMachine virtualMachine, string name)
+        public static BaseType FindType(TypeProvider typeProvider, string name)
         {
-            var type = virtualMachine.TypeProvider.FindType(name);
+            var type = typeProvider.FindType(name);
             if (type == null)
             {
                 throw new LoaderException($"There exist no type called '{name}'.");
@@ -56,7 +56,7 @@ namespace SharpJIT.Loader
         /// Loads the given classes
         /// </summary>
         /// <param name="classes">The classes</param>
-        void LoadClasses(IReadOnlyList<Parser.Class> classes);
+        void LoadClasses(IReadOnlyList<Data.Class> classes);
     }
 
     /// <summary>
@@ -64,32 +64,35 @@ namespace SharpJIT.Loader
     /// </summary>
     public sealed class ClassLoader : IClassLoader
     {
-        private readonly VirtualMachine virtualMachine;
+        private readonly TypeProvider typeProvider;
+        private readonly ClassMetadataProvider classMetadataProvider;
+
 
         /// <summary>
         /// Creates a new class loader
         /// </summary>
-        /// <param name="virtualMachine">The virtual machine</param>
-        public ClassLoader(VirtualMachine virtualMachine)
+        /// <param name="typeProvider">The type provider</param>
+        /// <param name="classMetadataProvider">The class metadata providert</param>
+        public ClassLoader(TypeProvider typeProvider, ClassMetadataProvider classMetadataProvider)
         {
-            this.virtualMachine = virtualMachine;
-
+            this.typeProvider = typeProvider;
+            this.classMetadataProvider = classMetadataProvider;
         }
 
         /// <summary>
         /// Defines the classes
         /// </summary>
         /// <param name="classes">The classes</param>
-        private void DefineClasses(IReadOnlyList<Parser.Class> classes)
+        private void DefineClasses(IReadOnlyList<Data.Class> classes)
         {
             foreach (var currentClass in classes)
             {
-                if (this.virtualMachine.ClassMetadataProvider.IsDefined(currentClass.Name))
+                if (this.classMetadataProvider.IsDefined(currentClass.Name))
                 {
                     throw new LoaderException($"The class '{currentClass.Name}' is already defined.");
                 }
 
-                this.virtualMachine.ClassMetadataProvider.Add(new ClassMetadata(currentClass.Name));
+                this.classMetadataProvider.Add(new ClassMetadata(currentClass.Name));
             }
         }
 
@@ -97,17 +100,17 @@ namespace SharpJIT.Loader
         /// Defines the fields
         /// </summary>
         /// <param name="classes">The classes</param>
-        private void DefineFields(IReadOnlyList<Parser.Class> classes)
+        private void DefineFields(IReadOnlyList<Data.Class> classes)
         {
             foreach (var currentClass in classes)
             {
-                var classMetadata = this.virtualMachine.ClassMetadataProvider.GetMetadata(currentClass.Name);
+                var classMetadata = this.classMetadataProvider.GetMetadata(currentClass.Name);
 
                 foreach (var field in currentClass.Fields)
                 {
                     classMetadata.DefineField(new FieldDefinition(
                         field.Name,
-                        LoaderHelpers.FindType(this.virtualMachine, field.Type),
+                        LoaderHelpers.FindType(this.typeProvider, field.Type),
                         field.AccessModifier));
                 }
             }
@@ -117,11 +120,11 @@ namespace SharpJIT.Loader
         /// Creates the fields
         /// </summary>
         /// <param name="classes">The classes</param>
-        private void CreateFields(IReadOnlyList<Parser.Class> classes)
+        private void CreateFields(IReadOnlyList<Data.Class> classes)
         {
             foreach (var currentClass in classes)
             {
-                var classMetadata = this.virtualMachine.ClassMetadataProvider.GetMetadata(currentClass.Name);
+                var classMetadata = this.classMetadataProvider.GetMetadata(currentClass.Name);
                 classMetadata.CreateFields();
             }
         }
@@ -130,7 +133,7 @@ namespace SharpJIT.Loader
         /// Loads the given classes
         /// </summary>
         /// <param name="classes">The classes</param>
-        public void LoadClasses(IReadOnlyList<Parser.Class> classes)
+        public void LoadClasses(IReadOnlyList<Data.Class> classes)
         {
             this.DefineClasses(classes);
             this.DefineFields(classes);
@@ -148,7 +151,7 @@ namespace SharpJIT.Loader
         /// </summary>
         /// <param name="function">The function</param>
         /// <param name="functionDefinition">The function definition</param>
-        ManagedFunction LoadManagedFunction(Parser.Function function, FunctionDefinition functionDefinition);
+        ManagedFunction LoadManagedFunction(Data.Function function, FunctionDefinition functionDefinition);
     }
 
     /// <summary>
@@ -156,15 +159,15 @@ namespace SharpJIT.Loader
     /// </summary>
     public sealed class FunctionLoader : IFunctionLoader
     {
-        private readonly VirtualMachine virtualMachine;
+        private readonly TypeProvider typeProvider;
 
         /// <summary>
         /// Creates a new function loader
         /// </summary>
-        /// <param name="virtualMachine">The virtual machine</param>
-        public FunctionLoader(VirtualMachine virtualMachine)
+        /// <param name="typeProvider">The type provider</param>
+        public FunctionLoader(TypeProvider typeProvider)
         {
-            this.virtualMachine = virtualMachine;
+            this.typeProvider = typeProvider;
         }
 
         /// <summary>
@@ -172,26 +175,26 @@ namespace SharpJIT.Loader
         /// </summary>
         /// <param name="function">The function</param>
         /// <param name="functionDefinition">The function definition</param>
-        public ManagedFunction LoadManagedFunction(Parser.Function function, FunctionDefinition functionDefinition)
+        public ManagedFunction LoadManagedFunction(Data.Function function, FunctionDefinition functionDefinition)
         {
-            var locals = function.Locals.Select(local => LoaderHelpers.FindType(this.virtualMachine, local)).ToList();
+            var locals = function.Locals.Select(local => LoaderHelpers.FindType(this.typeProvider, local)).ToList();
             var instructions = function.Instructions.Select(instruction =>
             {
                 switch (instruction.Format)
                 {
-                    case Parser.InstructionFormat.OpCodeOnly:
+                    case Data.InstructionFormat.OpCodeOnly:
                         return new Instruction(instruction.OpCode);
-                    case Parser.InstructionFormat.IntValue:
+                    case Data.InstructionFormat.IntValue:
                         return new Instruction(instruction.OpCode, instruction.IntValue);
-                    case Parser.InstructionFormat.FloatValue:
+                    case Data.InstructionFormat.FloatValue:
                         return new Instruction(instruction.OpCode, instruction.FloatValue);
-                    case Parser.InstructionFormat.StringValue:
+                    case Data.InstructionFormat.StringValue:
                         return new Instruction(instruction.OpCode, instruction.StringValue);
-                    case Parser.InstructionFormat.Call:
+                    case Data.InstructionFormat.Call:
                         return new Instruction(
                             instruction.OpCode,
                             instruction.StringValue,
-                            instruction.Parameters.Select(parameter => LoaderHelpers.FindType(this.virtualMachine, parameter)).ToList());
+                            instruction.Parameters.Select(parameter => LoaderHelpers.FindType(this.typeProvider, parameter)).ToList());
                     default:
                         return new Instruction();
                 }
@@ -208,38 +211,38 @@ namespace SharpJIT.Loader
     {
         private readonly IClassLoader classLoader;
         private readonly IFunctionLoader functionLoader;
-        private readonly VirtualMachine virtualMachine;
+        private readonly TypeProvider typeProvider;
 
         /// <summary>
         /// Creates a new assembly loader
         /// </summary>
         /// <param name="classLoader">The class loader</param>
         /// <param name="functionLoader">The function loader</param>
-        /// <param name="virtualMachine">The virtual machine</param>
-        public AssemblyLoader(IClassLoader classLoader, IFunctionLoader functionLoader, VirtualMachine virtualMachine)
+        /// <param name="typeProvider">The type provider</param>
+        public AssemblyLoader(IClassLoader classLoader, IFunctionLoader functionLoader, TypeProvider typeProvider)
         {
             this.classLoader = classLoader;
             this.functionLoader = functionLoader;
-            this.virtualMachine = virtualMachine;
+            this.typeProvider = typeProvider;
         }
 
         /// <summary>
         /// Creates a definition for the given parsed function
         /// </summary>
         /// <param name="function">The function</param>
-        private FunctionDefinition CreateFunctionDefinition(Parser.Function function)
+        private FunctionDefinition CreateFunctionDefinition(Data.Function function)
         {
             return new FunctionDefinition(
                 function.Name,
-                function.Parameters.Select(parameterType => LoaderHelpers.FindType(this.virtualMachine, parameterType)).ToList(),
-                LoaderHelpers.FindType(this.virtualMachine, function.ReturnType));
+                function.Parameters.Select(parameterType => LoaderHelpers.FindType(this.typeProvider, parameterType)).ToList(),
+                LoaderHelpers.FindType(this.typeProvider, function.ReturnType));
         }
 
         /// <summary>
         /// Loads the given assembly
         /// </summary>
         /// <param name="assembly">The assembly</param>
-        public Assembly LoadAssembly(Parser.Assembly assembly)
+        public Assembly LoadAssembly(Data.Assembly assembly)
         {
             this.classLoader.LoadClasses(assembly.Classes);
             var loadedFunctions = assembly.Functions.Select(func =>

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SharpJIT.Loader.Parser
+namespace SharpJIT.Loader.Data
 {
     /// <summary>
     /// Represents an assembly used for loading
@@ -33,11 +33,11 @@ namespace SharpJIT.Loader.Parser
         /// <param name="name">The name of the assembly</param>
         /// <param name="classes">The classes</param>
         /// <param name="functions">The functions</param>
-        public Assembly(string name, IReadOnlyList<Class> classes, IReadOnlyList<Function> functions)
+        public Assembly(string name, IList<Class> classes, IList<Function> functions)
         {
             this.Name = name;
-            this.Classes = classes;
-            this.Functions = functions;
+            this.Classes = new List<Class>(classes);
+            this.Functions = new List<Function>(functions);
         }
     }
 
