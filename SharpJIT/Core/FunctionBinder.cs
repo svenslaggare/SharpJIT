@@ -9,14 +9,14 @@ namespace SharpJIT.Core
     /// <summary>
     /// Represents the function binder
     /// </summary>
-    public class Binder
+    public class FunctionBinder
     {
         private readonly IDictionary<string, FunctionDefinition> functions;
 
         /// <summary>
-        /// Creates a new binder
+        /// Creates a new function binder
         /// </summary>
-        public Binder()
+        public FunctionBinder()
         {
             this.functions = new Dictionary<string, FunctionDefinition>();
         }
@@ -32,12 +32,23 @@ namespace SharpJIT.Core
         }
 
         /// <summary>
+        /// Returns the signature for the given member function
+        /// </summary>
+        /// <param name="classType">The class which the function belongs to</param>
+        /// <param name="name">The name of the function</param>
+        /// <param name="parameters">The parameters</param>
+        public string MemberFunctionSignature(ClassType classType, string name, IEnumerable<BaseType> parameters)
+        {
+            return $"{classType.ClassName}::{name}({string.Join(" ", parameters)})";
+        }
+
+        /// <summary>
         /// Returns the signature for the given function
         /// </summary>
         /// <param name="function"></param>
         public string FunctionSignature(FunctionDefinition function)
         {
-            return this.FunctionSignature(function.Name, function.Parameters);
+            return this.FunctionSignature(function.Name, function.CallParameters);
         }
 
         /// <summary>

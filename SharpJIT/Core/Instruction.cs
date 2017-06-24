@@ -50,7 +50,11 @@ namespace SharpJIT.Core
         NewArray,
         LoadArrayLength,
         LoadElement,
-        StoreElement
+        StoreElement,
+        NewObject,
+        LoadField,
+        StoreField,
+        CallInstance
     }
 
 	/// <summary>
@@ -85,6 +89,11 @@ namespace SharpJIT.Core
         /// Returns the parameters used for call instructions 
         /// </summary>
         public IReadOnlyList<BaseType> Parameters { get; }
+
+        /// <summary>
+        /// Returns the class type for object instructions
+        /// </summary>
+        public ClassType ClassType { get; }
 
         private readonly static IReadOnlyDictionary<OpCodes, string> opCodeNames;
 
@@ -130,7 +139,11 @@ namespace SharpJIT.Core
                 { OpCodes.NewArray, "newarr" },
                 { OpCodes.LoadArrayLength, "ldlen" },
                 { OpCodes.LoadElement, "ldelem" },
-                { OpCodes.StoreElement, "stelem" }
+                { OpCodes.StoreElement, "stelem" },
+                { OpCodes.NewObject, "newobj" },
+                { OpCodes.LoadField, "ldfield" },
+                { OpCodes.StoreField, "stfield" },
+                { OpCodes.CallInstance, "callinst" },
             };
 
             Instruction.opCodeNames = new ReadOnlyDictionary<OpCodes, string>(opCodeNames);
@@ -147,6 +160,7 @@ namespace SharpJIT.Core
             this.FloatValue = 0.0f;
             this.StringValue = null;
             this.Parameters = null;
+            this.ClassType = null;
             this.stringRepresentation = $"OpCode: {opCode}";
             this.disassembledInstruction = opCodeNames[opCode].ToUpper();
         }
@@ -163,6 +177,7 @@ namespace SharpJIT.Core
             this.FloatValue = 0.0f;
             this.StringValue = null;
             this.Parameters = null;
+            this.ClassType = null;
             this.stringRepresentation = $"OpCode: {opCode}, IntValue: {value}";
             this.disassembledInstruction = $"{opCodeNames[opCode].ToUpper()} {value}";
         }
@@ -179,6 +194,7 @@ namespace SharpJIT.Core
             this.FloatValue = value;
             this.StringValue = null;
             this.Parameters = null;
+            this.ClassType = null;
             this.stringRepresentation = $"OpCode: {opCode}, FloatValue: {value}";
             this.disassembledInstruction = $"{opCodeNames[opCode].ToUpper()} {value}";
         }
@@ -195,6 +211,7 @@ namespace SharpJIT.Core
             this.FloatValue = 0.0f;
             this.StringValue = value;
             this.Parameters = null;
+            this.ClassType = null;
             this.stringRepresentation = $"OpCode: {opCode}, StringValue: {value}";
             this.disassembledInstruction = $"{opCodeNames[opCode].ToUpper()} \"{value}\"";
         }
@@ -211,8 +228,28 @@ namespace SharpJIT.Core
             this.IntValue = 0;
             this.FloatValue = 0.0f;
             this.StringValue = value;
+            this.ClassType = null;
             this.Parameters = new ReadOnlyCollection<BaseType>(new List<BaseType>(parameters));
             this.stringRepresentation = $"OpCode: {opCode}, StringValue: {value}, Parameters: {string.Join(" ", parameters)}";
+            this.disassembledInstruction = $"{opCodeNames[opCode].ToUpper()} {value}({string.Join(" ", parameters)})";
+        }
+
+        /// <summary>
+		/// Creates a new instruction
+		/// </summary>
+		/// <param name="opCode">The op-code</param>
+		/// <param name="value">The value</param>
+        /// <param name="classType">The class type</param>
+        /// <param name="parameters">The parameters</param>
+		public Instruction(OpCodes opCode, string value, ClassType classType, IList<BaseType> parameters)
+        {
+            this.OpCode = opCode;
+            this.IntValue = 0;
+            this.FloatValue = 0.0f;
+            this.StringValue = value;
+            this.ClassType = classType;
+            this.Parameters = new ReadOnlyCollection<BaseType>(new List<BaseType>(parameters));
+            this.stringRepresentation = $"OpCode: {opCode}, StringValue: {value}, ClassType: {classType.ClassName}, Parameters: {string.Join(" ", parameters)}";
             this.disassembledInstruction = $"{opCodeNames[opCode].ToUpper()} {value}({string.Join(" ", parameters)})";
         }
 

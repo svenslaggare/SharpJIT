@@ -175,5 +175,61 @@ namespace SharpJIT.Test.Loader
 
             Assert.IsTrue(classMetadataProvider.IsDefined("Point"));
         }
+
+        /// <summary>
+        /// Tests loading an assembly
+        /// </summary>
+        [TestMethod]
+        public void TestLoadAssembly2()
+        {
+            var classMetadataProvider = new ClassMetadataProvider();
+            var typeProvider = new TypeProvider(classMetadataProvider);
+            var assemblyLoader = new AssemblyLoader(
+                new ClassLoader(typeProvider, classMetadataProvider),
+                new FunctionLoader(typeProvider),
+                typeProvider);
+
+            var intType = typeProvider.FindPrimitiveType(PrimitiveTypes.Int);
+
+            var classDef = new SharpJIT.Loader.Data.Class(
+                "Point",
+                new List<SharpJIT.Loader.Data.Field>()
+                {
+                    new SharpJIT.Loader.Data.Field("x", intType.Name, SharpJIT.Core.Objects.AccessModifier.Public),
+                    new SharpJIT.Loader.Data.Field("y", intType.Name, SharpJIT.Core.Objects.AccessModifier.Public)
+                });
+
+            var functionDef = new SharpJIT.Loader.Data.Function(
+                "test",
+                new List<string>() { intType.Name },
+                intType.Name,
+                "Point",
+                false,
+                new List<string>() { "Ref.Point" },
+                new List<SharpJIT.Loader.Data.Instruction>()
+                {
+                    new SharpJIT.Loader.Data.Instruction(OpCodes.LoadInt, 1337),
+                    new SharpJIT.Loader.Data.Instruction(OpCodes.Return)
+                });
+
+            var assembly = new SharpJIT.Loader.Data.Assembly(
+                "test",
+                new List<SharpJIT.Loader.Data.Class>() { classDef },
+                new List<SharpJIT.Loader.Data.Function>() { functionDef });
+
+            var loadedAssembly = assemblyLoader.LoadAssembly(assembly);
+
+            Assert.AreEqual(1, loadedAssembly.Functions.Count);
+
+            var loadedFunction = loadedAssembly.Functions[0];
+            var pointType = typeProvider.FindClassType("Point");
+
+            Assert.IsNotNull(pointType);
+            Assert.AreEqual("Point::test", loadedFunction.Definition.Name);
+            Assert.AreEqual(pointType, loadedFunction.Definition.ClassType);
+            Assert.AreEqual("test", loadedFunction.Definition.MemberName);
+
+            Assert.IsTrue(classMetadataProvider.IsDefined("Point"));
+        }
     }
 }

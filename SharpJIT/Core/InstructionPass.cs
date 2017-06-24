@@ -134,11 +134,23 @@ namespace SharpJIT.Core
                 case OpCodes.LoadArrayLength:
                     this.HandleLoadArrayLength(data, instruction, index);
                     break;
+                case OpCodes.LoadElement:
+                    this.HandleLoadElement(data, instruction, index);
+                    break;
                 case OpCodes.StoreElement:
                     this.HandleStoreElement(data, instruction, index);
                     break;
-                case OpCodes.LoadElement:
-                    this.HandleLoadElement(data, instruction, index);
+                case OpCodes.NewObject:
+                    this.HandleNewObject(data, instruction, index);
+                    break;
+                case OpCodes.LoadField:
+                    this.HandleLoadField(data, instruction, index);
+                    break;
+                case OpCodes.StoreField:
+                    this.HandleStoreField(data, instruction, index);
+                    break;
+                case OpCodes.CallInstance:
+                    this.HandleCallInstance(data, instruction, index);
                     break;
             }
         }
@@ -193,5 +205,10 @@ namespace SharpJIT.Core
         protected abstract void HandleLoadArrayLength(T data, Instruction instruction, int index);
         protected abstract void HandleLoadElement(T data, Instruction instruction, int index);
         protected abstract void HandleStoreElement(T data, Instruction instruction, int index);
+
+        protected abstract void HandleNewObject(T data, Instruction instruction, int index);
+        protected abstract void HandleLoadField(T data, Instruction instruction, int index);
+        protected abstract void HandleStoreField(T data, Instruction instruction, int index);
+        protected abstract void HandleCallInstance(T data, Instruction instruction, int index);
     }
 }

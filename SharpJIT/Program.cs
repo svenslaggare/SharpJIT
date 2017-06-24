@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using SharpJIT.Compiler;
 using SharpJIT.Core;
+using SharpJIT.Core.Objects;
 
 namespace SharpJIT
 {
@@ -18,6 +19,8 @@ namespace SharpJIT
             {
                 var intType = container.VirtualMachine.TypeProvider.FindPrimitiveType(PrimitiveTypes.Int);
                 var floatType = container.VirtualMachine.TypeProvider.FindPrimitiveType(PrimitiveTypes.Float);
+                var voidType = container.VirtualMachine.TypeProvider.FindPrimitiveType(PrimitiveTypes.Void);
+
                 var intArrayType = container.VirtualMachine.TypeProvider.FindArrayType(intType);
                 var def = new FunctionDefinition("main", new List<BaseType>(), intType);
 
@@ -30,17 +33,43 @@ namespace SharpJIT
                 //    new Instruction(OpCodes.LoadInt, 0),
                 //    new Instruction(OpCodes.Return)
                 //};
+                //var instructions = new List<Instruction>
+                //{
+                //    new Instruction(OpCodes.LoadInt, 10),
+                //    new Instruction(OpCodes.NewArray, intType.Name),
+                //    new Instruction(OpCodes.Call, "std.println", new List<BaseType>() { intArrayType }),
+                //    new Instruction(OpCodes.LoadInt, 0),
+                //    new Instruction(OpCodes.Return)
+                //};
+
+                var pointMetadata = new ClassMetadata("Point");
+                pointMetadata.DefineField(new FieldDefinition("x", intType, AccessModifier.Public));
+                pointMetadata.DefineField(new FieldDefinition("y", intType, AccessModifier.Public));
+                pointMetadata.CreateFields();
+
+                container.VirtualMachine.ClassMetadataProvider.Add(pointMetadata);
+
+                var pointType = container.VirtualMachine.TypeProvider.FindClassType("Point");
+
+                var constructorFunction = new ManagedFunction(
+                    new FunctionDefinition(".constructor", new List<BaseType>(), voidType, pointType, true),
+                    new List<BaseType>(),
+                    new List<Instruction>()
+                    {
+                        new Instruction(OpCodes.Return)
+                    });
+
                 var instructions = new List<Instruction>
                 {
-                    new Instruction(OpCodes.LoadInt, 10),
-                    new Instruction(OpCodes.NewArray, intType.Name),
-                    //new Instruction(OpCodes.Pop),
-                    new Instruction(OpCodes.Call, "std.println", new List<BaseType>() { intArrayType }),
-                    new Instruction(OpCodes.LoadInt, 0),
+                    new Instruction(OpCodes.NewObject, ".constructor", pointType, new List<BaseType>()),
+                    new Instruction(OpCodes.LoadField, "Point::x"),
                     new Instruction(OpCodes.Return)
                 };
 
-                var assembly = Assembly.SingleFunction(new ManagedFunction(def, new List<BaseType>() { }, instructions));
+                var assembly = new Assembly(
+                    "program",
+                    new ManagedFunction(def, new List<BaseType>() { }, instructions),
+                    constructorFunction);
 
                 container.LoadAssembly(assembly);
                 container.VirtualMachine.Compile();

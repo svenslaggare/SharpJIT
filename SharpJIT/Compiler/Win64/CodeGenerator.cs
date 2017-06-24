@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using SharpAssembler.x64;
 using SharpJIT.Core;
+using SharpJIT.Core.Objects;
 using SharpJIT.Runtime;
 
 namespace SharpJIT.Compiler.Win64
@@ -293,18 +294,17 @@ namespace SharpJIT.Compiler.Win64
             compilationData.Assembler.Move(new MemoryOperand(Register.BP, localOffset), Register.AX);
         }
 
-        protected override void HandleCall(CompilationData compilationData, Instruction instruction, int index)
+        /// <summary>
+        /// Generates instructions for calling the given instruction
+        /// </summary>
+        /// <param name="compilationData">The compilation data</param>
+        /// <param name="functionToCall">The function to call</param>
+        private void GenerateCallInstruction(CompilationData compilationData, FunctionDefinition functionToCall)
         {
-            var signature = this.virtualMachine.Binder.FunctionSignature(
-                instruction.StringValue,
-                instruction.Parameters);
-
-            var funcToCall = this.virtualMachine.Binder.GetFunction(signature);
-
             //Align the stack
             int stackAlignment = this.callingConventions.CalculateStackAlignment(
                 compilationData,
-                funcToCall.Parameters);
+                functionToCall.Parameters);
 
             if (stackAlignment > 0)
             {
@@ -312,33 +312,43 @@ namespace SharpJIT.Compiler.Win64
             }
 
             //Set the function arguments
-            this.callingConventions.CallFunctionArguments(compilationData, funcToCall);
+            this.callingConventions.CallFunctionArguments(compilationData, functionToCall);
 
             //Reserve 32 bytes for called function to spill registers
             var shadowStackSize = this.callingConventions.CalculateShadowStackSize();
             compilationData.Assembler.Sub(Register.SP, shadowStackSize);
 
             //Generate the call
-            if (funcToCall.IsManaged)
+            if (functionToCall.IsManaged)
             {
                 //Mark that the function call needs to be patched with the entry point later
                 compilationData.UnresolvedFunctionCalls.Add(new UnresolvedFunctionCall(
                     FunctionCallAddressMode.Relative,
-                    funcToCall,
+                    functionToCall,
                     compilationData.Assembler.GeneratedCode.Count));
 
                 compilationData.Assembler.Call(0);
             }
             else
             {
-                this.GenerateCall(compilationData, funcToCall.EntryPoint, shadowStackNeeded: false);
+                this.GenerateCall(compilationData, functionToCall.EntryPoint, shadowStackNeeded: false);
             }
 
             //Unalign the stack
             compilationData.Assembler.Add(Register.SP, stackAlignment + shadowStackSize);
 
             //Hande the return value
-            this.callingConventions.HandleReturnValue(compilationData, funcToCall);
+            this.callingConventions.HandleReturnValue(compilationData, functionToCall);
+        }
+
+        protected override void HandleCall(CompilationData compilationData, Instruction instruction, int index)
+        {
+            var signature = this.virtualMachine.Binder.FunctionSignature(
+                instruction.StringValue,
+                instruction.Parameters);
+
+            var funcToCall = this.virtualMachine.Binder.GetFunction(signature);
+            this.GenerateCallInstruction(compilationData, funcToCall);
         }
 
         protected override void HandleReturn(CompilationData compilationData, Instruction instruction, int index)
@@ -586,7 +596,6 @@ namespace SharpJIT.Compiler.Win64
             compilationData.OperandStack.PushRegister(Register.CX);
         }
 
-
         protected override void HandleStoreElement(CompilationData compilationData, Instruction instruction, int index)
         {
             var elementType = this.virtualMachine.TypeProvider.FindType(instruction.StringValue);
@@ -621,6 +630,163 @@ namespace SharpJIT.Compiler.Win64
             //{
             //    addCardMarking(vmState, assembler, Registers::AX);
             //}
+        }
+
+        protected override void HandleNewObject(CompilationData compilationData, Instruction instruction, int index)
+        {
+            var classType = instruction.ClassType;
+            var signature = this.virtualMachine.Binder.MemberFunctionSignature(
+                classType,
+                instruction.StringValue,
+                instruction.Parameters);
+
+            var constructorToCall = this.virtualMachine.Binder.GetFunction(signature);
+
+            //Call the newClass runtime function
+            compilationData.Assembler.Move(
+                IntCallingConventions.Argument0,
+                this.virtualMachine.ObjectReferences.GetReference(classType));
+            RuntimeInterface.CreateClassDelegate createClass = RuntimeInterface.CreateClass;
+            this.GenerateCall(compilationData, Marshal.GetFunctionPointerForDelegate(createClass));
+
+            //Save the reference
+            compilationData.Assembler.Move(Register.R10, Register.AX);
+
+            //Align the stack
+            int stackAlignment = this.callingConventions.CalculateStackAlignment(
+                compilationData,
+                constructorToCall.Parameters);
+
+            if (stackAlignment > 0)
+            {
+                compilationData.Assembler.Sub(Register.SP, stackAlignment);
+            }
+
+            //Set the constructor arguments
+            for (int i = constructorToCall.Parameters.Count - 2; i >= 0; i--)
+            {
+                this.callingConventions.CallFunctionArgument(
+                    compilationData,
+                    i + 1,
+                    instruction.Parameters[i],
+                    constructorToCall);
+            }
+
+            //Push the reference to the created object
+            compilationData.Assembler.Move(Register.AX, Register.R10);
+            compilationData.OperandStack.PushRegister(Register.AX);
+
+            //Reserve 32 bytes for called function to spill registers
+            var shadowStackSize = this.callingConventions.CalculateShadowStackSize();
+            compilationData.Assembler.Sub(Register.SP, shadowStackSize);
+
+            //Generate the call
+
+            //Mark that the function call needs to be patched with the entry point later
+            compilationData.UnresolvedFunctionCalls.Add(new UnresolvedFunctionCall(
+                FunctionCallAddressMode.Relative,
+                constructorToCall,
+                compilationData.Assembler.GeneratedCode.Count));
+
+            compilationData.Assembler.Call(0);
+
+            //Unalign the stack
+            compilationData.Assembler.Add(Register.SP, stackAlignment + shadowStackSize);
+
+            //This is for clean up after a call, as the constructor returns nothing.
+            this.callingConventions.HandleReturnValue(compilationData, constructorToCall);
+        }
+
+        /// <summary>
+        /// Extracts the class and field from the given name
+        /// </summary>
+        /// <param name="name">The name</param>
+        private (ClassMetadata, Field) ExtractClassAndField(string name)
+        {
+            TypeSystem.ExtractClassAndFieldName(name, out var className, out var fieldName);
+            var classMetadata = this.virtualMachine.ClassMetadataProvider.GetMetadata(className);
+            return (classMetadata, classMetadata.GetField(fieldName));
+        }
+
+        protected override void HandleLoadField(CompilationData compilationData, Instruction instruction, int index)
+        {
+            //Get class and field
+            (var classMetadata, var field) = this.ExtractClassAndField(instruction.StringValue);
+            var fieldOffset = field.LayoutOffset;
+            var fieldSize = this.SizeOf(TypeSystem.SizeOf(field.Type));
+
+            //Pop the operand
+            compilationData.OperandStack.PopRegister(Register.AX); //The address of the object
+
+            //Null check
+            this.exceptionHandling.AddNullCheck(compilationData);
+
+            //Load the field
+            var fieldMemoryOperand = new MemoryOperand(Register.AX, fieldOffset);
+            if (fieldSize != DataSize.Size8)
+            {
+                compilationData.Assembler.Move(Register.CX, fieldMemoryOperand, fieldSize);
+            }
+            else
+            {
+                compilationData.Assembler.Move(Register8Bit.CL, fieldMemoryOperand);
+            }
+
+            compilationData.OperandStack.PushRegister(Register.CX);
+        }
+
+        protected override void HandleStoreField(CompilationData compilationData, Instruction instruction, int index)
+        {
+            //Get class and field
+            (var classMetadata, var field) = this.ExtractClassAndField(instruction.StringValue);
+            var fieldOffset = field.LayoutOffset;
+            var fieldSize = this.SizeOf(TypeSystem.SizeOf(field.Type));
+
+            //Pop the operands
+            compilationData.OperandStack.PopRegister(Register.DX); //The value to store
+            compilationData.OperandStack.PopRegister(Register.AX); //The address of the object
+
+            //Null check
+            this.exceptionHandling.AddNullCheck(compilationData);
+
+            //Store the field
+            var fieldMemoryOperand = new MemoryOperand(Register.AX, fieldOffset);
+            if (fieldSize != DataSize.Size8)
+            {
+                compilationData.Assembler.Move(fieldMemoryOperand, Register.DX, fieldSize);
+            }
+            else
+            {
+                compilationData.Assembler.Move(fieldMemoryOperand, Register8Bit.DL);
+            }
+
+            //Card marking
+            //if (field.type()->isReference())
+            //{
+            //    addCardMarking(vmState, assembler, Registers::AX);
+            //}
+        }
+
+        protected override void HandleCallInstance(CompilationData compilationData, Instruction instruction, int index)
+        {
+            var classType = instruction.ClassType;
+            var signature = this.virtualMachine.Binder.MemberFunctionSignature(
+                classType,
+                instruction.StringValue,
+                instruction.Parameters);
+
+            var funcToCall = this.virtualMachine.Binder.GetFunction(signature);
+
+            var firstArgOffset = new MemoryOperand(
+                Register.BP,
+                compilationData.OperandStack.GetStackOperandOffset(
+                    compilationData.OperandStack.TopIndex - (int)funcToCall.Parameters.Count + 1));
+
+            //Add null check
+            compilationData.Assembler.Move(Register.AX, firstArgOffset);
+            this.exceptionHandling.AddNullCheck(compilationData, Register.AX);
+
+            this.GenerateCallInstruction(compilationData, funcToCall);
         }
     }
 }

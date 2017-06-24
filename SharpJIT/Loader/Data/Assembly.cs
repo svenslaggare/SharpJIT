@@ -60,11 +60,16 @@ namespace SharpJIT.Loader.Data
         /// The return type
         /// </summary>
         public string ReturnType { get; }
+        
+        /// <summary>
+        /// The class type if member function
+        /// </summary>
+        public string ClassType { get; }
 
         /// <summary>
-        /// Indicates if the function is externally defined
+        /// Indicates if the current function is a constructor
         /// </summary>
-        public bool IsExternal { get; }
+        public bool IsConstructor { get; }
 
         /// <summary>
         /// The type of the locals
@@ -89,9 +94,32 @@ namespace SharpJIT.Loader.Data
             this.Name = name;
             this.Parameters = new ReadOnlyCollection<string>(new List<string>(parameters));
             this.ReturnType = returnType;
+            this.ClassType = null;
+            this.IsConstructor = false;
+
             this.Locals = new ReadOnlyCollection<string>(new List<string>(locals));
             this.Instructions = new ReadOnlyCollection<Instruction>(new List<Instruction>(instructions));
-            this.IsExternal = false;
+        }
+
+        /// <summary>
+        /// Creates a new managed member function
+        /// </summary>
+        /// <param name="name">The name of the function</param>
+        /// <param name="parameters">The parameters</param>
+        /// <param name="returnType">The return type</param>
+        /// <param name="isConstructor">Indicates if the function is a constructor</param>
+        /// <param name="locals">The type of the locals</param>
+        /// <param name="instructions">The instructions</param>
+        public Function(string name, IList<string> parameters, string returnType, string classType, bool isConstructor, IList<string> locals, IList<Instruction> instructions)
+        {
+            this.Name = name;
+            this.Parameters = new ReadOnlyCollection<string>(new List<string>(parameters));
+            this.ReturnType = returnType;
+            this.ClassType = classType;
+            this.IsConstructor = isConstructor;
+
+            this.Locals = new ReadOnlyCollection<string>(new List<string>(locals));
+            this.Instructions = new ReadOnlyCollection<Instruction>(new List<Instruction>(instructions));
         }
 
         /// <summary>
@@ -105,7 +133,6 @@ namespace SharpJIT.Loader.Data
             this.Name = name;
             this.Parameters = new ReadOnlyCollection<string>(new List<string>(parameters));
             this.ReturnType = returnType;
-            this.IsExternal = true;
         }
     }
 
@@ -118,7 +145,8 @@ namespace SharpJIT.Loader.Data
         IntValue,
         FloatValue,
         StringValue,
-        Call
+        Call,
+        CallInstance
     }
 
     /// <summary>
@@ -156,6 +184,11 @@ namespace SharpJIT.Loader.Data
         public IReadOnlyList<string> Parameters { get; }
 
         /// <summary>
+        /// Returns the class type user for object instrctions
+        /// </summary>
+        public string ClassType { get; }
+
+        /// <summary>
         /// Creates a new instruction
         /// </summary>
         /// <param name="opCode">The op code</param>
@@ -167,6 +200,7 @@ namespace SharpJIT.Loader.Data
             this.FloatValue = 0.0f;
             this.StringValue = null;
             this.Parameters = null;
+            this.ClassType = null;
         }
 
         /// <summary>
@@ -182,6 +216,7 @@ namespace SharpJIT.Loader.Data
             this.FloatValue = 0.0f;
             this.StringValue = null;
             this.Parameters = null;
+            this.ClassType = null;
         }
 
         /// <summary>
@@ -197,6 +232,7 @@ namespace SharpJIT.Loader.Data
             this.FloatValue = value;
             this.StringValue = null;
             this.Parameters = null;
+            this.ClassType = null;
         }
 
         /// <summary>
@@ -212,6 +248,7 @@ namespace SharpJIT.Loader.Data
             this.FloatValue = 0.0f;
             this.StringValue = value;
             this.Parameters = null;
+            this.ClassType = null;
         }
 
         /// <summary>
@@ -227,6 +264,26 @@ namespace SharpJIT.Loader.Data
             this.IntValue = 0;
             this.FloatValue = 0.0f;
             this.StringValue = value;
+            this.Parameters = new ReadOnlyCollection<string>(new List<string>(parameters));
+            this.ClassType = null;
+        }
+
+
+        /// <summary>
+        /// Creates a new instruction
+        /// </summary>
+        /// <param name="opCode">The op-code</param>
+        /// <param name="value">The value</param>
+        /// <param name="classType">The class type</param>
+        /// <param name="parameters">The parameters</param>
+        public Instruction(Core.OpCodes opCode, string value, string classType, IList<string> parameters)
+        {
+            this.OpCode = opCode;
+            this.Format = InstructionFormat.Call;
+            this.IntValue = 0;
+            this.FloatValue = 0.0f;
+            this.StringValue = value;
+            this.ClassType = classType;
             this.Parameters = new ReadOnlyCollection<string>(new List<string>(parameters));
         }
     }

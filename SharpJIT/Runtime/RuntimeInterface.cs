@@ -44,10 +44,10 @@ namespace SharpJIT.Runtime
         /// <summary>
         /// Represents a delegate for the CreateArray method
         /// </summary>
-        public delegate IntPtr CreateArrayDelegate(int elementTypeId, int length);
+        public delegate IntPtr CreateArrayDelegate(int arrayTypeId, int length);
 
         /// <summary>
-        /// Creates a new array
+        /// Creates a new array of the given type
         /// </summary>
         /// <param name="arrayTypeId">The object id to the array type</param>
         /// <param name="length">The length of the array.</param>
@@ -55,6 +55,21 @@ namespace SharpJIT.Runtime
         {
             var arrayType = virtualMachine.ObjectReferences.GetObject<ArrayType>(arrayTypeId);
             return virtualMachine.GarbageCollector.NewArray(arrayType, length);
+        }
+
+        /// <summary>
+        /// Represents a delegate for the CreateClass method
+        /// </summary>
+        public delegate IntPtr CreateClassDelegate(int classTypeId);
+
+        /// <summary>
+        /// Creates a new instance of the given class
+        /// </summary>
+        /// <param name="classTypeId">The object id to the class type</param>
+        public static IntPtr CreateClass(int classTypeId)
+        {
+            var classType = virtualMachine.ObjectReferences.GetObject<ClassType>(classTypeId);
+            return virtualMachine.GarbageCollector.NewClass(classType);
         }
 
         /// <summary>

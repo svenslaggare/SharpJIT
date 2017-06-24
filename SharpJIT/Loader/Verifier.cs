@@ -468,7 +468,7 @@ namespace SharpJIT.Loader
                     verifierData,
                     instruction,
                     index,
-                    $"Local index {instruction.IntValue} is not valid.");
+                    $"{instruction.IntValue} is not a valid index for a local.");
             }
         }
 
@@ -489,7 +489,7 @@ namespace SharpJIT.Loader
                     verifierData,
                     instruction,
                     index,
-                    $"Local index {instruction.IntValue} is not valid.");
+                    $"{instruction.IntValue} is not valid index for a local.");
             }
         }
 
@@ -511,15 +511,24 @@ namespace SharpJIT.Loader
                     $"There exists no function with the signature '{signature}'.");
             }
 
-            //Check argument types
-            int numParams = funcToCall.Parameters.Count;
-            this.AssertOperandCount(verifierData, instruction, index, numParams);
-
-            for (int argIndex = numParams - 1; argIndex >= 0; argIndex--)
+            if (funcToCall.IsMemberFunction)
             {
-                var op = verifierData.OperandStack.Pop();
-                var arg = funcToCall.Parameters[argIndex];
-                this.AssertSameType(verifierData, instruction, index, arg, op);
+                this.ThrowError(
+                    verifierData,
+                    instruction,
+                    index,
+                    "Use the 'CALLINST' instruction to call member functions.");
+            }
+
+            //Check argument types
+            int numParameters = funcToCall.Parameters.Count;
+            this.AssertOperandCount(verifierData, instruction, index, numParameters);
+
+            for (int i = numParameters - 1; i >= 0; i--)
+            {
+                var argument = verifierData.OperandStack.Pop();
+                var parameter = funcToCall.Parameters[i];
+                this.AssertSameType(verifierData, instruction, index, parameter, argument);
             }
 
             if (funcToCall.ReturnType != this.voidType)
@@ -907,6 +916,220 @@ namespace SharpJIT.Loader
                     instruction,
                     index,
                     $"Expected third operand to be of type {elementType.Name}.");
+            }
+        }
+
+        protected override void HandleNewObject(VerifierData verifierData, Instruction instruction, int index)
+        {
+            var signature = this.virtualMachine.Binder.MemberFunctionSignature(
+                instruction.ClassType,
+                instruction.StringValue,
+                instruction.Parameters);
+
+            var constructorToCall = this.virtualMachine.Binder.GetFunction(signature);
+
+            //Check that the constructor exists
+            if (constructorToCall == null)
+            {
+                this.ThrowError(
+                    verifierData,
+                    instruction,
+                    index,
+                    $"There exists no constructor with the signature '{signature}'.");
+            }
+
+            if (!(constructorToCall.IsMemberFunction && constructorToCall.IsConstructor))
+            {
+                this.ThrowError(
+                    verifierData,
+                    instruction,
+                    index,
+                    $"The function '{signature}' is not a constructor.");
+            }
+
+            //Check argument types
+            int numParameters = constructorToCall.Parameters.Count;
+            this.AssertOperandCount(verifierData, instruction, index, numParameters - 1);
+
+            for (int i = numParameters - 1; i >= 1; i--)
+            {
+                var argument = verifierData.OperandStack.Pop();
+                var parameter = constructorToCall.Parameters[i];
+                this.AssertSameType(verifierData, instruction, index, parameter, argument);
+            }
+
+            verifierData.OperandStack.Push(instruction.ClassType);
+        }
+
+        protected override void HandleLoadField(VerifierData verifierData, Instruction instruction, int index)
+        {
+            this.AssertOperandCount(verifierData, instruction, index, 1);
+
+            var classRefType = verifierData.OperandStack.Pop();
+            var isNull = TypeSystem.IsNullType(classRefType);
+
+            if (!classRefType.IsClass() && !isNull)
+            {
+                ThrowError(
+                    verifierData,
+                    instruction,
+                    index,
+                    $"Expected first operand to be a class reference, but got type: '{classRefType}'.");
+            }
+
+            if (TypeSystem.ExtractClassAndFieldName(instruction.StringValue, out var className, out var fieldName))
+            {
+                if (!this.virtualMachine.ClassMetadataProvider.IsDefined(className))
+                {
+                    ThrowError(
+                        verifierData,
+                        instruction,
+                        index,
+                        $"'{className}' is not a class type.");
+                }
+
+                var classMetadata = this.virtualMachine.ClassMetadataProvider.GetMetadata(className);
+                var classType = this.virtualMachine.TypeProvider.FindClassType(className);
+
+                if (!isNull)
+                {
+                    AssertSameType(verifierData, instruction, index, classType, classRefType);
+                }
+
+                if (!classMetadata.FieldExists(fieldName))
+                {
+                    ThrowError(
+                        verifierData,
+                        instruction,
+                        index,
+                        $"There exists no field '{fieldName}' in the class '{className}'.");
+                }
+
+                verifierData.OperandStack.Push(classMetadata.GetField(fieldName).Type);
+            }
+            else
+            {
+                ThrowError(
+                    verifierData,
+                    instruction,
+                    index,
+                    "Invalid field reference.");
+            }
+        }
+
+        protected override void HandleStoreField(VerifierData verifierData, Instruction instruction, int index)
+        {
+            this.AssertOperandCount(verifierData, instruction, index, 2);
+
+            var valueType = verifierData.OperandStack.Pop();
+            var classRefType = verifierData.OperandStack.Pop();
+            var isNull = TypeSystem.IsNullType(classRefType);
+
+            if (!classRefType.IsClass() && !isNull)
+            {
+                ThrowError(
+                    verifierData,
+                    instruction,
+                    index,
+                    $"Expected first operand to be a class reference, but got type: '{classRefType}'.");
+            }
+
+            if (TypeSystem.ExtractClassAndFieldName(instruction.StringValue, out var className, out var fieldName))
+            {
+                if (!this.virtualMachine.ClassMetadataProvider.IsDefined(className))
+                {
+                    ThrowError(
+                        verifierData,
+                        instruction,
+                        index,
+                        $"'{className}' is not a class type.");
+                }
+
+                var classMetadata = this.virtualMachine.ClassMetadataProvider.GetMetadata(className);
+                var classType = this.virtualMachine.TypeProvider.FindClassType(className);
+
+                if (!isNull)
+                {
+                    AssertSameType(verifierData, instruction, index, classType, classRefType);
+                }
+
+                if (!classMetadata.FieldExists(fieldName))
+                {
+                    ThrowError(
+                        verifierData,
+                        instruction,
+                        index,
+                        $"There exists no field '{fieldName}' in the class '{className}'.");
+                }
+
+                AssertSameType(
+                    verifierData,
+                    instruction,
+                    index,
+                    classMetadata.GetField(fieldName).Type,
+                    valueType);
+            }
+            else
+            {
+                ThrowError(
+                    verifierData,
+                    instruction,
+                    index,
+                    "Invalid field reference.");
+            }
+        }
+
+        protected override void HandleCallInstance(VerifierData verifierData, Instruction instruction, int index)
+        {
+            var signature = this.virtualMachine.Binder.MemberFunctionSignature(
+                instruction.ClassType,
+                instruction.StringValue,
+                instruction.Parameters);
+
+            var funcToCall = this.virtualMachine.Binder.GetFunction(signature);
+
+            //Check that the function exists
+            if (funcToCall == null)
+            {
+                this.ThrowError(
+                    verifierData,
+                    instruction,
+                    index,
+                    $"There exists no function with the signature '{signature}'.");
+            }
+
+            if (!funcToCall.IsMemberFunction)
+            {
+                this.ThrowError(
+                    verifierData,
+                    instruction,
+                    index,
+                    "Use the 'CALL' instruction to call functions.");
+            }
+
+            if (funcToCall.IsConstructor)
+            {
+                this.ThrowError(
+                   verifierData,
+                   instruction,
+                   index,
+                   "Cannot call constructor.");
+            }
+
+            //Check argument types
+            int numParameters = funcToCall.Parameters.Count;
+            this.AssertOperandCount(verifierData, instruction, index, numParameters);
+
+            for (int i = numParameters - 1; i >= 0; i--)
+            {
+                var argument = verifierData.OperandStack.Pop();
+                var parameter = funcToCall.Parameters[i];
+                this.AssertSameType(verifierData, instruction, index, parameter, argument);
+            }
+
+            if (funcToCall.ReturnType != this.voidType)
+            {
+                verifierData.OperandStack.Push(funcToCall.ReturnType);
             }
         }
     }

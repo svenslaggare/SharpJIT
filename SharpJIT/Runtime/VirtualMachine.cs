@@ -26,7 +26,7 @@ namespace SharpJIT.Runtime
         /// <summary>
         /// The binder
         /// </summary>
-        public Binder Binder { get; } = new Binder();
+        public FunctionBinder Binder { get; } = new FunctionBinder();
 
         /// <summary>
         /// The class metadata provider

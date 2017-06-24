@@ -195,6 +195,20 @@ namespace SharpJIT.Loader
                             instruction.OpCode,
                             instruction.StringValue,
                             instruction.Parameters.Select(parameter => LoaderHelpers.FindType(this.typeProvider, parameter)).ToList());
+                    case Data.InstructionFormat.CallInstance:
+                        {
+                            var classType = LoaderHelpers.FindType(this.typeProvider, TypeSystem.ClassTypeName(instruction.ClassType));
+                            if (!classType.IsClass())
+                            {
+                                throw new LoaderException($"'{instruction.ClassType}' is not a class type.");
+                            }
+
+                            return new Instruction(
+                                instruction.OpCode,
+                                instruction.StringValue,
+                                (ClassType)classType,
+                                instruction.Parameters.Select(parameter => LoaderHelpers.FindType(this.typeProvider, parameter)).ToList());
+                        }
                     default:
                         return new Instruction();
                 }
@@ -232,10 +246,31 @@ namespace SharpJIT.Loader
         /// <param name="function">The function</param>
         private FunctionDefinition CreateFunctionDefinition(Data.Function function)
         {
-            return new FunctionDefinition(
-                function.Name,
-                function.Parameters.Select(parameterType => LoaderHelpers.FindType(this.typeProvider, parameterType)).ToList(),
-                LoaderHelpers.FindType(this.typeProvider, function.ReturnType));
+            var parameters = function.Parameters.Select(parameterType => LoaderHelpers.FindType(this.typeProvider, parameterType)).ToList();
+            var returnType = LoaderHelpers.FindType(this.typeProvider, function.ReturnType);
+
+            if (function.ClassType == null)
+            {
+                return new FunctionDefinition(
+                    function.Name,
+                    parameters,
+                    returnType);
+            }
+            else
+            {
+                var classType = LoaderHelpers.FindType(this.typeProvider, TypeSystem.ClassTypeName(function.ClassType));
+                if (!classType.IsClass())
+                {
+                    throw new LoaderException($"'{function.ClassType}' is not a class type.");
+                }
+
+                return new FunctionDefinition(
+                    function.Name,
+                    parameters,
+                    returnType,
+                    (ClassType)classType,
+                    function.IsConstructor);
+            }
         }
 
         /// <summary>

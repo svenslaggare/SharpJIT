@@ -203,5 +203,25 @@ namespace SharpJIT.Core
         {
             throw new NotImplementedException();
         }
+
+        protected override void HandleNewObject(CompilationData data, Instruction instruction, int index)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override void HandleLoadField(CompilationData data, Instruction instruction, int index)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override void HandleStoreField(CompilationData data, Instruction instruction, int index)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override void HandleCallInstance(CompilationData data, Instruction instruction, int index)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

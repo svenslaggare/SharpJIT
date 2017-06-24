@@ -31,9 +31,17 @@ namespace SharpJIT.Compiler.Win64
         }
 
         /// <summary>
+        /// Returns the index of the top operand
+        /// </summary>
+        public int TopIndex
+        {
+            get { return this.operandTopIndex; }
+        }
+
+        /// <summary>
         /// Returns the number of operands on the stack
         /// </summary>
-        public int NumStackOperands
+        public int NumberStackOperands
         {
             get { return this.operandTopIndex + 1; }
         }
@@ -53,7 +61,7 @@ namespace SharpJIT.Compiler.Win64
         /// Calculates the offset in the stack frame for the given stack operand
         /// </summary>
         /// <param name="operandStackIndex">The index of the stack operand</param>
-        private int GetStackOperandOffset(int operandStackIndex)
+        public int GetStackOperandOffset(int operandStackIndex)
         {
             return 
                 -Assembler.RegisterSize

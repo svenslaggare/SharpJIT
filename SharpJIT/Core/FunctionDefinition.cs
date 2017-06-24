@@ -24,6 +24,24 @@ namespace SharpJIT.Core
         public IReadOnlyList<BaseType> Parameters { get; }
 
         /// <summary>
+        /// The parameters used for resolving calls
+        /// </summary>
+        public IEnumerable<BaseType> CallParameters
+        {
+            get
+            {
+                if (this.IsMemberFunction)
+                {
+                    return this.Parameters.Skip(1);
+                }
+                else
+                {
+                    return this.Parameters;
+                }
+            }
+        }
+
+        /// <summary>
         /// The return type
         /// </summary>
         public BaseType ReturnType { get; }
@@ -39,14 +57,49 @@ namespace SharpJIT.Core
         public IntPtr EntryPoint { get; private set; }
 
         /// <summary>
+        /// Indicates if the function is a member function
+        /// </summary>
+        public bool IsMemberFunction { get; } = false;
+
+        /// <summary>
+        /// Returns the type of the class if member function
+        /// </summary>
+        public ClassType ClassType { get; }
+
+        /// <summary>
+        /// Returns the name of the function member
+        /// </summary>
+        public string MemberName { get; }
+
+        /// <summary>
+        /// Indicates if the current function is a constructor
+        /// </summary>
+        public bool IsConstructor { get; } = false;
+
+        /// <summary>
         /// Creates a new function definition for a managed function
         /// </summary>
         /// <param name="name">The name of the function</param>
         /// <param name="parameters">The parameters</param>
         /// <param name="returnType">The return type</param>
-        public FunctionDefinition(string name, IList<BaseType> parameters, BaseType returnType)
+        /// <param name="classType">The class type if member function</param>
+        /// <param name="isConstructor">Indicates if the function is a constructor</param>
+        public FunctionDefinition(string name, IList<BaseType> parameters, BaseType returnType, ClassType classType = null, bool isConstructor = false)
         {
             this.Name = name;
+            parameters = new List<BaseType>(parameters);
+
+            this.IsMemberFunction = classType != null;
+            this.ClassType = classType;
+            this.IsConstructor = isConstructor;
+
+            if (this.IsMemberFunction)
+            {
+                parameters.Insert(0, classType);
+                this.MemberName = name;
+                this.Name = this.ClassType.ClassName + "::" + name;
+            }
+
             this.Parameters = new ReadOnlyCollection<BaseType>(parameters);
             this.ReturnType = returnType;
             this.IsManaged = true;
@@ -59,10 +112,10 @@ namespace SharpJIT.Core
         /// <param name="parameters">The parameters</param>
         /// <param name="returnType">The return type</param>
         /// <param name="entryPoint">The entry point</param>
-        public FunctionDefinition(string name, IList<BaseType> parameters, BaseType returnType, IntPtr entryPoint)
+        private FunctionDefinition(string name, IList<BaseType> parameters, BaseType returnType, IntPtr entryPoint)
         {
             this.Name = name;
-            this.Parameters = new ReadOnlyCollection<BaseType>(parameters);
+            this.Parameters = new ReadOnlyCollection<BaseType>(new List<BaseType>(parameters));
             this.ReturnType = returnType;
             this.IsManaged = false;
             this.EntryPoint = entryPoint;

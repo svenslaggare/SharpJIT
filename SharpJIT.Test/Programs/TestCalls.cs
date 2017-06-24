@@ -20,7 +20,7 @@ namespace SharpJIT.Test.Programs
         [TestMethod]
         public void TestArguments()
         {
-            for (int i = 16; i <= 16; i++)
+            for (int i = 1; i <= 16; i++)
             {
                 using (var container = new Win64Container())
                 {

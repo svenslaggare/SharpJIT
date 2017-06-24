@@ -65,5 +65,15 @@ namespace SharpJIT.Runtime.Memory
             NativeHelpers.SetInt(arrayPointer, 0, length);
             return arrayPointer;
         }
+
+        /// <summary>
+        /// Allocates a new class of the given type
+        /// </summary>
+        /// <param name="classType">The type of the class</param>
+        public IntPtr NewClass(ClassType classType)
+        {
+            var classPointer = this.AllocateObject(this.youngGeneration, classType, classType.Metadata.Size);
+            return classPointer;
+        }
     }
 }

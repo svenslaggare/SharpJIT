@@ -42,6 +42,38 @@ namespace SharpJIT.Core.Objects
         public IEnumerable<Field> Fields => this.fields.Values;
 
         /// <summary>
+        /// Indicates if the given field exists
+        /// </summary>
+        /// <param name="fieldName">The name of the field</param>
+        /// <remarks>
+        ///     If <see cref="CreateFields"/> has not been called, this returns false, even if field have been defined.
+        /// </remarks>
+        public bool FieldExists(string fieldName)
+        {
+            return this.fields.ContainsKey(fieldName);
+        }
+
+        /// <summary>
+        /// Returns the given field
+        /// </summary>
+        /// <param name="fieldName">The name of the field</param>
+        /// <remarks>
+        ///     If <see cref="CreateFields"/> has not been called, this returns false, even if field have been defined.
+        /// </remarks>
+        /// <returns>The field or null</returns>
+        public Field GetField(string fieldName)
+        {
+            if (this.fields.TryGetValue(fieldName, out var field))
+            {
+                return field;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
         /// Defines the given field
         /// </summary>
         /// <param name="field">The field</param>

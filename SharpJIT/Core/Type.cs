@@ -377,12 +377,21 @@ namespace SharpJIT.Core
         }
 
         /// <summary>
-        /// Returns an array type name.
+        /// Returns an array type name
         /// </summary>
         /// <param name="elementType">The type of the element.</param>
         public static string ArrayTypeName(BaseType elementType)
         {
             return $"Ref.Array[{elementType.ToString()}]";
+        }
+
+        /// <summary>
+        /// Returns the type name for the given class
+        /// </summary>
+        /// <param name="className">The name of the class</param>
+        public static string ClassTypeName(string className)
+        {
+            return "Ref." + className;
         }
 
         /// <summary>
@@ -392,6 +401,28 @@ namespace SharpJIT.Core
         public static bool IsNullType(BaseType type)
         {
             return type is NullType;
+        }
+
+        /// <summary>
+        /// Extracts the class and field name from the given string
+        /// </summary>
+        /// <param name="text">The string</param>
+        /// <param name="className">The class name</param>
+        /// <param name="fieldName">The field name</param>
+        /// <returns>True if success</returns>
+        public static bool ExtractClassAndFieldName(string text, out string className, out string fieldName)
+        {
+            var fieldSeparationPosition = text.IndexOf("::");
+
+            if (fieldSeparationPosition != -1) {
+                className = text.Substring(0, fieldSeparationPosition);
+                fieldName = text.Substring(fieldSeparationPosition + 2);
+                return true;
+            } else {
+                className = "";
+                fieldName = "";
+                return false;
+            }
         }
     }
 }

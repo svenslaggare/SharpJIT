@@ -8,7 +8,7 @@ using SharpJIT.Runtime;
 namespace SharpJIT.Test.Programs
 {
     /// <summary>
-    /// Test array instructions
+    /// Tests array instructions
     /// </summary>
     [TestClass]
     public class TestArray
