@@ -166,7 +166,7 @@ namespace SharpJIT.Loader
                     verifierData,
                     instruction,
                     index,
-                    $"Expected {count} operands on the stack, but got: {verifierData.OperandStack.Count}.");
+                    $"Expected {count} operand(s) on the stack but got {verifierData.OperandStack.Count}.");
             }
         }
 
@@ -569,7 +569,7 @@ namespace SharpJIT.Loader
                     verifierData,
                     instruction,
                     index,
-                    $"Expected {returnCount} operand(s) on the stack when returning but got {verifierData.OperandStack.Count} operands.");
+                    $"Expected {returnCount} operand(s) on the stack when returning but got {verifierData.OperandStack.Count} operand(s).");
             }
         }
 

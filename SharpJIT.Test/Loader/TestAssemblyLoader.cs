@@ -231,5 +231,169 @@ namespace SharpJIT.Test.Loader
 
             Assert.IsTrue(classMetadataProvider.IsDefined("Point"));
         }
+
+        /// <summary>
+        /// Tests loading an assembly
+        /// </summary>
+        [TestMethod]
+        public void TestLoadAssembly3()
+        {
+            var classMetadataProvider = new ClassMetadataProvider();
+            var typeProvider = new TypeProvider(classMetadataProvider);
+            var assemblyLoader = new AssemblyLoader(
+                new ClassLoader(typeProvider, classMetadataProvider),
+                new FunctionLoader(typeProvider),
+                typeProvider);
+
+            var intType = typeProvider.FindPrimitiveType(PrimitiveTypes.Int);
+            var voidType = typeProvider.FindPrimitiveType(PrimitiveTypes.Void);
+
+            var classDef = new SharpJIT.Loader.Data.Class(
+                "Point",
+                new List<SharpJIT.Loader.Data.Field>()
+                {
+                    new SharpJIT.Loader.Data.Field("x", intType.Name, SharpJIT.Core.Objects.AccessModifier.Public),
+                    new SharpJIT.Loader.Data.Field("y", intType.Name, SharpJIT.Core.Objects.AccessModifier.Public)
+                });
+
+            var pointConstructor = new SharpJIT.Loader.Data.Function(
+                ".constructor",
+                new List<string>(),
+                voidType.Name,
+                "Point",
+                true,
+                new List<string>(),
+                new List<SharpJIT.Loader.Data.Instruction>()
+                {
+                    new SharpJIT.Loader.Data.Instruction(OpCodes.Return)
+                });
+
+            var pointAddFunction = new SharpJIT.Loader.Data.Function(
+                "add",
+                new List<string>(),
+                intType.Name,
+                "Point",
+                false,
+                new List<string>(),
+                new List<SharpJIT.Loader.Data.Instruction>()
+                {
+                    new SharpJIT.Loader.Data.Instruction(OpCodes.LoadArgument, 0),
+                    new SharpJIT.Loader.Data.Instruction(OpCodes.LoadField, "Point::x"),
+                    new SharpJIT.Loader.Data.Instruction(OpCodes.LoadArgument, 0),
+                    new SharpJIT.Loader.Data.Instruction(OpCodes.LoadField, "Point::y"),
+                    new SharpJIT.Loader.Data.Instruction(OpCodes.AddInt),
+                    new SharpJIT.Loader.Data.Instruction(OpCodes.Return)
+                });
+
+            var mainFunction = new SharpJIT.Loader.Data.Function(
+                "main",
+                new List<string>(),
+                intType.Name,
+                new List<string>() { "Ref.Point" },
+                new List<SharpJIT.Loader.Data.Instruction>()
+                {
+                    new SharpJIT.Loader.Data.Instruction(OpCodes.NewObject, ".constructor", "Point", new List<string>()),
+                    new SharpJIT.Loader.Data.Instruction(OpCodes.StoreLocal, 0),
+                    new SharpJIT.Loader.Data.Instruction(OpCodes.LoadLocal, 0),
+                    new SharpJIT.Loader.Data.Instruction(OpCodes.LoadInt, 4711),
+                    new SharpJIT.Loader.Data.Instruction(OpCodes.StoreField, "Point::x"),
+                    new SharpJIT.Loader.Data.Instruction(OpCodes.LoadLocal, 0),
+                    new SharpJIT.Loader.Data.Instruction(OpCodes.LoadInt, 1337),
+                    new SharpJIT.Loader.Data.Instruction(OpCodes.StoreField, "Point::y"),
+                    new SharpJIT.Loader.Data.Instruction(OpCodes.LoadLocal, 0),
+                    new SharpJIT.Loader.Data.Instruction(OpCodes.CallInstance, "add", "Point", new List<string>()),
+                    new SharpJIT.Loader.Data.Instruction(OpCodes.Return)
+                });
+
+            var assembly = new SharpJIT.Loader.Data.Assembly(
+                "test",
+                new List<SharpJIT.Loader.Data.Class>() { classDef },
+                new List<SharpJIT.Loader.Data.Function>() { pointConstructor, pointAddFunction, mainFunction });
+
+            var loadedAssembly = assemblyLoader.LoadAssembly(assembly);
+
+            var loadedFunction = loadedAssembly.Functions.Last();
+            var callInstanceInstruction = loadedFunction.Instructions[loadedFunction.Instructions.Count - 2];
+            Assert.IsNotNull(callInstanceInstruction.ClassType);
+        }
+
+        /// <summary>
+        /// Tests loading the assembly in the VM
+        /// </summary>
+        [TestMethod]
+        public void TestLoadAssemblyVM()
+        {
+            using (var container = new Win64Container())
+            {
+                var intType = container.VirtualMachine.TypeProvider.FindPrimitiveType(PrimitiveTypes.Int);
+                var voidType = container.VirtualMachine.TypeProvider.FindPrimitiveType(PrimitiveTypes.Void);
+
+                var classDef = new SharpJIT.Loader.Data.Class(
+                    "Point",
+                    new List<SharpJIT.Loader.Data.Field>()
+                    {
+                        new SharpJIT.Loader.Data.Field("x", intType.Name, SharpJIT.Core.Objects.AccessModifier.Public),
+                        new SharpJIT.Loader.Data.Field("y", intType.Name, SharpJIT.Core.Objects.AccessModifier.Public)
+                    });
+
+                var pointConstructor = new SharpJIT.Loader.Data.Function(
+                    ".constructor",
+                    new List<string>(),
+                    voidType.Name,
+                    "Point",
+                    true,
+                    new List<string>(),
+                    new List<SharpJIT.Loader.Data.Instruction>()
+                    {
+                        new SharpJIT.Loader.Data.Instruction(OpCodes.Return)
+                    });
+
+                var pointAddFunction = new SharpJIT.Loader.Data.Function(
+                    "add",
+                    new List<string>(),
+                    intType.Name,
+                    "Point",
+                    false,
+                    new List<string>(),
+                    new List<SharpJIT.Loader.Data.Instruction>()
+                    {
+                        new SharpJIT.Loader.Data.Instruction(OpCodes.LoadArgument, 0),
+                        new SharpJIT.Loader.Data.Instruction(OpCodes.LoadField, "Point::x"),
+                        new SharpJIT.Loader.Data.Instruction(OpCodes.LoadArgument, 0),
+                        new SharpJIT.Loader.Data.Instruction(OpCodes.LoadField, "Point::y"),
+                        new SharpJIT.Loader.Data.Instruction(OpCodes.AddInt),
+                        new SharpJIT.Loader.Data.Instruction(OpCodes.Return)
+                    });
+
+                var mainFunction = new SharpJIT.Loader.Data.Function(
+                    "main",
+                    new List<string>(),
+                    intType.Name,
+                    new List<string>() { "Ref.Point" },
+                    new List<SharpJIT.Loader.Data.Instruction>()
+                    {
+                        new SharpJIT.Loader.Data.Instruction(OpCodes.NewObject, ".constructor", "Point", new List<string>()),
+                        new SharpJIT.Loader.Data.Instruction(OpCodes.StoreLocal, 0),
+                        new SharpJIT.Loader.Data.Instruction(OpCodes.LoadLocal, 0),
+                        new SharpJIT.Loader.Data.Instruction(OpCodes.LoadInt, 4711),
+                        new SharpJIT.Loader.Data.Instruction(OpCodes.StoreField, "Point::x"),
+                        new SharpJIT.Loader.Data.Instruction(OpCodes.LoadLocal, 0),
+                        new SharpJIT.Loader.Data.Instruction(OpCodes.LoadInt, 1337),
+                        new SharpJIT.Loader.Data.Instruction(OpCodes.StoreField, "Point::y"),
+                        new SharpJIT.Loader.Data.Instruction(OpCodes.LoadLocal, 0),
+                        new SharpJIT.Loader.Data.Instruction(OpCodes.CallInstance, "add", "Point", new List<string>()),
+                        new SharpJIT.Loader.Data.Instruction(OpCodes.Return)
+                    });
+
+                var assembly = new SharpJIT.Loader.Data.Assembly(
+                    "test",
+                    new List<SharpJIT.Loader.Data.Class>() { classDef },
+                    new List<SharpJIT.Loader.Data.Function>() { pointConstructor, pointAddFunction, mainFunction });
+
+                container.LoadAssembly(assembly);
+                var result = container.Execute();
+                Assert.AreEqual(1337 + 4711, result);
+            }
+        }
     }
 }

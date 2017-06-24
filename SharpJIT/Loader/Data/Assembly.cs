@@ -279,7 +279,7 @@ namespace SharpJIT.Loader.Data
         public Instruction(Core.OpCodes opCode, string value, string classType, IList<string> parameters)
         {
             this.OpCode = opCode;
-            this.Format = InstructionFormat.Call;
+            this.Format = InstructionFormat.CallInstance;
             this.IntValue = 0;
             this.FloatValue = 0.0f;
             this.StringValue = value;

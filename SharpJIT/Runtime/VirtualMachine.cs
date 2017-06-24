@@ -43,6 +43,8 @@ namespace SharpJIT.Runtime
         /// </summary>
         public Verifier Verifier { get; }
 
+        private readonly AssemblyLoader assemblyLoader;
+
         /// <summary>
         /// The object references
         /// </summary>
@@ -72,8 +74,13 @@ namespace SharpJIT.Runtime
         public VirtualMachine(Func<VirtualMachine, IJITCompiler> createCompilerFn)
         {
             this.TypeProvider = new TypeProvider(this.ClassMetadataProvider);
-            this.Compiler = createCompilerFn(this);
             this.Verifier = new Verifier(this);
+            this.assemblyLoader = new AssemblyLoader(
+                new ClassLoader(this.TypeProvider, this.ClassMetadataProvider),
+                new FunctionLoader(this.TypeProvider),
+                this.TypeProvider);
+
+            this.Compiler = createCompilerFn(this);
             this.GarbageCollector = new GarbageCollector(this);
         }
 
@@ -98,6 +105,16 @@ namespace SharpJIT.Runtime
         public IReadOnlyList<Assembly> LoadedAssemblies
         {
             get { return new ReadOnlyCollection<Assembly>(this.loadedAssemblies); }
+        }
+
+        /// <summary>
+        /// Loads the given assembly
+        /// </summary>
+        /// <param name="assembly">The assembly</param>
+        public void LoadAssembly(Loader.Data.Assembly assembly)
+        {
+            var loadedAssembly = this.assemblyLoader.LoadAssembly(assembly);
+            this.LoadAssembly(loadedAssembly);
         }
 
         /// <summary>

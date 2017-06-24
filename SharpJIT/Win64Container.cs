@@ -33,6 +33,15 @@ namespace SharpJIT
         /// Loads the given assembly
         /// </summary>
         /// <param name="assembly">The assembly</param>
+        public void LoadAssembly(Loader.Data.Assembly assembly)
+        {
+            this.VirtualMachine.LoadAssembly(assembly);
+        }
+
+        /// <summary>
+        /// Loads the given assembly
+        /// </summary>
+        /// <param name="assembly">The assembly</param>
         public void LoadAssembly(Assembly assembly)
         {
             this.VirtualMachine.LoadAssembly(assembly);
