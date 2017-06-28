@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using SharpJIT.Compiler;
 using SharpJIT.Core;
 using SharpJIT.Core.Objects;
+using SharpJIT.Runtime;
 
 namespace SharpJIT
 {
@@ -120,7 +121,14 @@ namespace SharpJIT
 
         static void Main(string[] args)
         {
-            using (var container = new Win64Container())
+            var config = new VirtualMachineConfiguration(
+                true,
+                true,
+                true,
+                true,
+                true);
+
+            using (var container = new Win64Container(config))
             {
                 var intType = container.VirtualMachine.TypeProvider.FindPrimitiveType(PrimitiveTypes.Int);
                 var voidType = container.VirtualMachine.TypeProvider.FindPrimitiveType(PrimitiveTypes.Void);

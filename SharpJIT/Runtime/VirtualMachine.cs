@@ -15,14 +15,67 @@ using SharpJIT.Runtime.Memory;
 namespace SharpJIT.Runtime
 {
     /// <summary>
-    /// Defines the virtual machine
+    /// The configuration for the virtual machine
     /// </summary>
-    public class VirtualMachine : IDisposable
+    public sealed class VirtualMachineConfiguration
     {
         /// <summary>
-        /// The settings for the VM
+        /// Indicates if debug is enabled
         /// </summary>
-        public IDictionary<string, object> Settings { get; } = new Dictionary<string, object>();
+        public bool EnableDebug { get; }
+
+        /// <summary>
+        /// Prints alive objects when GC
+        /// </summary>
+        public bool PrintAliveObjectsWhenGC { get; }
+
+        /// <summary>
+        /// Prints the stack frame when GC
+        /// </summary>
+        public bool PrintStackFrameWhenGC { get; }
+
+        /// <summary>
+        /// Prints allocation
+        /// </summary>
+        public bool PrintAllocation { get; }
+
+        /// <summary>
+        /// Prints deallocations
+        /// </summary>
+        public bool PrintDeallocation { get; }
+
+        /// <summary>
+        /// Creates a new config
+        /// </summary>
+        /// <param name="enableDebug">Indicates if debug is enabled</param>
+        /// <param name="printAliveObjectsWhenGC">Prints alive objects when GC</param>
+        /// <param name="printStackFrameWhenGC">Prints the stack frame when GC</param>
+        /// <param name="printAllocation">Prints allocation</param>
+        /// <param name="printDeallocation">Prints deallocations</param>
+        public VirtualMachineConfiguration(
+            bool enableDebug = false,
+            bool printAliveObjectsWhenGC = false,
+            bool printStackFrameWhenGC = false,
+            bool printAllocation = false,
+            bool printDeallocation = false)
+        {
+            this.EnableDebug = enableDebug;
+            this.PrintAliveObjectsWhenGC = printAliveObjectsWhenGC;
+            this.PrintStackFrameWhenGC = printAliveObjectsWhenGC;
+            this.PrintAllocation = printAllocation;
+            this.PrintDeallocation = printDeallocation;
+        }
+    }
+
+    /// <summary>
+    /// Defines the virtual machine
+    /// </summary>
+    public sealed class VirtualMachine : IDisposable
+    {
+        /// <summary>
+        /// The configuration
+        /// </summary>
+        public VirtualMachineConfiguration Config { get; }
 
         /// <summary>
         /// The binder
@@ -76,9 +129,12 @@ namespace SharpJIT.Runtime
         /// <summary>
         /// Creates a new virtual machine
         /// </summary>
+        /// <param name="config">The configuration</param>
         /// <param name="createCompilerFn">A function to create the compiler</param>
-        public VirtualMachine(Func<VirtualMachine, IJITCompiler> createCompilerFn)
+        public VirtualMachine(VirtualMachineConfiguration config, Func<VirtualMachine, IJITCompiler> createCompilerFn)
         {
+            this.Config = config;
+
             this.TypeProvider = new TypeProvider(this.ClassMetadataProvider);
             this.Verifier = new Verifier(this);
             this.assemblyLoader = new AssemblyLoader(

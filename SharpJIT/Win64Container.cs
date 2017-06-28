@@ -22,9 +22,10 @@ namespace SharpJIT
         /// <summary>
         /// Creates a new Windows x64 container
         /// </summary>
-        public Win64Container()
+        /// <param name="config">The configuration</param>
+        public Win64Container(VirtualMachineConfiguration config = null)
         {
-            this.VirtualMachine = new VirtualMachine(vm => new JITCompiler(vm));
+            this.VirtualMachine = new VirtualMachine(config ?? new VirtualMachineConfiguration(), vm => new JITCompiler(vm));
             NativeLibrary.Add(this.VirtualMachine);
             RuntimeInterface.Initialize(this.VirtualMachine);
         }

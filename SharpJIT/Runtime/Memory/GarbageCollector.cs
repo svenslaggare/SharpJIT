@@ -78,7 +78,12 @@ namespace SharpJIT.Runtime.Memory
 
             //Set the length of the array
             NativeHelpers.SetInt(arrayPointer, 0, length);
-            Console.WriteLine($"Allocated array (length: {length}) with element type of '{elementType}' at 0x{arrayPointer.ToString("x8")}.");
+
+            if (this.virtualMachine.Config.EnableDebug && this.virtualMachine.Config.PrintAllocation)
+            {
+                Console.WriteLine($"Allocated array (length: {length}) with element type '{elementType}' at 0x{arrayPointer.ToString("x8")}.");
+            }
+
             return arrayPointer;
         }
 
@@ -89,7 +94,12 @@ namespace SharpJIT.Runtime.Memory
         public IntPtr NewClass(ClassType classType)
         {
             var classPointer = this.AllocateObject(this.youngGeneration, classType, classType.Metadata.Size);
-            Console.WriteLine($"Allocated class of type '{classType.ClassName}' at 0x{classPointer.ToString("x8")}.");
+
+            if (this.virtualMachine.Config.EnableDebug && this.virtualMachine.Config.PrintAllocation)
+            {
+                Console.WriteLine($"Allocated class of type '{classType}' at 0x{classPointer.ToString("x8")}.");
+            }
+
             return classPointer;
         }
 
@@ -182,8 +192,11 @@ namespace SharpJIT.Runtime.Memory
                 },
                 frame =>
                 {
-                    Console.WriteLine($"{frame.Function.Definition.Name} ({frame.InstructionIndex})");
-                    RuntimeInterface.PrintStackFrame(frame, false);
+                    if (this.virtualMachine.Config.EnableDebug && this.virtualMachine.Config.PrintStackFrameWhenGC)
+                    {
+                        Console.WriteLine($"{frame.Function.Definition.Name} ({frame.InstructionIndex})");
+                        RuntimeInterface.PrintStackFrame(frame, false);
+                    }
                 });
         }
 
@@ -202,7 +215,11 @@ namespace SharpJIT.Runtime.Memory
                 }
                 else
                 {
-                    Console.WriteLine($"Deleted object {objectReference}");
+                    if (this.virtualMachine.Config.EnableDebug && this.virtualMachine.Config.PrintDeallocation)
+                    {
+                        Console.WriteLine($"Deleted object {objectReference}");
+                    }
+
                     this.DeleteObject(objectReference);
                 }
             });
@@ -214,12 +231,15 @@ namespace SharpJIT.Runtime.Memory
         /// <param name="stackFrame">The current stack frame</param>
         public void Collect(StackFrame stackFrame)
         {
-            Console.WriteLine("Alive objects:");
-            youngGeneration.Heap.VisitObjects(objectReference =>
+            if (this.virtualMachine.Config.EnableDebug && this.virtualMachine.Config.PrintAliveObjectsWhenGC)
             {
-                Console.WriteLine(objectReference);
-            });
-            Console.WriteLine("");
+                Console.WriteLine("Alive objects:");
+                youngGeneration.Heap.VisitObjects(objectReference =>
+                {
+                    Console.WriteLine(objectReference);
+                });
+                Console.WriteLine("");
+            }
 
             this.MarkAllObjects(this.youngGeneration, stackFrame);
             this.SweepObjects(this.youngGeneration);

@@ -158,7 +158,6 @@ namespace SharpJIT.Runtime
             }
         }
 
-
         /// <summary>
         /// Delegate for the <see cref="PrintCallStack(long, int, int)"/> method
         /// </summary>
