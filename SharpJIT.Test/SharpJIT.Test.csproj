@@ -57,6 +57,7 @@
   <ItemGroup>
     <Compile Include="Core\TestTypeProvider.cs" />
     <Compile Include="GC\TestAllocate.cs" />
+    <Compile Include="GC\TestGC.cs" />
     <Compile Include="Loader\TestAssemblyLoader.cs" />
     <Compile Include="InstructionSet\TestBranches.cs" />
     <Compile Include="InstructionSet\TestCalls.cs" />

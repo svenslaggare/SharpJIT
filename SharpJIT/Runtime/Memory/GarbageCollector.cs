@@ -19,6 +19,16 @@ namespace SharpJIT.Runtime.Memory
         private readonly CollectorGeneration youngGeneration;
 
         /// <summary>
+        /// The allocated objects
+        /// </summary>
+        public IList<IntPtr> Allocations { get; } = new List<IntPtr>();
+
+        /// <summary>
+        /// The deallocated objects
+        /// </summary>
+        public IList<IList<IntPtr>> Deallocations { get; } = new List<IList<IntPtr>>();
+
+        /// <summary>
         /// Creates a new garbage collector
         /// </summary>
         /// <param name="virtualMachine">The virtual machine</param>
@@ -49,8 +59,14 @@ namespace SharpJIT.Runtime.Memory
             NativeHelpers.SetInt(objectPointer, 0, typeObjectRef); //Type
             NativeHelpers.SetByte(objectPointer, Constants.ManagedObjectReferenceSize, 0); //GC info
 
+            var dataPointer = objectPointer + Constants.ObjectHeaderSize;
+            if (this.virtualMachine.Config.LogAllocation)
+            {
+                this.Allocations.Add(dataPointer);
+            }
+
             //The returned ptr is to the data
-            return objectPointer + Constants.ObjectHeaderSize;
+            return dataPointer;
         }
 
         /// <summary>
@@ -59,6 +75,11 @@ namespace SharpJIT.Runtime.Memory
         /// <param name="objectReference">A reference to the object</param>
         private void DeleteObject(ObjectReference objectReference)
         {
+            if (this.virtualMachine.Config.LogDeallocation)
+            {
+                this.Deallocations.Last().Add(objectReference.DataPointer);
+            }
+
             NativeHelpers.SetInt(objectReference.FullPointer, 0, objectReference.FullSize); //The amount of data to skip from the start.
             NativeHelpers.SetByte(objectReference.FullPointer, Constants.ManagedObjectReferenceSize, 0xFF); //Indicator for dead object
         }
@@ -101,15 +122,6 @@ namespace SharpJIT.Runtime.Memory
             }
 
             return classPointer;
-        }
-
-        /// <summary>
-        /// Gets a reference to the given object 
-        /// </summary>
-        /// <param name="objectPointer">The pointer to the object</param>
-        public ObjectReference GetObjectReference(IntPtr objectPointer)
-        {
-            return new ObjectReference(this.virtualMachine.ManagedObjectReferences, objectPointer);
         }
 
         /// <summary>
@@ -241,8 +253,22 @@ namespace SharpJIT.Runtime.Memory
                 Console.WriteLine("");
             }
 
+            if (this.virtualMachine.Config.LogDeallocation)
+            {
+                this.Deallocations.Add(new List<IntPtr>());
+            }
+
             this.MarkAllObjects(this.youngGeneration, stackFrame);
             this.SweepObjects(this.youngGeneration);
+        }
+
+        /// <summary>
+        /// Gets a reference to the given object 
+        /// </summary>
+        /// <param name="objectPointer">The pointer to the object</param>
+        public ObjectReference GetObjectReference(IntPtr objectPointer)
+        {
+            return new ObjectReference(this.virtualMachine.ManagedObjectReferences, objectPointer);
         }
     }
 }

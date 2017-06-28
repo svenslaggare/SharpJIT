@@ -45,6 +45,16 @@ namespace SharpJIT.Runtime
         public bool PrintDeallocation { get; }
 
         /// <summary>
+        /// Indicates if allocations are logged
+        /// </summary>
+        public bool LogAllocation { get; }
+
+        /// <summary>
+        /// Indicates if deallocations are logged
+        /// </summary>
+        public bool LogDeallocation { get; }
+
+        /// <summary>
         /// Creates a new config
         /// </summary>
         /// <param name="enableDebug">Indicates if debug is enabled</param>
@@ -52,18 +62,24 @@ namespace SharpJIT.Runtime
         /// <param name="printStackFrameWhenGC">Prints the stack frame when GC</param>
         /// <param name="printAllocation">Prints allocation</param>
         /// <param name="printDeallocation">Prints deallocations</param>
+        /// <param name="logAllocation">Indicates if allocations are logged</param>
+        /// <param name="logDeallocation">Indicates if deallocations are logged</param>
         public VirtualMachineConfiguration(
             bool enableDebug = false,
             bool printAliveObjectsWhenGC = false,
             bool printStackFrameWhenGC = false,
             bool printAllocation = false,
-            bool printDeallocation = false)
+            bool printDeallocation = false,
+            bool logAllocation = false,
+            bool logDeallocation = false)
         {
             this.EnableDebug = enableDebug;
             this.PrintAliveObjectsWhenGC = printAliveObjectsWhenGC;
             this.PrintStackFrameWhenGC = printAliveObjectsWhenGC;
             this.PrintAllocation = printAllocation;
             this.PrintDeallocation = printDeallocation;
+            this.LogAllocation = logAllocation;
+            this.LogDeallocation = logDeallocation;
         }
     }
 

@@ -27,35 +27,6 @@ namespace SharpJIT.Test.InstructionSet
         }
 
         /// <summary>
-        /// Defines the point class
-        /// </summary>
-        /// <param name="virtualMachine">The VM to define for</param>
-        private (ClassType, ManagedFunction) DefinePointClass(VirtualMachine virtualMachine)
-        {
-            var intType = virtualMachine.TypeProvider.FindPrimitiveType(PrimitiveTypes.Int);
-            var voidType = virtualMachine.TypeProvider.FindPrimitiveType(PrimitiveTypes.Void);
-
-            var pointMetadata = new ClassMetadata("Point");
-            pointMetadata.DefineField(new FieldDefinition("x", intType, AccessModifier.Public));
-            pointMetadata.DefineField(new FieldDefinition("y", intType, AccessModifier.Public));
-            pointMetadata.CreateFields();
-
-            virtualMachine.ClassMetadataProvider.Add(pointMetadata);
-
-            var pointType = virtualMachine.TypeProvider.FindClassType("Point");
-
-            var constructorFunction = new ManagedFunction(
-                new FunctionDefinition(".constructor", new List<BaseType>(), voidType, pointType, true),
-                new List<BaseType>(),
-                new List<Instruction>()
-                {
-                    new Instruction(OpCodes.Return)
-                });
-
-            return (pointType, constructorFunction);
-        }
-
-        /// <summary>
         /// Tests the new object instruction
         /// </summary>
         [TestMethod]
@@ -64,7 +35,7 @@ namespace SharpJIT.Test.InstructionSet
             using (var container = new Win64Container())
             {
                 var intType = container.VirtualMachine.TypeProvider.FindPrimitiveType(PrimitiveTypes.Int);
-                (var pointType, var pointConstructor) = this.DefinePointClass(container.VirtualMachine);
+                (var pointType, var pointConstructor) = TestHelpers.DefinePointClass(container.VirtualMachine);
 
                 var func = new ManagedFunction(
                     new FunctionDefinition("main", new List<BaseType>(), intType),
@@ -97,7 +68,7 @@ namespace SharpJIT.Test.InstructionSet
             using (var container = new Win64Container())
             {
                 var intType = container.VirtualMachine.TypeProvider.FindPrimitiveType(PrimitiveTypes.Int);
-                (var pointType, var pointConstructor) = this.DefinePointClass(container.VirtualMachine);
+                (var pointType, var pointConstructor) = TestHelpers.DefinePointClass(container.VirtualMachine);
 
                 var func = new ManagedFunction(
                     new FunctionDefinition("main", new List<BaseType>(), intType),
@@ -129,7 +100,7 @@ namespace SharpJIT.Test.InstructionSet
             using (var container = new Win64Container())
             {
                 var intType = container.VirtualMachine.TypeProvider.FindPrimitiveType(PrimitiveTypes.Int);
-                (var pointType, var pointConstructor) = this.DefinePointClass(container.VirtualMachine);
+                (var pointType, var pointConstructor) = TestHelpers.DefinePointClass(container.VirtualMachine);
 
                 var func = new ManagedFunction(
                     new FunctionDefinition("main", new List<BaseType>(), intType),
@@ -166,7 +137,7 @@ namespace SharpJIT.Test.InstructionSet
             using (var container = new Win64Container())
             {
                 var intType = container.VirtualMachine.TypeProvider.FindPrimitiveType(PrimitiveTypes.Int);
-                (var pointType, var pointConstructor) = this.DefinePointClass(container.VirtualMachine);
+                (var pointType, var pointConstructor) = TestHelpers.DefinePointClass(container.VirtualMachine);
 
                 var func = new ManagedFunction(
                     new FunctionDefinition("main", new List<BaseType>(), intType),
@@ -203,7 +174,7 @@ namespace SharpJIT.Test.InstructionSet
             using (var container = new Win64Container())
             {
                 var intType = container.VirtualMachine.TypeProvider.FindPrimitiveType(PrimitiveTypes.Int);
-                (var pointType, var pointConstructor) = this.DefinePointClass(container.VirtualMachine);
+                (var pointType, var pointConstructor) = TestHelpers.DefinePointClass(container.VirtualMachine);
 
                 var pointAddFunc = new ManagedFunction(
                     new FunctionDefinition("add", new List<BaseType>(), intType, pointType),
