@@ -37,6 +37,15 @@ namespace SharpJIT.Runtime
         private static VirtualMachine virtualMachine;
 
         /// <summary>
+        /// Writes the given line to the debug console
+        /// </summary>
+        /// <param name="line">The line</param>
+        public static void DebugLog(string line)
+        {
+            Console.WriteLine(line);
+        }
+
+        /// <summary>
         /// Initializes the runtime interface using the given virtual machine.
         /// </summary>
         /// <param name="virtualMachine">The virtual machine.</param>
@@ -57,7 +66,7 @@ namespace SharpJIT.Runtime
         /// <param name="length">The length of the array.</param>
         public static IntPtr CreateArray(int arrayTypeId, int length)
         {
-            var arrayType = virtualMachine.ManagedObjectReferences.GetObject<ArrayType>(arrayTypeId);
+            var arrayType = virtualMachine.GetManagedObject<ArrayType>(arrayTypeId);
             return virtualMachine.GarbageCollector.NewArray(arrayType, length);
         }
 
@@ -72,36 +81,8 @@ namespace SharpJIT.Runtime
         /// <param name="classTypeId">The object id to the class type</param>
         public static IntPtr CreateClass(int classTypeId)
         {
-            var classType = virtualMachine.ManagedObjectReferences.GetObject<ClassType>(classTypeId);
+            var classType = virtualMachine.GetManagedObject<ClassType>(classTypeId);
             return virtualMachine.GarbageCollector.NewClass(classType);
-        }
-
-        /// <summary>
-        /// Converts the given value into a string
-        /// </summary>
-        /// <param name="value">A raw value</param>
-        /// <param name="type">The type of the value</param>
-        private static string ValueToString(long value, BaseType type)
-        {
-            switch (type)
-            {
-                case PrimitiveType primitiveType when (primitiveType.IsPrimitiveType(PrimitiveTypes.Int)):
-                    return value.ToString();
-                case PrimitiveType primitiveType when (primitiveType.IsPrimitiveType(PrimitiveTypes.Float)):
-                    var floatValue = BitConverter.ToSingle(BitConverter.GetBytes(value), 0);
-                    return floatValue.ToString(System.Globalization.CultureInfo.InvariantCulture);
-                case BaseType referenceType when (referenceType.IsReference):
-                    if (value == 0)
-                    {
-                        return "nullref";
-                    }
-                    else
-                    {
-                        return "0x" + value.ToString("x8");
-                    }
-                default:
-                    return value.ToString();
-            }
         }
 
         /// <summary>
@@ -116,13 +97,13 @@ namespace SharpJIT.Runtime
 
             if (printFunctionName)
             {
-                Console.WriteLine($"Function: {stackFrame.Function}");
-                Console.WriteLine("");
+                DebugLog($"Function: {stackFrame.Function}");
+                DebugLog("");
             }
 
             void PrintEntry(int index, StackFrameEntry entry)
             {
-                Console.WriteLine($"{indentation}{index}: {ValueToString(entry.Value, entry.Type)} ({entry.Type})");
+                DebugLog($"{indentation}{index}: {RuntimeHelpers.ValueToString(entry.Value, entry.Type)} ({entry.Type})");
             }
 
             void PrintEntries(IList<StackFrameEntry> entries)
@@ -136,25 +117,25 @@ namespace SharpJIT.Runtime
             var arguments = stackFrame.GetArguments().ToList();
             if (arguments.Count > 0)
             {
-                Console.WriteLine(indentation + "Arguments: ");
+                DebugLog(indentation + "Arguments: ");
                 PrintEntries(arguments);
-                Console.WriteLine("");
+                DebugLog("");
             }
 
             var locals = stackFrame.GetLocals().ToList();
             if (locals.Count > 0)
             {
-                Console.WriteLine(indentation + "Locals: ");
+                DebugLog(indentation + "Locals: ");
                 PrintEntries(locals);
-                Console.WriteLine("");
+                DebugLog("");
             }
 
             var stackOperands = stackFrame.GetStackOperands().ToList();
             if (stackOperands.Count > 0)
             {
-                Console.WriteLine(indentation + "Stack: ");
+                DebugLog(indentation + "Stack: ");
                 PrintEntries(stackOperands);
-                Console.WriteLine("");
+                DebugLog("");
             }
         }
 
@@ -172,9 +153,9 @@ namespace SharpJIT.Runtime
         public static void PrintCallStack(long basePointerValue, int functionReference, int instructionIndex)
         {
             var basePointer = new IntPtr(basePointerValue);
-            var function = virtualMachine.ManagedObjectReferences.GetObject<ManagedFunction>(functionReference);
+            var function = virtualMachine.GetManagedObject<ManagedFunction>(functionReference);
 
-            Console.WriteLine("------------Call stack------------");
+            DebugLog("------------Call stack------------");
 
             PrintStackFrame(new StackFrame(basePointer, function, instructionIndex));
 
@@ -183,7 +164,7 @@ namespace SharpJIT.Runtime
                 PrintStackFrame(new StackFrame(callStackEntry));
             }
 
-            Console.WriteLine("----------------------------------");
+            DebugLog("----------------------------------");
         }
 
         /// <summary>
@@ -201,7 +182,7 @@ namespace SharpJIT.Runtime
         public static void GarbageCollect(long basePointerValue, int functionReference, int instructionIndex, int generation)
         {
             var basePointer = new IntPtr(basePointerValue);
-            var function = virtualMachine.ManagedObjectReferences.GetObject<ManagedFunction>(functionReference);
+            var function = virtualMachine.GetManagedObject<ManagedFunction>(functionReference);
             virtualMachine.GarbageCollector.Collect(new StackFrame(basePointer, function, instructionIndex));
         }
 
@@ -214,7 +195,6 @@ namespace SharpJIT.Runtime
             //throw new RuntimeException(message);
             //Environment.Exit(0);
             WinAPI.ExitProcess(0);
-            //Console.WriteLine(message);
         }
 
         /// <summary>

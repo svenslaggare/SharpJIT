@@ -55,7 +55,7 @@ namespace SharpJIT.Runtime.Memory
             NativeHelpers.SetBlock(objectPointer, fullSize, 0);
 
             //Set the header
-            var typeObjectRef = this.virtualMachine.ManagedObjectReferences.GetReference(type);
+            var typeObjectRef = this.virtualMachine.GetManagedReference(type);
             NativeHelpers.SetInt(objectPointer, 0, typeObjectRef); //Type
             NativeHelpers.SetByte(objectPointer, Constants.ManagedObjectReferenceSize, 0); //GC info
 
@@ -102,7 +102,7 @@ namespace SharpJIT.Runtime.Memory
 
             if (this.virtualMachine.Config.EnableDebug && this.virtualMachine.Config.PrintAllocation)
             {
-                Console.WriteLine($"Allocated array (length: {length}) with element type '{elementType}' at 0x{arrayPointer.ToString("x8")}.");
+                RuntimeInterface.DebugLog($"Allocated array (length: {length}) with element type '{elementType}' at 0x{arrayPointer.ToString("x8")}.");
             }
 
             return arrayPointer;
@@ -118,7 +118,7 @@ namespace SharpJIT.Runtime.Memory
 
             if (this.virtualMachine.Config.EnableDebug && this.virtualMachine.Config.PrintAllocation)
             {
-                Console.WriteLine($"Allocated class of type '{classType}' at 0x{classPointer.ToString("x8")}.");
+                RuntimeInterface.DebugLog($"Allocated class of type '{classType}' at 0x{classPointer.ToString("x8")}.");
             }
 
             return classPointer;
@@ -206,7 +206,7 @@ namespace SharpJIT.Runtime.Memory
                 {
                     if (this.virtualMachine.Config.EnableDebug && this.virtualMachine.Config.PrintStackFrameWhenGC)
                     {
-                        Console.WriteLine($"{frame.Function.Definition.Name} ({frame.InstructionIndex})");
+                        RuntimeInterface.DebugLog($"{frame.Function.Definition.Name} ({frame.InstructionIndex})");
                         RuntimeInterface.PrintStackFrame(frame, false);
                     }
                 });
@@ -229,7 +229,7 @@ namespace SharpJIT.Runtime.Memory
                 {
                     if (this.virtualMachine.Config.EnableDebug && this.virtualMachine.Config.PrintDeallocation)
                     {
-                        Console.WriteLine($"Deleted object {objectReference}");
+                        RuntimeInterface.DebugLog($"Deleted object {objectReference}");
                     }
 
                     this.DeleteObject(objectReference);
@@ -245,12 +245,12 @@ namespace SharpJIT.Runtime.Memory
         {
             if (this.virtualMachine.Config.EnableDebug && this.virtualMachine.Config.PrintAliveObjectsWhenGC)
             {
-                Console.WriteLine("Alive objects:");
+                RuntimeInterface.DebugLog("Alive objects:");
                 youngGeneration.Heap.VisitObjects(objectReference =>
                 {
-                    Console.WriteLine(objectReference);
+                    RuntimeInterface.DebugLog(objectReference.ToString());
                 });
-                Console.WriteLine("");
+                RuntimeInterface.DebugLog("");
             }
 
             if (this.virtualMachine.Config.LogDeallocation)

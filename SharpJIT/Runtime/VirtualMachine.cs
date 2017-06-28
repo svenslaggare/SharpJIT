@@ -108,12 +108,10 @@ namespace SharpJIT.Runtime
         /// </summary>
         public TypeProvider TypeProvider { get; }
 
-        /// <summary>
-        /// The verifier
-        /// </summary>
-        public Verifier Verifier { get; }
-
+        private readonly Verifier verifier;
         private readonly AssemblyLoader assemblyLoader;
+
+        private readonly IList<Assembly> loadedAssemblies = new List<Assembly>();
 
         /// <summary>
         /// The object references
@@ -140,8 +138,6 @@ namespace SharpJIT.Runtime
         /// </summary>
         public GarbageCollector GarbageCollector { get; }
 
-        private readonly IList<Assembly> loadedAssemblies = new List<Assembly>();
-
         /// <summary>
         /// Creates a new virtual machine
         /// </summary>
@@ -152,7 +148,7 @@ namespace SharpJIT.Runtime
             this.Config = config;
 
             this.TypeProvider = new TypeProvider(this.ClassMetadataProvider);
-            this.Verifier = new Verifier(this);
+            this.verifier = new Verifier(this);
             this.assemblyLoader = new AssemblyLoader(
                 new ClassLoader(this.TypeProvider, this.ClassMetadataProvider),
                 new FunctionLoader(this.TypeProvider),
@@ -161,6 +157,28 @@ namespace SharpJIT.Runtime
             this.CallStack = new CallStack(this.MemoryManager, this.ManagedObjectReferences, 5000);
             this.Compiler = createCompilerFn(this);
             this.GarbageCollector = new GarbageCollector(this);
+        }
+
+        /// <summary>
+        /// Returns a managed reference to the given object
+        /// </summary>
+        /// <param name="obj">The object</param>
+        /// <returns>The reference id</returns>
+        public int GetManagedReference(object obj)
+        {
+            return this.ManagedObjectReferences.GetReference(obj);
+        }
+
+        /// <summary>
+        /// Returns the object with the given reference.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>The object</returns>
+        /// <exception cref="KeyNotFoundException">If not found.</exception>
+        /// <typeparam name="T">The type of the object</typeparam>
+        public T GetManagedObject<T>(int id)
+        {
+            return (T)this.ManagedObjectReferences.GetObject(id);
         }
 
         /// <summary>
@@ -228,7 +246,7 @@ namespace SharpJIT.Runtime
         public void LoadFunctionsAsAssembly(IList<ManagedFunction> functions)
         {
             var assembly = new Assembly(
-                Guid.NewGuid().ToString(),
+                Guid.NewGuid().ToString().Replace("-", ""),
                 new List<ClassMetadata>(),
                 functions);
             this.LoadFunctions(functions);
@@ -244,7 +262,7 @@ namespace SharpJIT.Runtime
             {
                 foreach (var function in assembly.Functions)
                 {
-                    this.Verifier.VerifyFunction(function);
+                    this.verifier.VerifyFunction(function);
                     this.Compiler.Compile(function);
                 }
             }

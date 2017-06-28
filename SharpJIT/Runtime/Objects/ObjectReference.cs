@@ -68,12 +68,12 @@ namespace SharpJIT.Runtime.Objects
         /// <summary>
         /// Indicates if the object is marked
         /// </summary>
-        public bool IsMarked => (NativeHelpers.ReadByte(this.pointer, 4) & 0x1) == 1 ? true : false;
+        public bool IsMarked => (NativeHelpers.ReadByte(this.pointer, Constants.ManagedObjectReferenceSize) & 0x1) == 1 ? true : false;
 
         /// <summary>
         /// Returns the number of collections that the object has survived
         /// </summary>
-        public int SurvivalCount => (NativeHelpers.ReadByte(this.pointer, 4) >> 1) & 0x7f;
+        public int SurvivalCount => (NativeHelpers.ReadByte(this.pointer, Constants.ManagedObjectReferenceSize) >> 1) & 0x7f;
 
         /// <summary>
         /// Sets the information for the garbage collector
@@ -83,7 +83,7 @@ namespace SharpJIT.Runtime.Objects
         public void SetGarbageCollectorInformation(bool isMarked, int survivalCount)
         {
             int gcInfo = (isMarked ? 1 : 0) | (survivalCount << 1);
-            NativeHelpers.SetByte(this.pointer, 4, (byte)gcInfo);
+            NativeHelpers.SetByte(this.pointer, Constants.ManagedObjectReferenceSize, (byte)gcInfo);
         }
 
         /// <summary>

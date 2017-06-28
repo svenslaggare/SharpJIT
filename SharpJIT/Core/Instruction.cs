@@ -250,7 +250,7 @@ namespace SharpJIT.Core
             this.ClassType = classType;
             this.Parameters = new ReadOnlyCollection<BaseType>(new List<BaseType>(parameters));
             this.stringRepresentation = $"OpCode: {opCode}, StringValue: {value}, ClassType: {classType.ClassName}, Parameters: {string.Join(" ", parameters)}";
-            this.disassembledInstruction = $"{opCodeNames[opCode].ToUpper()} {value}({string.Join(" ", parameters)})";
+            this.disassembledInstruction = $"{opCodeNames[opCode].ToUpper()} {classType.Name}::{value}({string.Join(" ", parameters)})";
         }
 
         public override string ToString()

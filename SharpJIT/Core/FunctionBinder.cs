@@ -48,7 +48,14 @@ namespace SharpJIT.Core
         /// <param name="function"></param>
         public string FunctionSignature(FunctionDefinition function)
         {
-            return this.FunctionSignature(function.Name, function.CallParameters);
+            if (function.IsMemberFunction)
+            {
+                return this.MemberFunctionSignature(function.ClassType, function.MemberName, function.CallParameters);
+            }
+            else
+            {
+                return this.FunctionSignature(function.Name, function.CallParameters);
+            }
         }
 
         /// <summary>

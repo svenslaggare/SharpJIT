@@ -17,7 +17,7 @@ namespace SharpJIT.Core
         public const int ObjectHeaderSize = 1 + 4;
 
         /// <summary>
-        /// The size of the length of the array
+        /// The size of the length field of the array
         /// </summary>
         public const int ArrayLengthSize = 4;
 
@@ -30,5 +30,10 @@ namespace SharpJIT.Core
         /// The size of an object pointer in bytes
         /// </summary>
         public const int ObjectPointerSize = 8;
+
+        /// <summary>
+        /// The size of a native pointer
+        /// </summary>
+        public const int NativePointerSize = 8;
     }
 }

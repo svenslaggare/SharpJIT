@@ -103,7 +103,7 @@ namespace SharpJIT.Compiler.Win64
         public void GenerateCallToGarbageCollector(CompilationData compilationData, Instruction instruction, int instructionIndex)
         {
             compilationData.Assembler.Move(IntCallingConventions.Argument0, Register.BP);
-            compilationData.Assembler.Move(IntCallingConventions.Argument1, this.virtualMachine.ManagedObjectReferences.GetReference(compilationData.Function));
+            compilationData.Assembler.Move(IntCallingConventions.Argument1, this.virtualMachine.GetManagedReference(compilationData.Function));
             compilationData.Assembler.Move(IntCallingConventions.Argument2, instructionIndex);
             compilationData.Assembler.Move(IntCallingConventions.Argument3, 0);
             this.GenerateCall<RuntimeInterface.GarbageCollectDelegate>(compilationData, RuntimeInterface.GarbageCollect);
@@ -127,7 +127,7 @@ namespace SharpJIT.Compiler.Win64
                 this.virtualMachine.CallStack.CallStackStart + this.virtualMachine.CallStack.Size);
 
             //Store the entry
-            var functionReference = this.virtualMachine.ManagedObjectReferences.GetReference(compilationData.Function);
+            var functionReference = this.virtualMachine.GetManagedReference(compilationData.Function);
             compilationData.Assembler.Move(Register.CX, functionReference);
             compilationData.Assembler.Move(new MemoryOperand(Register.AX, 0), Register.CX, DataSize.Size64);
 
@@ -620,7 +620,7 @@ namespace SharpJIT.Compiler.Win64
             var arrayType = this.virtualMachine.TypeProvider.FindArrayType(elementType);
 
             //The pointer to the type as the first arg
-            compilationData.Assembler.Move(IntCallingConventions.Argument0, this.virtualMachine.ManagedObjectReferences.GetReference(arrayType));
+            compilationData.Assembler.Move(IntCallingConventions.Argument0, this.virtualMachine.GetManagedReference(arrayType));
 
             //Pop the size as the second arg
             compilationData.OperandStack.PopRegister(IntCallingConventions.Argument1);
@@ -763,7 +763,7 @@ namespace SharpJIT.Compiler.Win64
             //Call the newClass runtime function
             compilationData.Assembler.Move(
                 IntCallingConventions.Argument0,
-                this.virtualMachine.ManagedObjectReferences.GetReference(classType));
+                this.virtualMachine.GetManagedReference(classType));
 
             this.GenerateCall<RuntimeInterface.CreateClassDelegate>(compilationData, RuntimeInterface.CreateClass);
 

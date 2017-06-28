@@ -114,9 +114,10 @@
     <Compile Include="Core\TypeProvider.cs" />
     <Compile Include="Runtime\Memory\CollectorGeneration.cs" />
     <Compile Include="Runtime\Memory\ManagedHeap.cs" />
-    <Compile Include="Runtime\Memory\ObjectReferences.cs" />
+    <Compile Include="Runtime\Memory\ManagedObjectReferences.cs" />
     <Compile Include="Runtime\Objects\ArrayReference.cs" />
     <Compile Include="Runtime\Objects\ObjectReference.cs" />
+    <Compile Include="Runtime\RuntimeHelpers.cs" />
     <Compile Include="Runtime\VirtualMachine.cs" />
     <Compile Include="Core\Type.cs" />
     <Compile Include="Program.cs" />

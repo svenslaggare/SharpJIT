@@ -60,7 +60,7 @@ namespace SharpJIT.Runtime.Frame
         /// <summary>
         /// The size of a call stack entry
         /// </summary>
-        public const int CallStackEntrySize = Constants.ManagedObjectReferenceSize + 4;
+        public const int CallStackEntrySize = Constants.ManagedObjectReferenceSize + sizeof(int);
 
         /// <summary>
         /// Creates a new call stack
@@ -73,7 +73,7 @@ namespace SharpJIT.Runtime.Frame
             this.memoryManager = memoryManager;
             this.managedObjectReferences = managedObjectReferences;
             this.Size = size;
-            this.callStackMemory = memoryManager.CreatePage(8 + size * CallStackEntrySize);
+            this.callStackMemory = memoryManager.CreatePage(Constants.NativePointerSize + size * CallStackEntrySize);
             NativeHelpers.SetLong(this.TopPointer, 0, this.CallStackStart.ToInt64());
         }
 
@@ -95,7 +95,7 @@ namespace SharpJIT.Runtime.Frame
         /// <summary>
         /// Returns a pointer to the the start of the call stack
         /// </summary>
-        public IntPtr CallStackStart => this.callStackMemory.Start + 8;
+        public IntPtr CallStackStart => this.callStackMemory.Start + Constants.NativePointerSize;
 
         /// <summary>
         /// Returns all the entries in the call stack

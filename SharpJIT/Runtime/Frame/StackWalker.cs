@@ -108,10 +108,7 @@ namespace SharpJIT.Runtime.Frame
         /// <param name="visitFrame">Function called for each frame</param>
         public void VisitObjectReferences(StackFrame stackFrame, VisitObjectReference visitReference, VisitFrame visitFrame)
         {
-            if (visitFrame != null)
-            {
-                visitFrame(stackFrame);
-            }
+            visitFrame?.Invoke(stackFrame);
 
             //Visit the calling stack frame
             this.VisitObjectReferencesInFrame(stackFrame, visitReference);
@@ -120,12 +117,7 @@ namespace SharpJIT.Runtime.Frame
             foreach (var callStackEntry in this.callStack.GetEntries(stackFrame.BasePointer))
             {
                 var callStackFrame = new StackFrame(callStackEntry);
-
-                if (visitFrame != null)
-                {
-                    visitFrame(callStackFrame);
-                }
-
+                visitFrame?.Invoke(callStackFrame);
                 this.VisitObjectReferencesInFrame(callStackFrame, visitReference);
             }
         }

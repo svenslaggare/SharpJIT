@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using SharpJIT.Core;
-using SharpJIT.Runtime;
 
 namespace SharpJIT.Runtime
 {
@@ -47,15 +46,6 @@ namespace SharpJIT.Runtime
         delegate void FuncVoidArgArrayRef(long arrayRef);
 
         /// <summary>
-        /// Prints the given value
-        /// </summary>
-        /// <param name="value">The value</param>
-        private static void Println(long value)
-        {
-            Console.WriteLine("0x" + string.Format("{0:X}", value));
-        }
-
-        /// <summary>
         /// Adds the native library to the given VM
         /// </summary>
         /// <param name="virtualMachine">The virtual machine</param>
@@ -64,7 +54,6 @@ namespace SharpJIT.Runtime
             var intType = virtualMachine.TypeProvider.FindPrimitiveType(PrimitiveTypes.Int);
             var floatType = virtualMachine.TypeProvider.FindPrimitiveType(PrimitiveTypes.Float);
             var voidType = virtualMachine.TypeProvider.FindPrimitiveType(PrimitiveTypes.Void);
-            var intArrayType = virtualMachine.TypeProvider.FindArrayType(intType);
 
             virtualMachine.Binder.Define(FunctionDefinition.NewExternal<FuncVoidArgInt>(
                 "std.println",
@@ -75,12 +64,6 @@ namespace SharpJIT.Runtime
             virtualMachine.Binder.Define(FunctionDefinition.NewExternal<FuncVoidArgFloat>(
                 "std.println",
                 new List<BaseType>() { floatType },
-                voidType,
-                Println));
-
-            virtualMachine.Binder.Define(FunctionDefinition.NewExternal<FuncVoidArgArrayRef>(
-                "std.println",
-                new List<BaseType>() { intArrayType },
                 voidType,
                 Println));
         }
