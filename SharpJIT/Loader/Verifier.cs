@@ -821,7 +821,7 @@ namespace SharpJIT.Loader
             AssertOperandCount(verifierData, instruction, index, 1);
             var arrayRefType = verifierData.OperandStack.Pop();
 
-            if (!arrayRefType.IsArray() && arrayRefType != this.nullType)
+            if (!arrayRefType.IsArray && arrayRefType != this.nullType)
             {
                 this.ThrowError(
                     verifierData,
@@ -842,7 +842,7 @@ namespace SharpJIT.Loader
 
             bool isNullType = arrayReferenceType == this.nullType;
 
-            if (!arrayReferenceType.IsArray() && !isNullType)
+            if (!arrayReferenceType.IsArray && !isNullType)
             {
                 this.ThrowError(
                     verifierData,
@@ -882,7 +882,7 @@ namespace SharpJIT.Loader
 
             var isNullType = arrayReferenceType == this.nullType;
 
-            if (!arrayReferenceType.IsArray() && !isNullType)
+            if (!arrayReferenceType.IsArray && !isNullType)
             {
                 this.ThrowError(
                     verifierData,
@@ -968,7 +968,7 @@ namespace SharpJIT.Loader
             var classRefType = verifierData.OperandStack.Pop();
             var isNull = TypeSystem.IsNullType(classRefType);
 
-            if (!classRefType.IsClass() && !isNull)
+            if (!classRefType.IsClass && !isNull)
             {
                 ThrowError(
                     verifierData,
@@ -1025,7 +1025,7 @@ namespace SharpJIT.Loader
             var classRefType = verifierData.OperandStack.Pop();
             var isNull = TypeSystem.IsNullType(classRefType);
 
-            if (!classRefType.IsClass() && !isNull)
+            if (!classRefType.IsClass && !isNull)
             {
                 ThrowError(
                     verifierData,

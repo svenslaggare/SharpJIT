@@ -12,16 +12,23 @@ namespace SharpJIT.Runtime.Memory
     /// </summary>
     public sealed class CollectorGeneration
     {
-        private readonly ManagedHeap heap;
+        private readonly ManagedObjectReferences managedObjectReferences;
+
+        /// <summary>
+        /// The heap for the generation
+        /// </summary>
+        public ManagedHeap Heap { get; }
 
         /// <summary>
         /// Creates a new collector generation
         /// </summary>
         /// <param name="memoryManager">The memory manager</param>
+        /// <param name="managedObjectReferences">The managed object references</param>
         /// <param name="size">The size of the heap</param>
-        public CollectorGeneration(MemoryManager memoryManager, int size)
+        public CollectorGeneration(MemoryManager memoryManager, ManagedObjectReferences managedObjectReferences, int size)
         {
-            this.heap = new ManagedHeap(memoryManager, size);
+            this.managedObjectReferences = managedObjectReferences;
+            this.Heap = new ManagedHeap(memoryManager, managedObjectReferences, size);
         }
 
         /// <summary>
@@ -30,7 +37,7 @@ namespace SharpJIT.Runtime.Memory
         /// <param name="size">The size of the object</param>
         public IntPtr Allocate(int size)
         {
-            var objectPointer = this.heap.Allocate(size);
+            var objectPointer = this.Heap.Allocate(size);
             if (objectPointer != IntPtr.Zero)
             {
 

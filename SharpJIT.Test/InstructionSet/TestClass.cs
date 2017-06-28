@@ -247,5 +247,67 @@ namespace SharpJIT.Test.InstructionSet
                 Assert.AreEqual(1337 + 4711, result);
             }
         }
+
+        /// <summary>
+        /// Tests constructors
+        /// </summary>
+        [TestMethod]
+        public void TestConstructor()
+        {
+            using (var container = new Win64Container())
+            {
+                var intType = container.VirtualMachine.TypeProvider.FindPrimitiveType(PrimitiveTypes.Int);
+                var voidType = container.VirtualMachine.TypeProvider.FindPrimitiveType(PrimitiveTypes.Void);
+
+                var pointMetadata = new ClassMetadata("Point");
+                pointMetadata.DefineField(new FieldDefinition("x", intType, AccessModifier.Public));
+                pointMetadata.DefineField(new FieldDefinition("y", intType, AccessModifier.Public));
+                pointMetadata.CreateFields();
+
+                container.VirtualMachine.ClassMetadataProvider.Add(pointMetadata);
+
+                var pointType = container.VirtualMachine.TypeProvider.FindClassType("Point");
+
+                var pointConstructor = new ManagedFunction(
+                    new FunctionDefinition(".constructor", new List<BaseType>() { intType, intType }, voidType, pointType, true),
+                    new List<BaseType>(),
+                    new List<Instruction>()
+                    {
+                        new Instruction(OpCodes.LoadArgument, 0),
+                        new Instruction(OpCodes.LoadArgument, 1),
+                        new Instruction(OpCodes.StoreField, "Point::x"),
+                        new Instruction(OpCodes.LoadArgument, 0),
+                        new Instruction(OpCodes.LoadArgument, 2),
+                        new Instruction(OpCodes.StoreField, "Point::y"),
+                        new Instruction(OpCodes.Return)
+                    });
+
+                var func = new ManagedFunction(
+                    new FunctionDefinition("main", new List<BaseType>(), intType),
+                    new List<BaseType>() { pointType },
+                    new List<Instruction>()
+                    {
+                        new Instruction(OpCodes.LoadInt, 1337),
+                        new Instruction(OpCodes.LoadInt, 4711),
+                        new Instruction(OpCodes.NewObject, ".constructor", pointType, new List<BaseType>() { intType, intType }),
+                        new Instruction(OpCodes.StoreLocal, 0),
+                        new Instruction(OpCodes.LoadLocal, 0),
+                        new Instruction(OpCodes.LoadField, "Point::x"),
+                        new Instruction(OpCodes.LoadLocal, 0),
+                        new Instruction(OpCodes.LoadField, "Point::y"),
+                        new Instruction(OpCodes.AddInt),
+                        new Instruction(OpCodes.Return)
+                    });
+
+                container.VirtualMachine.LoadFunctionsAsAssembly(new List<ManagedFunction>()
+                {
+                    func,
+                    pointConstructor
+                });
+
+                var result = container.Execute();
+                Assert.AreEqual(1337 + 4711, result);
+            }
+        }
     }
 }

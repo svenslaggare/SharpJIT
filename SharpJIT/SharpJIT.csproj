@@ -62,7 +62,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="SharpAssembler, Version=1.0.0.0, Culture=neutral, processorArchitecture=AMD64">
-      <HintPath>..\packages\SharpAssembler.0.1.7\lib\SharpAssembler.dll</HintPath>
+      <HintPath>..\packages\SharpAssembler.0.1.9\lib\SharpAssembler.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -91,6 +91,9 @@
     <Compile Include="Loader\AssemblyLoader.cs" />
     <Compile Include="Loader\Data\Assembly.cs" />
     <Compile Include="Loader\Verifier.cs" />
+    <Compile Include="Runtime\Frame\CallStack.cs" />
+    <Compile Include="Runtime\Frame\StackFrame.cs" />
+    <Compile Include="Runtime\Frame\StackWalker.cs" />
     <Compile Include="Runtime\Memory\MemoryManager.cs" />
     <Compile Include="Compiler\NativeHelpers.cs" />
     <Compile Include="Compiler\Win64\CallingConvetions.cs" />
@@ -112,6 +115,8 @@
     <Compile Include="Runtime\Memory\CollectorGeneration.cs" />
     <Compile Include="Runtime\Memory\ManagedHeap.cs" />
     <Compile Include="Runtime\Memory\ObjectReferences.cs" />
+    <Compile Include="Runtime\Objects\ArrayReference.cs" />
+    <Compile Include="Runtime\Objects\ObjectReference.cs" />
     <Compile Include="Runtime\VirtualMachine.cs" />
     <Compile Include="Core\Type.cs" />
     <Compile Include="Program.cs" />
@@ -124,6 +129,7 @@
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

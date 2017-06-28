@@ -9,7 +9,7 @@ namespace SharpJIT.Runtime.Memory
     /// <summary>
     /// Handles references to object passed between the VM and managed code
     /// </summary>
-    public sealed class ObjectReferences
+    public sealed class ManagedObjectReferences
     {
         private readonly IDictionary<int, object> idToObjects = new Dictionary<int, object>();
         private readonly IDictionary<object, int> objectToIds = new Dictionary<object, int>();

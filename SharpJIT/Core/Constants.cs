@@ -14,17 +14,17 @@ namespace SharpJIT.Core
         /// <summary>
         /// The size of the object header
         /// </summary>
-        public static readonly int ObjectHeaderSize = 1 + 4;
+        public const int ObjectHeaderSize = 1 + 4;
 
         /// <summary>
         /// The size of the length of the array
         /// </summary>
-        public static readonly int ArrayLengthSize = 4;
+        public const int ArrayLengthSize = 4;
 
         /// <summary>
-        /// The size of an object reference in bytes
+        /// The size of a managed object reference in bytes
         /// </summary>
-        public const int ObjectReferenceSize = 4;
+        public const int ManagedObjectReferenceSize = 4;
 
         /// <summary>
         /// The size of an object pointer in bytes

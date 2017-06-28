@@ -27,6 +27,7 @@ namespace SharpJIT.Compiler.Win64
         {
             this.virtualMachine = virtualMachine;
             this.codeGenerator = new CodeGenerator(virtualMachine);
+            this.DefineMacros();
         }
 
         /// <summary>
@@ -53,6 +54,26 @@ namespace SharpJIT.Compiler.Win64
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Defines macros
+        /// </summary>
+        private void DefineMacros()
+        {
+            var voidType = this.virtualMachine.TypeProvider.FindPrimitiveType(PrimitiveTypes.Void);
+
+            var gcCollect = new FunctionDefinition(
+                "std.gc.collect",
+                new List<BaseType>(),
+                voidType);
+            if (this.virtualMachine.Binder.Define(gcCollect))
+            {
+                this.codeGenerator.DefineMacroFunction(gcCollect, (compilationData, instruction, index) =>
+                {
+                    this.codeGenerator.GenerateCallToGarbageCollector(compilationData, instruction, index);
+                });
+            }
         }
 
         /// <summary>

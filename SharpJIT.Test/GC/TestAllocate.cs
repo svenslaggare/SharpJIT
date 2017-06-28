@@ -19,7 +19,7 @@ namespace SharpJIT.Test.GC
         {
             using (var memoryManager = new MemoryManager())
             {
-                var generation = new CollectorGeneration(memoryManager, 1024);
+                var generation = new CollectorGeneration(memoryManager, new ManagedObjectReferences(), 1024);
                 var objectPointer = generation.Allocate(20);
                 Assert.AreNotEqual(IntPtr.Zero, objectPointer);
             }

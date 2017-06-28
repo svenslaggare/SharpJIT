@@ -118,5 +118,73 @@ namespace SharpJIT.Compiler
                 memPtr[i] = value;
             }
         }
+
+        /// <summary>
+        /// Adds the given offset in bytes to the given pointer
+        /// </summary>
+        /// <param name="pointer">The pointer</param>
+        /// <param name="offset">The offset</param>
+        private static unsafe void* AddOffsetToPointer(IntPtr pointer, int offset)
+        {
+            return (void*)((byte*)pointer.ToPointer() + offset);
+        }
+
+        /// <summary>
+        /// Adds the given offset in bytes to the given int pointer
+        /// </summary>
+        /// <param name="pointer">The pointer</param>
+        /// <param name="offset">The offset</param>
+        public static unsafe IntPtr AddOffsetToIntPointer(IntPtr pointer, int offset)
+        {
+            return new IntPtr((void*)((byte*)pointer.ToPointer() + offset));
+        }
+
+        /// <summary>
+        /// Reads the 8-bit int value of the given pointer
+        /// </summary>
+        /// <param name="pointer">The pointer</param>
+        /// <param name="offset">The offset (in bytes)</param>
+        public static unsafe byte ReadByte(IntPtr pointer, int offset = 0)
+        {
+            return *(byte*)AddOffsetToPointer(pointer, offset);
+        }
+
+        /// <summary>
+        /// Reads the 32-bit int value of the given pointer
+        /// </summary>
+        /// <param name="pointer">The pointer</param>
+        /// <param name="offset">The offset (in bytes)</param>
+        public static unsafe int ReadInt(IntPtr pointer, int offset = 0)
+        {
+            return *(int*)AddOffsetToPointer(pointer, offset);
+        }
+
+        /// <summary>
+        /// Reads the 64-bit int value of the given pointer
+        /// </summary>
+        /// <param name="pointer">The pointer</param>
+        /// <param name="offset">The offset (in bytes)</param>
+        public static unsafe long ReadLong(IntPtr pointer, int offset = 0)
+        {
+            return *(long*)AddOffsetToPointer(pointer, offset);
+        }
+
+        /// <summary>
+        /// Returns the given block
+        /// </summary>
+        /// <param name="pointer">The start of the block</param>
+        /// <param name="size">The size of the block</param>
+        public static unsafe IList<byte> ReadBlock(IntPtr pointer, int size)
+        {
+            var block = new List<byte>();
+            var bytePointer = (byte*)pointer.ToPointer();
+
+            for (int i = 0; i < size; i++)
+            {
+                block.Add(bytePointer[i]);
+            }
+
+            return block;
+        }
     }
 }

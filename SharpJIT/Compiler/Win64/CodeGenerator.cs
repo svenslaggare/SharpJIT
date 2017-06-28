@@ -8,9 +8,19 @@ using SharpAssembler.x64;
 using SharpJIT.Core;
 using SharpJIT.Core.Objects;
 using SharpJIT.Runtime;
+using SharpJIT.Runtime.Frame;
+using SharpJIT.Runtime.Memory;
 
 namespace SharpJIT.Compiler.Win64
 {
+    /// <summary>
+    /// Represents a macro function
+    /// </summary>
+    /// <param name="compilationData">The function being compiled</param>
+    /// <param name="instruction">The current instruction</param>
+    /// <param name="instructionIndex">The index of the instruction</param>
+    public delegate void MacroFunction(CompilationData compilationData, Instruction instruction, int instructionIndex);
+
     /// <summary>
     /// Represents a code generator
     /// </summary>
@@ -22,6 +32,8 @@ namespace SharpJIT.Compiler.Win64
 
         private readonly int stackOffset = 1;
 
+        private readonly IDictionary<string, MacroFunction> macroFunctions = new Dictionary<string, MacroFunction>();
+
         /// <summary>
         /// Creates a new code generator
         /// </summary>
@@ -30,6 +42,16 @@ namespace SharpJIT.Compiler.Win64
         {
             this.virtualMachine = virtualMachine;
             this.exceptionHandling.GenerateHandlers(virtualMachine.MemoryManager, this.callingConventions);
+        }
+
+        /// <summary>
+        /// Defines the given macro function
+        /// </summary>
+        /// <param name="functionDefinition">The signature of the macro</param>
+        /// <param name="macroFunction">The macro function</param>
+        public void DefineMacroFunction(FunctionDefinition functionDefinition, MacroFunction macroFunction)
+        {
+            this.macroFunctions.Add(this.virtualMachine.Binder.FunctionSignature(functionDefinition), macroFunction);
         }
 
         /// <summary>
@@ -55,6 +77,80 @@ namespace SharpJIT.Compiler.Win64
             {
                 compilationData.Assembler.Add(Register.SP, shadowStackSize);
             }
+        }
+
+        /// <summary>
+        /// Generates a call to the given function
+        /// </summary>
+        /// <param name="compilationData">The compilation data</param>
+        /// <param name="function">The function to call</param>
+        /// <param name="callRegister">The register where the address will be stored in</param>
+        /// <param name="shadowStackNeeded">Indicates if the shadow stack is needed</param>
+        /// <typeparam name="T">The signature of the function to call</typeparam>
+        private void GenerateCall<T>(CompilationData compilationData, T function, Register callRegister = Register.AX, bool shadowStackNeeded = true)
+        {
+            this.GenerateCall(
+                compilationData,
+                Marshal.GetFunctionPointerForDelegate(function));
+        }
+
+        /// <summary>
+        /// Generates a call to the garbage collector
+        /// </summary>
+        /// <param name="compilationData">The compilation data</param>
+        /// <param name="instruction">The current instruction</param>
+        /// <param name="instructionIndex">The index of the current instruction</param>
+        public void GenerateCallToGarbageCollector(CompilationData compilationData, Instruction instruction, int instructionIndex)
+        {
+            compilationData.Assembler.Move(IntCallingConventions.Argument0, Register.BP);
+            compilationData.Assembler.Move(IntCallingConventions.Argument1, this.virtualMachine.ManagedObjectReferences.GetReference(compilationData.Function));
+            compilationData.Assembler.Move(IntCallingConventions.Argument2, instructionIndex);
+            compilationData.Assembler.Move(IntCallingConventions.Argument3, 0);
+            this.GenerateCall<RuntimeInterface.GarbageCollectDelegate>(compilationData, RuntimeInterface.GarbageCollect);
+        }
+
+        /// <summary>
+        /// Generates code for pushing the given function to the call stack
+        /// </summary>
+        /// <param name="compilationData">The compilation data</param>
+        /// <param name="instructionIndex">The index of the current instruction</param>
+        private void GeneratePushFunction(CompilationData compilationData, int instructionIndex)
+        {
+            //Get the top pointer
+            var topPointer = this.virtualMachine.CallStack.TopPointer;
+            compilationData.Assembler.Move(Register.AX, topPointer);
+            compilationData.Assembler.Add(Register.AX, CallStack.CallStackEntrySize);
+
+            //Check if overflow
+            this.exceptionHandling.AddStackOverflowCheck(
+                compilationData,
+                this.virtualMachine.CallStack.CallStackStart + this.virtualMachine.CallStack.Size);
+
+            //Store the entry
+            var functionReference = this.virtualMachine.ManagedObjectReferences.GetReference(compilationData.Function);
+            compilationData.Assembler.Move(Register.CX, functionReference);
+            compilationData.Assembler.Move(new MemoryOperand(Register.AX, 0), Register.CX, DataSize.Size64);
+
+            compilationData.Assembler.Move(Register.CX, instructionIndex);
+            compilationData.Assembler.Move(new MemoryOperand(Register.AX, Constants.ManagedObjectReferenceSize), Register.CX, DataSize.Size64);
+
+            //Update the top pointer
+            compilationData.Assembler.Move(topPointer, Register.AX);
+        }
+
+        /// <summary>
+        /// Generates code for poping a function from the calls tack
+        /// </summary>
+        /// <param name="compilationData">The compilation data</param>
+        private void GeneratePopFunction(CompilationData compilationData)
+        {
+            //Get the top pointer
+            var topPointer = this.virtualMachine.CallStack.TopPointer;
+            compilationData.Assembler.Move(Register.AX, topPointer);
+            compilationData.Assembler.Add(Register.AX, -CallStack.CallStackEntrySize);
+
+            //Update the top pointer
+            compilationData.Assembler.Move(topPointer, Register.AX);
         }
 
         /// <summary>
@@ -118,11 +214,9 @@ namespace SharpJIT.Compiler.Win64
         /// <param name="compilationData">The compilation data</param>
         private void CreateEpilog(CompilationData compilationData)
         {
-            var assembler = compilationData.Assembler;
-
             //Restore the base pointer
-            assembler.Move(Register.SP, Register.BP);
-            assembler.Pop(Register.BP);
+            compilationData.Assembler.Move(Register.SP, Register.BP);
+            compilationData.Assembler.Pop(Register.BP);
         }
 
         /// <summary>
@@ -299,8 +393,11 @@ namespace SharpJIT.Compiler.Win64
         /// </summary>
         /// <param name="compilationData">The compilation data</param>
         /// <param name="functionToCall">The function to call</param>
-        private void GenerateCallInstruction(CompilationData compilationData, FunctionDefinition functionToCall)
+        /// <param name="instructionIndex">The index of the call instruction</param>
+        private void GenerateCallInstruction(CompilationData compilationData, FunctionDefinition functionToCall, int instructionIndex)
         {
+            this.GeneratePushFunction(compilationData, instructionIndex);
+
             //Align the stack
             int stackAlignment = this.callingConventions.CalculateStackAlignment(
                 compilationData,
@@ -339,6 +436,8 @@ namespace SharpJIT.Compiler.Win64
 
             //Hande the return value
             this.callingConventions.HandleReturnValue(compilationData, functionToCall);
+
+            this.GeneratePopFunction(compilationData);
         }
 
         protected override void HandleCall(CompilationData compilationData, Instruction instruction, int index)
@@ -348,11 +447,29 @@ namespace SharpJIT.Compiler.Win64
                 instruction.Parameters);
 
             var funcToCall = this.virtualMachine.Binder.GetFunction(signature);
-            this.GenerateCallInstruction(compilationData, funcToCall);
+
+            if (!this.macroFunctions.TryGetValue(signature, out var macroFunction))
+            {
+                this.GenerateCallInstruction(compilationData, funcToCall, index);
+            }
+            else
+            {
+                macroFunction(compilationData, instruction, index);
+            }
         }
 
         protected override void HandleReturn(CompilationData compilationData, Instruction instruction, int index)
         {
+            //compilationData.Assembler.Move(IntCallingConventions.Argument0, Register.BP);
+            //compilationData.Assembler.Move(
+            //    IntCallingConventions.Argument1,
+            //    this.virtualMachine.ManagedObjectReferences.GetReference(compilationData.Function));
+            //compilationData.Assembler.Move(IntCallingConventions.Argument2, index);
+
+            //this.GenerateCall<RuntimeInterface.PrintCallStackDelegate>(
+            //    compilationData,
+            //    RuntimeInterface.PrintCallStack);
+
             //Handle the return value
             this.callingConventions.MakeReturnValue(compilationData);
 
@@ -503,7 +620,7 @@ namespace SharpJIT.Compiler.Win64
             var arrayType = this.virtualMachine.TypeProvider.FindArrayType(elementType);
 
             //The pointer to the type as the first arg
-            compilationData.Assembler.Move(IntCallingConventions.Argument0, this.virtualMachine.ObjectReferences.GetReference(arrayType));
+            compilationData.Assembler.Move(IntCallingConventions.Argument0, this.virtualMachine.ManagedObjectReferences.GetReference(arrayType));
 
             //Pop the size as the second arg
             compilationData.OperandStack.PopRegister(IntCallingConventions.Argument1);
@@ -512,8 +629,7 @@ namespace SharpJIT.Compiler.Win64
             this.exceptionHandling.AddArrayCreationCheck(compilationData);
 
             //Call the newArray runtime function
-            RuntimeInterface.CreateArrayDelegate createArray = RuntimeInterface.CreateArray;
-            this.GenerateCall(compilationData, Marshal.GetFunctionPointerForDelegate(createArray));
+            this.GenerateCall<RuntimeInterface.CreateArrayDelegate>(compilationData, RuntimeInterface.CreateArray);
 
             //Push the returned pointer
             compilationData.OperandStack.PushRegister(Register.AX);
@@ -642,12 +758,14 @@ namespace SharpJIT.Compiler.Win64
 
             var constructorToCall = this.virtualMachine.Binder.GetFunction(signature);
 
+            this.GeneratePushFunction(compilationData, index);
+
             //Call the newClass runtime function
             compilationData.Assembler.Move(
                 IntCallingConventions.Argument0,
-                this.virtualMachine.ObjectReferences.GetReference(classType));
-            RuntimeInterface.CreateClassDelegate createClass = RuntimeInterface.CreateClass;
-            this.GenerateCall(compilationData, Marshal.GetFunctionPointerForDelegate(createClass));
+                this.virtualMachine.ManagedObjectReferences.GetReference(classType));
+
+            this.GenerateCall<RuntimeInterface.CreateClassDelegate>(compilationData, RuntimeInterface.CreateClass);
 
             //Save the reference
             compilationData.Assembler.Move(Register.R10, Register.AX);
@@ -663,6 +781,7 @@ namespace SharpJIT.Compiler.Win64
             }
 
             //Set the constructor arguments
+            compilationData.Assembler.Move(IntCallingConventions.Argument0, Register.AX);
             for (int i = constructorToCall.Parameters.Count - 2; i >= 0; i--)
             {
                 this.callingConventions.CallFunctionArgument(
@@ -693,8 +812,10 @@ namespace SharpJIT.Compiler.Win64
             //Unalign the stack
             compilationData.Assembler.Add(Register.SP, stackAlignment + shadowStackSize);
 
-            //This is for clean up after a call, as the constructor returns nothing.
+            //This is for clean up after the call, as the constructor returns nothing.
             this.callingConventions.HandleReturnValue(compilationData, constructorToCall);
+
+            this.GeneratePopFunction(compilationData);
         }
 
         /// <summary>
@@ -786,7 +907,7 @@ namespace SharpJIT.Compiler.Win64
             compilationData.Assembler.Move(Register.AX, firstArgOffset);
             this.exceptionHandling.AddNullCheck(compilationData, Register.AX);
 
-            this.GenerateCallInstruction(compilationData, funcToCall);
+            this.GenerateCallInstruction(compilationData, funcToCall, index);
         }
     }
 }

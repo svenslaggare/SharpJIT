@@ -9,6 +9,7 @@ using SharpJIT.Compiler;
 using SharpJIT.Core;
 using SharpJIT.Core.Objects;
 using SharpJIT.Loader;
+using SharpJIT.Runtime.Frame;
 using SharpJIT.Runtime.Memory;
 
 namespace SharpJIT.Runtime
@@ -48,12 +49,17 @@ namespace SharpJIT.Runtime
         /// <summary>
         /// The object references
         /// </summary>
-        public ObjectReferences ObjectReferences { get; } = new ObjectReferences();
+        public ManagedObjectReferences ManagedObjectReferences { get; } = new ManagedObjectReferences();
 
         /// <summary>
         /// The memory manager
         /// </summary>
         public MemoryManager MemoryManager { get; } = new MemoryManager();
+
+        /// <summary>
+        /// The call stack
+        /// </summary>
+        public CallStack CallStack { get; }
 
         /// <summary>
         /// The compiler
@@ -80,6 +86,7 @@ namespace SharpJIT.Runtime
                 new FunctionLoader(this.TypeProvider),
                 this.TypeProvider);
 
+            this.CallStack = new CallStack(this.MemoryManager, this.ManagedObjectReferences, 5000);
             this.Compiler = createCompilerFn(this);
             this.GarbageCollector = new GarbageCollector(this);
         }

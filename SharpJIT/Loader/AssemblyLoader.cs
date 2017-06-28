@@ -204,7 +204,7 @@ namespace SharpJIT.Loader
                     case Data.InstructionFormat.CallInstance:
                         {
                             var classType = LoaderHelpers.FindType(this.typeProvider, TypeSystem.ClassTypeName(instruction.ClassType));
-                            if (!classType.IsClass())
+                            if (!classType.IsClass)
                             {
                                 throw new LoaderException($"'{instruction.ClassType}' is not a class type.");
                             }
@@ -265,7 +265,7 @@ namespace SharpJIT.Loader
             else
             {
                 var classType = LoaderHelpers.FindType(this.typeProvider, TypeSystem.ClassTypeName(function.ClassType));
-                if (!classType.IsClass())
+                if (!classType.IsClass)
                 {
                     throw new LoaderException($"'{function.ClassType}' is not a class type.");
                 }

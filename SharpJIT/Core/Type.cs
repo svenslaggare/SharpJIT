@@ -29,10 +29,28 @@ namespace SharpJIT.Core
         public string Name { get; }
 
         /// <summary>
+        /// Indicates if the current type is a reference type
+        /// </summary>
+        public bool IsReference { get; }
+
+        /// <summary>
+        /// Indicates if the current type is an array type
+        /// </summary>
+        public bool IsArray { get; }
+
+        /// <summary>
+        /// Indicates if the current type is a class type
+        /// </summary>
+        public bool IsClass { get; }
+
+        /// <summary>
         /// Creates a new VM type
         /// </summary>
         /// <param name="name">The name of the type</param>
-        public BaseType(string name)
+        /// <param name="isReference">Indicates if the current type is a reference type</param>
+        /// <param name="isArray">Indicates if the current type is an array type</param>
+        /// <param name="isClass">Indicates if the current type is a class type</param>
+        public BaseType(string name, bool isReference, bool isArray, bool isClass)
         {
             if (string.IsNullOrEmpty(name))
             {
@@ -40,6 +58,9 @@ namespace SharpJIT.Core
             }
 
             this.Name = name;
+            this.IsReference = isReference;
+            this.IsArray = isArray;
+            this.IsClass = isClass;
         }
 
         /// <summary>
@@ -59,8 +80,8 @@ namespace SharpJIT.Core
         {
             return
                 first.Name == second.Name
-                || (first.IsReference() && TypeSystem.IsNullType(second))
-                || (second.IsReference() && TypeSystem.IsNullType(first));
+                || (first.IsReference && TypeSystem.IsNullType(second))
+                || (second.IsReference && TypeSystem.IsNullType(first));
         }
 
         /// <summary>
@@ -134,21 +155,6 @@ namespace SharpJIT.Core
 
             return false;
         }
-
-        /// <summary>
-        /// Indicates if the current type is a reference type
-        /// </summary>
-        public abstract bool IsReference();
-
-        /// <summary>
-        /// Indicates if the current type is an array type
-        /// </summary>
-        public abstract bool IsArray();
-
-        /// <summary>
-        /// Indicates if the current type is a class type
-        /// </summary>
-        public abstract bool IsClass();
     }
 
     /// <summary>
@@ -161,24 +167,9 @@ namespace SharpJIT.Core
         /// </summary>
         /// <param name="primitiveType">The primitive type</param>
         public PrimitiveType(PrimitiveTypes primitiveType)
-            : base(TypeSystem.ToString(primitiveType))
+            : base(TypeSystem.ToString(primitiveType), false, false, false)
         {
 
-        }
-
-        public override bool IsArray()
-        {
-            return false;
-        }
-
-        public override bool IsClass()
-        {
-            return false;
-        }
-
-        public override bool IsReference()
-        {
-            return false;
         }
     }
 
@@ -191,24 +182,9 @@ namespace SharpJIT.Core
         /// Creates a new null type
         /// </summary>
         public NullType()
-            : base("Ref.Null")
+            : base("Ref.Null", true, false, false)
         {
 
-        }
-
-        public override bool IsReference()
-        {
-            return true;
-        }
-
-        public override bool IsArray()
-        {
-            return false;
-        }
-
-        public override bool IsClass()
-        {
-            return false;
         }
     }
 
@@ -227,24 +203,9 @@ namespace SharpJIT.Core
         /// </summary>
         /// <param name="elementType">The type of the element</param>
         public ArrayType(BaseType elementType)
-            : base(TypeSystem.ArrayTypeName(elementType))
+            : base(TypeSystem.ArrayTypeName(elementType), true, true, false)
         {
             this.ElementType = elementType;
-        }
-
-        public override bool IsReference()
-        {
-            return true;
-        }
-
-        public override bool IsArray()
-        {
-            return true;
-        }
-
-        public override bool IsClass()
-        {
-            return false;
         }
     }
 
@@ -259,7 +220,7 @@ namespace SharpJIT.Core
         public ClassMetadata Metadata { get; }
 
         public ClassType(ClassMetadata metadata)
-            : base("Ref." + metadata.Name)
+            : base("Ref." + metadata.Name, true, false, true)
         {
             this.Metadata = metadata;
         }
@@ -268,21 +229,6 @@ namespace SharpJIT.Core
         /// Returns the name of the class
         /// </summary>
         public string ClassName => this.Metadata.Name;
-
-        public override bool IsReference()
-        {
-            return true;
-        }
-
-        public override bool IsArray()
-        {
-            return false;
-        }
-
-        public override bool IsClass()
-        {
-            return true;
-        }
     }
 
     /// <summary>

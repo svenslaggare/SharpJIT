@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using SharpJIT.Compiler;
+using SharpJIT.Core;
+using SharpJIT.Runtime.Objects;
 
 namespace SharpJIT.Runtime.Memory
 {
@@ -12,6 +14,7 @@ namespace SharpJIT.Runtime.Memory
     /// </summary>
     public sealed class ManagedHeap
     {
+        private readonly ManagedObjectReferences managedObjectReferences;
         private readonly MemoryPage dataPage;
         private IntPtr nextAllocation;
 
@@ -19,9 +22,11 @@ namespace SharpJIT.Runtime.Memory
         /// Creates a new heap of the given size
         /// </summary>
         /// <param name="memoryManager">The memory manager</param>
+        /// <param name="managedObjectReferences">The managed object references</param>
         /// <param name="size">The size of the heap</param>
-        public ManagedHeap(MemoryManager memoryManager, int size)
+        public ManagedHeap(MemoryManager memoryManager, ManagedObjectReferences managedObjectReferences, int size)
         {
+            this.managedObjectReferences = managedObjectReferences;
             this.dataPage = memoryManager.CreatePage(size);
             this.nextAllocation = this.dataPage.Start;
         }
@@ -76,6 +81,29 @@ namespace SharpJIT.Runtime.Memory
             else
             {
                 throw new ArgumentException("The pointer is outside of the heap.");
+            }
+        }
+
+        /// <summary>
+        /// Visits all the alive objects
+        /// </summary>
+        /// <param name="visitObjectReference">Called for each object reference</param>
+        public void VisitObjects(Action<ObjectReference> visitObjectReference)
+        {
+            var current = this.dataPage.Start;
+            while (current.ToInt64() < this.nextAllocation.ToInt64())
+            {
+                if (NativeHelpers.ReadByte(current + Constants.ManagedObjectReferenceSize) != 0xFF)
+                {
+                    var objectReference = new ObjectReference(this.managedObjectReferences, current + Constants.ObjectHeaderSize);
+                    visitObjectReference(objectReference);
+                    current += objectReference.FullSize;
+                }
+                else
+                {
+                    //Dead object
+                    current += NativeHelpers.ReadInt(current);
+                }
             }
         }
     }
