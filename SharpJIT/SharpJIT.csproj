@@ -89,11 +89,13 @@
     <Compile Include="Core\Objects\Field.cs" />
     <Compile Include="Core\SampleInstructionPass.cs" />
     <Compile Include="Loader\AssemblyLoader.cs" />
+    <Compile Include="Loader\ByteCodeParser.cs" />
     <Compile Include="Loader\Data\Assembly.cs" />
+    <Compile Include="Loader\Tokenizer.cs" />
     <Compile Include="Loader\Verifier.cs" />
-    <Compile Include="Runtime\Frame\CallStack.cs" />
-    <Compile Include="Runtime\Frame\StackFrame.cs" />
-    <Compile Include="Runtime\Frame\StackWalker.cs" />
+    <Compile Include="Runtime\Stack\CallStack.cs" />
+    <Compile Include="Runtime\Stack\StackFrame.cs" />
+    <Compile Include="Runtime\Stack\StackWalker.cs" />
     <Compile Include="Runtime\Memory\MemoryManager.cs" />
     <Compile Include="Compiler\NativeHelpers.cs" />
     <Compile Include="Compiler\Win64\CallingConvetions.cs" />
@@ -110,7 +112,6 @@
     <Compile Include="Core\Helpers\ListHelpers.cs" />
     <Compile Include="Runtime\NativeLibrary.cs" />
     <Compile Include="Core\Constants.cs" />
-    <Compile Include="Core\Helpers\SettingsHelpers.cs" />
     <Compile Include="Core\TypeProvider.cs" />
     <Compile Include="Runtime\Memory\CollectorGeneration.cs" />
     <Compile Include="Runtime\Memory\ManagedHeap.cs" />

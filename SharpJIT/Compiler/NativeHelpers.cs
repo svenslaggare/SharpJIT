@@ -57,7 +57,6 @@ namespace SharpJIT.Compiler
             }
         }
 
-
         /// <summary>
         /// Sets the given 8-bits integer
         /// </summary>
@@ -140,7 +139,7 @@ namespace SharpJIT.Compiler
         }
 
         /// <summary>
-        /// Reads the 8-bit int value of the given pointer
+        /// Reads a 8-bit int value from given pointer
         /// </summary>
         /// <param name="pointer">The pointer</param>
         /// <param name="offset">The offset (in bytes)</param>
@@ -150,7 +149,7 @@ namespace SharpJIT.Compiler
         }
 
         /// <summary>
-        /// Reads the 32-bit int value of the given pointer
+        /// Reads a 32-bit int value from given pointer
         /// </summary>
         /// <param name="pointer">The pointer</param>
         /// <param name="offset">The offset (in bytes)</param>
@@ -160,7 +159,7 @@ namespace SharpJIT.Compiler
         }
 
         /// <summary>
-        /// Reads the 64-bit int value of the given pointer
+        /// Reads a 64-bit int value from given pointer
         /// </summary>
         /// <param name="pointer">The pointer</param>
         /// <param name="offset">The offset (in bytes)</param>

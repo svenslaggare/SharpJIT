@@ -69,6 +69,8 @@
     <Compile Include="InstructionSet\TestArray.cs" />
     <Compile Include="InstructionSet\TestBool.cs" />
     <Compile Include="InstructionSet\TestClass.cs" />
+    <Compile Include="Parser\TestTokenizer.cs" />
+    <Compile Include="Parser\TestByteCodeParser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestHelpers.cs" />
     <Compile Include="TestProgramGenerator.cs" />
@@ -81,6 +83,14 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Parser\Tests\call.txt" />
+    <Content Include="Parser\Tests\callinstance.txt" />
+    <Content Include="Parser\Tests\int.txt" />
+    <Content Include="Parser\Tests\locals.txt" />
+    <Content Include="Parser\Tests\class.txt" />
+    <Content Include="Parser\Tests\member.txt" />
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

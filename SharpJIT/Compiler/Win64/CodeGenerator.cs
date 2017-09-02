@@ -8,7 +8,7 @@ using SharpAssembler.x64;
 using SharpJIT.Core;
 using SharpJIT.Core.Objects;
 using SharpJIT.Runtime;
-using SharpJIT.Runtime.Frame;
+using SharpJIT.Runtime.Stack;
 using SharpJIT.Runtime.Memory;
 
 namespace SharpJIT.Compiler.Win64
@@ -483,9 +483,9 @@ namespace SharpJIT.Compiler.Win64
         protected override void HandleLoadArgument(CompilationData compilationData, Instruction instruction, int index)
         {
             //Load rax with the argument
-            int argOffset = (instruction.IntValue + stackOffset) * -Assembler.RegisterSize;
-
-            compilationData.Assembler.Move(Register.AX, new MemoryOperand(Register.BP, argOffset));
+            compilationData.Assembler.Move(
+                Register.AX,
+                new MemoryOperand(Register.BP, (instruction.IntValue + stackOffset) * -Assembler.RegisterSize));
 
             //Push the loaded value
             compilationData.OperandStack.PushRegister(Register.AX);

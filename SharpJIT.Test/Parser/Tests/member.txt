@@ -1,0 +1,7 @@
+﻿member Point::add(Int Int) Int
+{
+	LDARG 0
+	LDARG 1
+	ADDINT
+	RET
+}

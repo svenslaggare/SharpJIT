@@ -39,7 +39,7 @@ namespace SharpJIT.Core
         BranchGreaterThan,
         BranchGreaterThanOrEqual,
         BranchLessThan,
-        BranchLessOrEqual,
+        BranchLessThanOrEqual,
         CompareEqual,
         CompareNotEqual,
         CompareGreaterThan,
@@ -128,7 +128,7 @@ namespace SharpJIT.Core
                 { OpCodes.BranchGreaterThan, "bgt" },
                 { OpCodes.BranchGreaterThanOrEqual, "bge" },
                 { OpCodes.BranchLessThan, "blt"  },
-                { OpCodes.BranchLessOrEqual, "ble" },
+                { OpCodes.BranchLessThanOrEqual, "ble" },
                 { OpCodes.CompareEqual, "cmpeq" },
                 { OpCodes.CompareNotEqual, "cmpne" },
                 { OpCodes.CompareGreaterThan, "cmpgt" },
@@ -283,7 +283,7 @@ namespace SharpJIT.Core
                     || instruction.OpCode == OpCodes.BranchGreaterThan
                     || instruction.OpCode == OpCodes.BranchGreaterThanOrEqual
                     || instruction.OpCode == OpCodes.BranchLessThan
-                    || instruction.OpCode == OpCodes.BranchLessOrEqual;
+                    || instruction.OpCode == OpCodes.BranchLessThanOrEqual;
         }
     }
 }

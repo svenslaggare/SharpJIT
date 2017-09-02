@@ -1,0 +1,7 @@
+﻿func add(Int Int) Int
+{
+	.locals 2
+	.local 0 Int
+	.local 1 Float
+	RET
+}

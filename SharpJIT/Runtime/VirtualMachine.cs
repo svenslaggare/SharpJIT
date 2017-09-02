@@ -9,8 +9,9 @@ using SharpJIT.Compiler;
 using SharpJIT.Core;
 using SharpJIT.Core.Objects;
 using SharpJIT.Loader;
-using SharpJIT.Runtime.Frame;
+using SharpJIT.Runtime.Stack;
 using SharpJIT.Runtime.Memory;
+using System.IO;
 
 namespace SharpJIT.Runtime
 {

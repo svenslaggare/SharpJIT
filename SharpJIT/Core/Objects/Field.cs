@@ -82,7 +82,6 @@ namespace SharpJIT.Core.Objects
         /// <param name="name">The name of the field</param>
         /// <param name="type">The type of the field</param>
         /// <param name="accessModifier">The access modifier</param>
-        /// <param name="layoutOffset">The offset for the field in the memory layout of the class</param>
         public FieldDefinition(string name, BaseType type, AccessModifier accessModifier)
         {
             this.Name = name;

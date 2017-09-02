@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using SharpJIT.Compiler;
 using SharpJIT.Core;
 
-namespace SharpJIT.Runtime.Frame
+namespace SharpJIT.Runtime.Stack
 {
     /// <summary>
     /// Represents an entry for the stack frame (argument, local, operand)

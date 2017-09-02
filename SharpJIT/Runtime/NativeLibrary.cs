@@ -18,6 +18,16 @@ namespace SharpJIT.Runtime
         delegate void FuncVoidArgInt(int x);
 
         /// <summary>
+        /// Delegate for a 'Fn(Float) Void' function.
+        /// </summary>
+        delegate void FuncVoidArgFloat(float x);
+
+        /// <summary>
+        /// Delegate for a 'Fn(Ref.Array[Int]) Void' function.
+        /// </summary>
+        delegate void FuncVoidArgArrayRef(long arrayRef);
+
+        /// <summary>
         /// Prints the given value
         /// </summary>
         /// <param name="value">The value</param>
@@ -27,11 +37,6 @@ namespace SharpJIT.Runtime
         }
 
         /// <summary>
-        /// Delegate for a 'Fn(Float) Void' function.
-        /// </summary>
-        delegate void FuncVoidArgFloat(float x);
-
-        /// <summary>
         /// Prints the given value
         /// </summary>
         /// <param name="value">The value</param>
@@ -39,11 +44,6 @@ namespace SharpJIT.Runtime
         {
             Console.WriteLine(value);
         }
-
-        /// <summary>
-        /// Delegate for a 'Fn(Ref.Array[Int]) Void' function.
-        /// </summary>
-        delegate void FuncVoidArgArrayRef(long arrayRef);
 
         /// <summary>
         /// Adds the native library to the given VM

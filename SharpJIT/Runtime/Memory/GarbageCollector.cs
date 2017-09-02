@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using SharpJIT.Compiler;
 using SharpJIT.Core;
-using SharpJIT.Runtime.Frame;
+using SharpJIT.Runtime.Stack;
 using SharpJIT.Runtime.Objects;
 
 namespace SharpJIT.Runtime.Memory

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using SharpJIT.Compiler;
 using SharpJIT.Core;
 
-namespace SharpJIT.Runtime.Frame
+namespace SharpJIT.Runtime.Stack
 {
     /// <summary>
     /// Delegate for visting an object reference

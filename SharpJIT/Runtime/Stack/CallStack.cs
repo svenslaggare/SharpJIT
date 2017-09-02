@@ -7,7 +7,7 @@ using SharpJIT.Compiler;
 using SharpJIT.Core;
 using SharpJIT.Runtime.Memory;
 
-namespace SharpJIT.Runtime.Frame
+namespace SharpJIT.Runtime.Stack
 {
     /// <summary>
     /// Represents an entry in the call stack

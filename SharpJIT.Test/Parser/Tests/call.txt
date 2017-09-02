@@ -1,0 +1,7 @@
+﻿func add(Int Int) Int
+{
+	LDARG 0
+	LDARG 1
+	CALL addInternal(Int Float)
+	RET
+}

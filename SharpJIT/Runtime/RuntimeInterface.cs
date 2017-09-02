@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using SharpJIT.Compiler;
 using SharpJIT.Compiler.Win64;
 using SharpJIT.Core;
-using SharpJIT.Runtime.Frame;
+using SharpJIT.Runtime.Stack;
 using SharpJIT.Runtime.Memory;
 using SharpJIT.Runtime.Objects;
 
@@ -194,6 +194,7 @@ namespace SharpJIT.Runtime
         {
             //throw new RuntimeException(message);
             //Environment.Exit(0);
+            Console.WriteLine(message);
             WinAPI.ExitProcess(0);
         }
 

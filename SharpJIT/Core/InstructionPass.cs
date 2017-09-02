@@ -104,7 +104,7 @@ namespace SharpJIT.Core
                 case OpCodes.BranchLessThan:
                     this.HandleBranchLessThan(data, instruction, index);
                     break;
-                case OpCodes.BranchLessOrEqual:
+                case OpCodes.BranchLessThanOrEqual:
                     this.HandleBranchLessThanOrEqual(data, instruction, index);
                     break;
                 case OpCodes.CompareEqual:
